@@ -9,7 +9,7 @@ classDiagram
     class SecurityPermission 
 
     %% Data Plane Processing Axis (The Brain & Muscle)
-    class QueryProcessing {
+    class QueryProcessor {
         <<Core Module>>
     }
     class ExecutionEngine {
@@ -36,7 +36,7 @@ classDiagram
     %% ========================================================
     DatabaseManagementSystem "1" *-- "1" DatabaseManagement
     DatabaseManagementSystem "1" *-- "1" SecurityPermission
-    DatabaseManagementSystem "1" *-- "1" QueryProcessing
+    DatabaseManagementSystem "1" *-- "1" QueryProcessor
     DatabaseManagementSystem "1" *-- "1" ExecutionEngine
     DatabaseManagementSystem "1" *-- "1" StorageEngine
     DatabaseManagementSystem "1" *-- "1" DurabilityData
@@ -50,11 +50,11 @@ classDiagram
     
     %% Gateway Plane Relations
     SecurityPermission "1" ..> "1" DatabaseManagement : Authorize
-    QueryProcessing "1" ..> "1" SecurityPermiss ion : Verify
-    QueryProcessing "1" ..> "1" DatabaseManagement : Validate
+    Processing "1" ..> "1" SecurityPermiss ion : Verify
+    QueryProcessor "1" ..> "1" DatabaseManagement : Validate
 
     %% Core Execution Plane Relations
-    QueryProcessing "1" ..> "1" ExecutionEngine
+    QueryProcessor "1" ..> "1" ExecutionEngine
     ExecutionEngine "1" ..> "1" PerformanceScalability : Allocate
     ExecutionEngine "1" ..> "1" StorageEngine : Fetch
 
