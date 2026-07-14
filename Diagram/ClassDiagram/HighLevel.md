@@ -1,9 +1,9 @@
 classDiagram
     %% Core System Engine Context
-    class DatabaseManagementSystem
+    class DatabaseCoreServerSystem
     
     %% Control Plane Modules
-    class DatabaseManagement {
+    class DatabaseCoreServer {
         <<Core Module>>
     }
     class SecurityPermission 
@@ -34,24 +34,24 @@ classDiagram
     %% ========================================================
     %% STRUCTURAL COMPOSITION WITH MULTIPLICITY
     %% ========================================================
-    DatabaseManagementSystem "1" *-- "1" DatabaseManagement
-    DatabaseManagementSystem "1" *-- "1" SecurityPermission
-    DatabaseManagementSystem "1" *-- "1" QueryProcessor
-    DatabaseManagementSystem "1" *-- "1" ExecutionEngine
-    DatabaseManagementSystem "1" *-- "1" StorageEngine
-    DatabaseManagementSystem "1" *-- "1" DurabilityData
-    DatabaseManagementSystem "1" *-- "1" PerformanceScalability
-    DatabaseManagementSystem "1" *-- "1" Monitoring
-    DatabaseManagementSystem "1" *-- "1" Automatic
+    DatabaseCoreServerSystem "1" *-- "1" DatabaseCoreServer
+    DatabaseCoreServerSystem "1" *-- "1" SecurityPermission
+    DatabaseCoreServerSystem "1" *-- "1" QueryProcessor
+    DatabaseCoreServerSystem "1" *-- "1" ExecutionEngine
+    DatabaseCoreServerSystem "1" *-- "1" StorageEngine
+    DatabaseCoreServerSystem "1" *-- "1" DurabilityData
+    DatabaseCoreServerSystem "1" *-- "1" PerformanceScalability
+    DatabaseCoreServerSystem "1" *-- "1" Monitoring
+    DatabaseCoreServerSystem "1" *-- "1" Automatic
 
     %% ========================================================
     %% ARCHITECTURAL DEPENDENCIES WITH ACTIONS & MULTIPLICITY
     %% ========================================================
     
     %% Gateway Plane Relations
-    SecurityPermission "1" ..> "1" DatabaseManagement : Authorize
+    SecurityPermission "1" ..> "1" DatabaseCoreServer : Authorize
     Processing "1" ..> "1" SecurityPermiss ion : Verify
-    QueryProcessor "1" ..> "1" DatabaseManagement : Validate
+    QueryProcessor "1" ..> "1" DatabaseCoreServer : Validate
 
     %% Core Execution Plane Relations
     QueryProcessor "1" ..> "1" ExecutionEngine
@@ -59,7 +59,7 @@ classDiagram
     ExecutionEngine "1" ..> "1" StorageEngine : Fetch
 
     %% Persistence Plane Relations
-    StorageEngine "1" ..> "1" DatabaseManagement : Persist
+    StorageEngine "1" ..> "1" DatabaseCoreServer : Persist
     StorageEngine "1" --> "1" DurabilityData : Enforce
     DurabilityData "1" --> "1" StorageEngine : Write
 
