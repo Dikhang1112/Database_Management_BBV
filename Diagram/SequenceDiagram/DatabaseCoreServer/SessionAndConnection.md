@@ -2,11 +2,11 @@ sequenceDiagram
     autonumber
     
     %% --- FIXED COMPONENT DECLARATIONS (ONLY ONE ROW AT THE TOP) ---
-    actor User as User:Application
-    participant GW as NetworkGateway:Facade
-    participant PP as TdsPacketParser:Decoder
-    participant SM as SessionManager:Factory
-    participant CTX as SessionContext:State
+    actor User as User
+    participant GW as NetworkGateway
+    participant PP as TdsPacketParser
+    participant SM as SessionManager
+    participant CTX as SessionContext
 
     %% --- PHASE 1: LOGIN (AUTHENTICATION & INITIALIZATION) ---
     Note over User, SM: PHASE 1: USER AUTHENTICATION & SESSION CREATION

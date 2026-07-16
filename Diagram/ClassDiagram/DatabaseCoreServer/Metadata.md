@@ -1,4 +1,5 @@
 classDiagram
+    direction TB
     %% --- CORE INTERFACES ---
     class MetadataEntity {
         <<interface>>

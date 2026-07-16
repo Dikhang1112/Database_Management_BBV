@@ -1,4 +1,5 @@
 classDiagram
+    direction TB
     %% --- CORE INTERFACES ---
     class DatabaseObject {
         <<interface>>
@@ -72,7 +73,7 @@ classDiagram
     %% Comment: Concrete implementation of data rules (PK, FK, Check Constraints)
 
     class Row {
-        -int rowID
+        -long rowID
         -List~Field~ fields
         +getFields() List~Field~
         +getFieldByColumnID(int columnID) Field

@@ -2,12 +2,12 @@ sequenceDiagram
     autonumber
     
     %% --- FIXED ARCHITECTURAL OBJECTS (TOP ROW ONLY) ---
-    actor User as User:Application
+    actor User as User
     participant EX as ExecutionEngine
     participant DC as MetadataDdlCompiler
     participant MC as ObjectMetadataCache
-    participant EVC as LruEviction:Strategy
-    participant TBL as Table:MetadataEntity
+    participant EVC as LruEviction
+    participant TBL as Table
 
     %% ==========================================
     %% --- SCENARIO A: DDL EXECUTION (CREATE TABLE) ---
