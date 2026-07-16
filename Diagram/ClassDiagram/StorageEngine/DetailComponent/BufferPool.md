@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction TB
 
@@ -45,3 +46,4 @@ classDiagram
     BufferPoolManager "1" *-- "*" Frame : allocates fixed memory array
     BufferPoolManager "1" *-- "1" PageReplacer : delegates eviction strategy
     PageReplacer <|.. ClockReplacer : implements enterprise memory swap
+```

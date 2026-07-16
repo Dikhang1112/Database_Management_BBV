@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction TB
     %% --- CORE INTERFACES ---
@@ -78,3 +79,4 @@ classDiagram
     ObjectMetadataCache "1" *-- "1" EvictionStrategy : delegates threshold-driven cache clearing
     ObjectMetadataCache "1" o-- "*" MetadataEntity : buffers reference pointers to active schema entities
     MetadataDdlCompiler ..> MetadataEntity : builds physical entities at runtime
+```

@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -46,3 +47,4 @@ sequenceDiagram
     
     EX-->>User: Acknowledge initialization success (Ready for data streaming)
     deactivate EX
+```

@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -52,3 +53,4 @@ sequenceDiagram
     EE-->>User: Return ResultSet bytes / RowCount success packet
     deactivate EE
 
+```

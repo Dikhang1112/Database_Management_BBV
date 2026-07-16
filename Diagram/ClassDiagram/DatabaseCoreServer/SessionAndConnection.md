@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction TB
     %% --- CORE INTERFACES ---
@@ -72,3 +73,4 @@ classDiagram
     NetworkGateway "1" *-- "*" SessionContextStateManager : tracks
     TdsPacketParser ..> NetworkPacket : creates
     NetworkGateway ..> NetworkPacket : processes
+```

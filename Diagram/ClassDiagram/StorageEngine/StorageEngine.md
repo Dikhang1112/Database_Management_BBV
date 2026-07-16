@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction LR
     %% ==========================================
@@ -60,3 +61,4 @@ classDiagram
     PageReplacer <|.. LruPageReplacer : implements swap strategy
     LockManager "1" *-- "*" LockRequest : tracks active tokens
     BufferPoolManager "1" o-- "*" DataPage : buffers active frames
+```

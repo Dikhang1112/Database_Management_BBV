@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -58,3 +59,4 @@ sequenceDiagram
         PE-->>QE: Execution Pipeline Initialized Successfully
         deactivate PE
     end
+```

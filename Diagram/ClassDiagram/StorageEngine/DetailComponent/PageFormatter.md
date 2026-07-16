@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction TB
 
@@ -42,3 +43,4 @@ classDiagram
     DataPage "1" *-- "1" SlottedPageFormatter : delegates byte mutations to
     SlottedPageFormatter ..> SlottedPageHeader : maps binary start to
     SlottedPageFormatter ..> PageSlotDirectory : grows array downward from header
+```

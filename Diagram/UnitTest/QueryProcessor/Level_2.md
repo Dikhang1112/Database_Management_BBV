@@ -1,3 +1,4 @@
+﻿```mermaid
 
 graph LR
     QP["QueryProcessor Unit Tests"] --> Lexer["SqlLexerTest"]

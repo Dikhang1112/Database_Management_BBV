@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -67,3 +68,4 @@ sequenceDiagram
     activate PG
     PG-->>EX: Return record bytes (byte[])
     deactivate PG
+```

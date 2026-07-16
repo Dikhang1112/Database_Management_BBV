@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction RL
 
@@ -70,3 +71,4 @@ classDiagram
     QueryIngestionEngine "1" *-- "1" QueryOptimizer : orchestrates plan optimization
     
     SyntaxParser "1" --> "1" SqlLexer : consumes tokens from
+```

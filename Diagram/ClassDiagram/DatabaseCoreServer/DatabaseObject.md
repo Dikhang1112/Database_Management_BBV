@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     direction TB
     %% --- CORE INTERFACES ---
@@ -111,3 +112,4 @@ classDiagram
     Table "1" ..> Row : instantiates and evaluates rows
     Row "1" *-- "*" Field : contains
     Field "1" --> "1" Column : maps to metadata definition
+```

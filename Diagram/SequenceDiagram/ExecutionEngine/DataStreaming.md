@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -51,3 +52,4 @@ sequenceDiagram
     Note over CTX: Unlocks user session,<br/>ready for next incoming SQL command
     CTX-->>User: Final EOF/RowCount transmission complete
     deactivate CTX
+```
