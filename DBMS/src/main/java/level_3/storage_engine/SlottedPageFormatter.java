@@ -121,4 +121,27 @@ public class SlottedPageFormatter {
         System.arraycopy(buffer, offset, record, 0, length);
         return record;
     }
+
+    /**
+     * Maps the page's binary start to a SlottedPageHeader object.
+     */
+    public SlottedPageHeader getHeader() {
+        return new SlottedPageHeader(
+            readPageID(),
+            readSlotCount(),
+            getFreeSpacePointer(),
+            getFreeSpaceEnd()
+        );
+    }
+
+    /**
+     * Maps a slot index to a PageSlotDirectory object.
+     */
+    public PageSlotDirectory getSlotDirectory(int slotNumber) {
+        return new PageSlotDirectory(
+            slotNumber,
+            getSlotOffset(slotNumber),
+            getSlotLength(slotNumber)
+        );
+    }
 }

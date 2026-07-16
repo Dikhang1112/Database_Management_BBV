@@ -1,7 +1,6 @@
-package database_core_server.interfaces;
+package level_2.database_core_server.interfaces;
+import level_2.database_core_server.*;
 
-import database_core_server.Field;
-
-public interface Constraint extends DatabaseObject {
-    boolean validate(Field field, Object newValue);
+public interface Constraint extends database_core_server.interfaces.DatabaseObject {
+    boolean validate(database_core_server.Field field, Object newValue);
 }

@@ -1,5 +1,4 @@
 package query_processor;
-
 public class SqlLexer {
     private String sqlText;
     private int currentPosition;
