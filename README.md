@@ -4,7 +4,7 @@ This project implements a full-fledged **Relational Database Management System (
 
 ---
 
-# 🏗️ Architecture
+# 🏗️ Mindmap Architecture
 
 ![DBMS Architecture](./Diagram/images/Mindmap.jpg)
 
@@ -126,19 +126,4 @@ sequenceDiagram
 
     EE-->>User: Return ResultSet bytes / RowCount success packet
     deactivate EE
-```
-
----
-
-# 📂 Project Structure
-
-```text
-src/
- ├── catalog/
- ├── execution/
- ├── query/
- ├── storage/
- ├── transaction/
- ├── security/
- └── monitoring/
 ```
