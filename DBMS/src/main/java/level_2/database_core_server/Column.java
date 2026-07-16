@@ -1,6 +1,6 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.DatabaseObject;
+import level_2.database_core_server.interfaces.DatabaseObject;
 
 public class Column implements DatabaseObject {
     private int columnID;

@@ -1,12 +1,11 @@
 package level_2.database_core_server;
 import level_2.database_core_server.interfaces.*;
-
 import java.util.*;
 
-public class DatabaseCatalog implements database_core_server.interfaces.SystemNode {
+public class DatabaseCatalog implements SystemNode {
     private int catalogID;
     private String catalogName;
-    private List<database_core_server.Schema> schemas;
+    private List<Schema> schemas;
 
     public DatabaseCatalog(int catalogID, String catalogName, List<Schema> schemas) {
         this.catalogID = catalogID;
@@ -26,11 +25,6 @@ public class DatabaseCatalog implements database_core_server.interfaces.SystemNo
 
     @Override
     public void addChild(DatabaseObject child) {
-    }
-
-    @Override
-    public void addChild(database_core_server.interfaces.DatabaseObject child) {
-
     }
 
     @Override

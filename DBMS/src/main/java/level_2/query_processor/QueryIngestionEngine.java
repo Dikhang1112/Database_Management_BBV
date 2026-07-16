@@ -1,7 +1,7 @@
-package query_processor;
+package level_2.query_processor;
 
-import database_core_server.interfaces.SessionContext;
-import execution_engine.interfaces.PlanExecutor;
+import level_2.database_core_server.interfaces.SessionContext;
+import level_2.execution_engine.interfaces.PlanExecutor;
 
 public class QueryIngestionEngine {
     private SyntaxParser parserComponent;

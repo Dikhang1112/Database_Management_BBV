@@ -1,4 +1,4 @@
-package query_processor;
+package level_2.query_processor;
 
 public class SqlLexerImpl extends SqlLexer {
     private String sqlText;
@@ -11,7 +11,7 @@ public class SqlLexerImpl extends SqlLexer {
     }
 
     @Override
-    public query_processor.Token nextToken() {
+    public Token nextToken() {
         // Skip whitespace
         while (currentPosition < sqlText.length() && Character.isWhitespace(sqlText.charAt(currentPosition))) {
             currentPosition++;

@@ -1,7 +1,7 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.DatabaseObject;
-import database_core_server.interfaces.SystemNode;
+import level_2.database_core_server.interfaces.DatabaseObject;
+import level_2.database_core_server.interfaces.SystemNode;
 import java.util.List;
 
 public class Schema implements SystemNode {

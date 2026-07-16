@@ -1,7 +1,7 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.DdlCompiler;
-import database_core_server.interfaces.MetadataEntity;
+import level_2.database_core_server.interfaces.DdlCompiler;
+import level_2.database_core_server.interfaces.MetadataEntity;
 
 public class MetadataDdlCompiler implements DdlCompiler {
     private ObjectMetadataCache cacheReference;

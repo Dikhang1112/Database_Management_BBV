@@ -1,8 +1,8 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.EvictionStrategy;
-import database_core_server.interfaces.MetadataCache;
-import database_core_server.interfaces.MetadataEntity;
+import level_2.database_core_server.interfaces.EvictionStrategy;
+import level_2.database_core_server.interfaces.MetadataCache;
+import level_2.database_core_server.interfaces.MetadataEntity;
 import java.util.Map;
 
 public class ObjectMetadataCache implements MetadataCache {

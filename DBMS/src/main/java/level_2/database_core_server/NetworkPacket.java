@@ -1,4 +1,4 @@
-package database_core_server;
+package level_2.database_core_server;
 
 public class NetworkPacket {
     private byte packetType;

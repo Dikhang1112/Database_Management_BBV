@@ -1,7 +1,7 @@
-package query_processor;
+package level_2.query_processor;
 
-import database_core_server.interfaces.MetadataCache;
-import database_core_server.interfaces.SessionContext;
+import level_2.database_core_server.interfaces.MetadataCache;
+import level_2.database_core_server.interfaces.SessionContext;
 
 public class QueryValidator {
     private MetadataCache metadataCacheReference;

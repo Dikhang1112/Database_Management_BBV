@@ -1,7 +1,7 @@
-package storage_engine;
+package level_2.storage_engine;
 
 import java.util.Map;
-import storage_engine.interfaces.PageReplacer;
+import level_2.storage_engine.interfaces.PageReplacer;
 
 public class BufferPoolManager {
     private Map<Integer, DataPage> pageCacheMap;

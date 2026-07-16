@@ -1,7 +1,7 @@
-package execution_engine.interfaces;
+package level_2.execution_engine.interfaces;
 
-import database_core_server.Row;
-import database_core_server.interfaces.SessionContext;
+import level_2.database_core_server.Row;
+import level_2.database_core_server.interfaces.SessionContext;
 
 public interface ResultStreamer {
     byte[] formatData(Row row);

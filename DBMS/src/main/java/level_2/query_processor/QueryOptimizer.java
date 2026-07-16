@@ -1,6 +1,6 @@
-package query_processor;
+package level_2.query_processor;
 
-import execution_engine.ExecutionPlan;
+import level_2.execution_engine.ExecutionPlan;
 
 public class QueryOptimizer {
     private int maxOptimizationTimeMs;

@@ -1,7 +1,7 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.EvictionStrategy;
-import database_core_server.interfaces.MetadataEntity;
+import level_2.database_core_server.interfaces.EvictionStrategy;
+import level_2.database_core_server.interfaces.MetadataEntity;
 import java.util.List;
 import java.util.Map;
 

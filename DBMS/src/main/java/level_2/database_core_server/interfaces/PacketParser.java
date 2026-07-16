@@ -1,6 +1,6 @@
-package database_core_server.interfaces;
+package level_2.database_core_server.interfaces;
 
-import database_core_server.NetworkPacket;
+import level_2.database_core_server.NetworkPacket;
 
 public interface PacketParser {
     NetworkPacket parseBuffer(byte[] rawBuffer);

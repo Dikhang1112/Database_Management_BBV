@@ -1,6 +1,6 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import database_core_server.interfaces.Constraint;
+import level_2.database_core_server.interfaces.Constraint;
 
 public class TableConstraint implements Constraint {
     private int constraintID;

@@ -1,6 +1,6 @@
-package database_core_server;
+package level_2.database_core_server;
 
-import interfaces.DatabaseObject;
+import level_2.database_core_server.interfaces.DatabaseObject;
 
 public class DataType implements DatabaseObject {
     private int dataTypeID;
@@ -23,5 +23,15 @@ public class DataType implements DatabaseObject {
 
     public int getByteSize() {
         return byteSize;
+    }
+
+    @Override
+    public int getObjectID() {
+        return 0;
+    }
+
+    @Override
+    public String getObjectName() {
+        return null;
     }
 }
