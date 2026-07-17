@@ -5,7 +5,7 @@ TokenStreamTests
 
 CreateStream["Create Stream"]
 EmptyStream["Empty Stream"]
-ConsumeSequential["Consume Sequential Tokens"]
+ConsumeSequential["Consum![img.png](img.png)e Sequential Tokens"]
 LookAheadBoundary["LookAhead Boundary"]
 ConsumeAfterEOF["Consume After EOF"]
 
