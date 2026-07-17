@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -15,16 +16,16 @@ sequenceDiagram
     User->>QP: Send raw SQL Text string (e.g., "INSERT INTO users...")
     activate QP
     
-    QP->>MC: validateAgainstCatalog() [Tra cứu siêu dữ liệu]
+    QP->>MC: validateAgainstCatalog()
     activate MC
-    Note over MC: Module 2 (Metadata Layer):<br/>Verifies if table/column exists on RAM<br/>and translates String name to int ObjectID
-    MC-->>QP: Return system schema validation status
+    Note over MC: Module 2 (Metadata)
+    MC-->>QP: Return schema validation status
     deactivate MC
 
     QP->>QP: Cost-Based Optimization (CBO)
-    Note over QP: Computes potential disk I/O costs<br/>and freezes an optimal physical ExecutionPlan
+    Note over QP: Computes I/O costs and creates ExecutionPlan
     
-    QP-->>EE: Dispatch immutable ExecutionPlan block
+    QP-->>EE: Dispatch ExecutionPlan
     deactivate QP
     activate EE
 
@@ -32,10 +33,10 @@ sequenceDiagram
     %% PHASE 2: RUNTIME VALIDATION (DATABASE OBJECTS)
     %% ========================================================
     Note over EE, MC: PHASE 2: SCHEMA CONFORMITY VALIDATION 
-    Note over EE: Module 3 (Execution Engine):<br/>Opens Volcano RowIterator pipes<br/>and maps dynamic variables into dynamic Row/Field
+    Note over EE: Module 3 (Execution Engine)
     
     EE->>EE: Table.validateRow(transientRow)
-    Note over EE: Module 1 (Database Object):<br/>Loops columns metadata and activates<br/>TableConstraint rules using Strategy Pattern
+    Note over EE: Module 1 (Database Object)
 
     %% ========================================================
     %% PHASE 3: PHYSICAL STORAGE I/O (STORAGE ENGINE)
@@ -44,10 +45,12 @@ sequenceDiagram
     EE->>SE: writeRowToDisk(validatedRow)
     activate SE
     
-    Note over SE: Module 4 (Storage Engine):<br/>1. LockManager requests Exclusive Lock (X)<br/>2. BufferPoolManager fetches target DataPage<br/>3. DiskFileManager flushes binary block to hardware
+    Note over SE: Module 4 (Storage Engine)
     
-    SE-->>EE: Write data in disk success
+    SE-->>EE: Write success
     deactivate SE
 
     EE-->>User: Return ResultSet bytes / RowCount success packet
     deactivate EE
+
+```

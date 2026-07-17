@@ -1,24 +1,95 @@
-# Compiled class file
+# ==========================================
+# Java
+# ==========================================
+
+# Compiled class files
 *.class
 
-# Log file
+# Log files
 *.log
 
-# BlueJ files
+# BlueJ
 *.ctxt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# ==========================================
+# Build Artifacts
+# ==========================================
+
+build/
+out/
+target/
+
+# Package files
 *.jar
 *.war
-*.nar
 *.ear
+*.nar
 *.zip
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# ==========================================
+# Gradle
+# ==========================================
+
+.gradle/
+
+# Keep Gradle Wrapper
+!gradle/wrapper/gradle-wrapper.jar
+
+# ==========================================
+# IntelliJ IDEA
+# ==========================================
+
+.idea/
+*.iml
+
+# Optional
+*.ipr
+*.iws
+
+# ==========================================
+# VS Code
+# ==========================================
+
+.vscode/
+
+# ==========================================
+# Eclipse
+# ==========================================
+
+.project
+.classpath
+.settings/
+
+# ==========================================
+# OS Files
+# ==========================================
+
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Environment
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Temporary Files
+# ==========================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo

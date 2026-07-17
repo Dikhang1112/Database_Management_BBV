@@ -1,4 +1,4 @@
-package storage_engine;
+package level_3.storage_engine;
 import java.nio.ByteBuffer;
 
 public class SlottedPageFormatter {
@@ -120,5 +120,28 @@ public class SlottedPageFormatter {
         byte[] record = new byte[length];
         System.arraycopy(buffer, offset, record, 0, length);
         return record;
+    }
+
+    /**
+     * Maps the page's binary start to a SlottedPageHeader object.
+     */
+    public SlottedPageHeader getHeader() {
+        return new SlottedPageHeader(
+            readPageID(),
+            readSlotCount(),
+            getFreeSpacePointer(),
+            getFreeSpaceEnd()
+        );
+    }
+
+    /**
+     * Maps a slot index to a PageSlotDirectory object.
+     */
+    public PageSlotDirectory getSlotDirectory(int slotNumber) {
+        return new PageSlotDirectory(
+            slotNumber,
+            getSlotOffset(slotNumber),
+            getSlotLength(slotNumber)
+        );
     }
 }

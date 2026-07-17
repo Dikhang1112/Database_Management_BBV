@@ -1,3 +1,4 @@
+﻿```mermaid
     classDiagram
         direction LR
 
@@ -91,3 +92,4 @@
         ResultStreamer <|.. TdsResultProcessor
 
         NestedLoopJoinOperator "1" *-- "2" RowIterator
+```

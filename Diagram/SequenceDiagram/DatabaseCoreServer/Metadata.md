@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -61,3 +62,4 @@ sequenceDiagram
     deactivate TBL
     
     EX-->>User: Send DML Success Packet ("Query OK, 1 row affected")
+```

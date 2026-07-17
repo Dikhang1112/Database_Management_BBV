@@ -1,15 +1,17 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
     %% --- FIXED ARCHITECTURAL OBJECTS (TOP ROW ONLY) ---
     participant QE as QueryIngestionEngine
+    participant SP as SyntaxParser
     participant SL as SqlLexer
     participant AST as AbstractSyntaxTree
 
     %% --- WORKFLOW: SQL PARSING PHASE ---
     Note over QE, AST: PHASE 1: SQL PARSING LAYER (LEXICAL & SYNTAX ANALYSIS)
     
-    QE->>SP: parseTree() - Complie sql string
+    QE->>SP: parseTree() - Compile sql string
     activate SP
     
     Note over SP: Parser initiates top-down grammar validation loop
@@ -31,3 +33,4 @@ sequenceDiagram
 
     SP-->>QE: Return compiled AbstractSyntaxTree (AST)
     deactivate SP
+```

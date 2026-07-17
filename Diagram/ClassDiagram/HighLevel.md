@@ -1,3 +1,4 @@
+﻿```mermaid
 classDiagram
     %% Core System Engine Context
     class DatabaseCoreServerSystem
@@ -50,7 +51,7 @@ classDiagram
     
     %% Gateway Plane Relations
     SecurityPermission "1" ..> "1" DatabaseCoreServer : Authorize
-    Processing "1" ..> "1" SecurityPermiss ion : Verify
+    QueryProcessor "1" ..> "1" SecurityPermission : Verify
     QueryProcessor "1" ..> "1" DatabaseCoreServer : Validate
 
     %% Core Execution Plane Relations
@@ -68,3 +69,4 @@ classDiagram
     Monitoring "1" ..> "1" ExecutionEngine : Track
     Monitoring "1" ..> "1" StorageEngine : Audit
     Monitoring "1" ..> "1" PerformanceScalability : Track
+```

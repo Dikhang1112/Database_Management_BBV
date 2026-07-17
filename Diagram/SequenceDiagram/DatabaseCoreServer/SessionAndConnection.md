@@ -1,3 +1,4 @@
+﻿```mermaid
 sequenceDiagram
     autonumber
     
@@ -40,3 +41,4 @@ sequenceDiagram
     %% --- QUERY ORDER: PACKET FIRST, STATE LAST ---
     GW-->>User: 13. Return ResultSet / RowCount bytes FIRST (Free up network buffer)
     GW->>CTX: 14. updateState("IDLE")
+```
