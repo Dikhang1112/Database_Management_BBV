@@ -4,126 +4,218 @@ This project implements a full-fledged **Relational Database Management System (
 
 ---
 
-# 🏗️ Mindmap Architecture
+#  Class diagram overview
 
-![DBMS Architecture](./Diagram/images/Mindmap.jpg)
-
----
-
-# 📐 High-Level Class Diagram
-
-```mermaid
+``` mermaid
 classDiagram
-    %% Core System Engine Context
-    class DatabaseCoreServerSystem
+    direction TD
+    %% =========================================================
+    %% SYSTEM MODULE BOUNDARIES
+    %% =========================================================
+    class DatabaseCoreServer { <<Module>> }
+    class QueryProcessor { <<Module>> }
+    class ExecutionEngine { <<Module>> }
+    class StorageEngine { <<Module>> }
+    class DurabilityData { <<Module>> }
+    class SecurityPermission { <<Module>> }
+    class PerformanceScalability { <<Module>> }
+    class Monitoring { <<Module>> }
+    class Automation { <<Module>> }
 
-    %% Control Plane Modules
-    class DatabaseCoreServer {
-        <<Core Module>>
+    %% =========================================================
+    %% 1. SYSTEM CATALOG & METADATA (SHARED LOGICAL DOMAIN)
+    %% =========================================================
+    class CatalogManager {
+        -Map<String,Database> databaseRegistry
+        +getDatabase(String name) Database
     }
-    class SecurityPermission
-
-    %% Data Plane Processing Axis
-    class QueryProcessor {
-        <<Core Module>>
+    class Database {
+        -String dbName
+        -Map<String,Schema> schemas
     }
-    class ExecutionEngine {
-        <<Core Module>>
+    class Schema {
+        -String schemaName
+        -Map<String,Table> tables
+        -Map<String,View> views
+    }
+    class Table {
+        -int tableID
+        -String tableName
+        -List<Column> columns
+        -List<Index> indexes
+    }
+    class Column {
+        -int columnID
+        -String columnName
+        -DataType dataType
+        -boolean isPrimaryKey
+    }
+    class Index {
+        -int indexID
+        -String indexName
+        -String indexType
+    }
+    class View {
+        -String viewName
+        -String definitionSql
+    }
+    class DataType {
+        <<enumeration>>
+        INT
+        VARCHAR
+        DATETIME
     }
 
-    %% Physical Data Plane
-    class StorageEngine {
-        <<Core Module>>
-    }
-    class DurabilityData {
-        <<Core Module>>
-    }
+    %% =========================================================
+    %% 2. DATABASE CORE SERVER
+    %% =========================================================
+    class DatabaseServer
+    class SessionManager
+    class ConnectionManager
+    class ConfigurationManager
 
-    %% Peripheral Services
-    class PerformanceScalability
-    class Monitoring
-    class Automatic
+    %% =========================================================
+    %% 3. QUERY PROCESSOR (DML COMPILER)
+    %% =========================================================
+    class SQLParser
+    class Lexer
+    class ASTBuilder
+    class QueryOptimizer
+    class StatisticsManager
 
-    DatabaseCoreServerSystem "1" *-- "1" DatabaseCoreServer
-    DatabaseCoreServerSystem "1" *-- "1" SecurityPermission
-    DatabaseCoreServerSystem "1" *-- "1" QueryProcessor
-    DatabaseCoreServerSystem "1" *-- "1" ExecutionEngine
-    DatabaseCoreServerSystem "1" *-- "1" StorageEngine
-    DatabaseCoreServerSystem "1" *-- "1" DurabilityData
-    DatabaseCoreServerSystem "1" *-- "1" PerformanceScalability
-    DatabaseCoreServerSystem "1" *-- "1" Monitoring
-    DatabaseCoreServerSystem "1" *-- "1" Automatic
+    %% =========================================================
+    %% 4. EXECUTION ENGINE (RELATIONAL OPERATORS)
+    %% =========================================================
+    class ExecutionPlanner
+    class ExecutionContext
+    class QueryExecutor
+    class OperatorPipeline
+    class ResultSet
+    
+    class ScanOperator
+    class FilterOperator
+    class JoinOperator
+    class AggregateOperator
+    class SortOperator
 
-    SecurityPermission ..> DatabaseCoreServer : Authorize
-    QueryProcessor ..> DatabaseCoreServer : Validate
-    QueryProcessor ..> ExecutionEngine
-    ExecutionEngine ..> PerformanceScalability : Allocate
-    ExecutionEngine ..> StorageEngine : Fetch
-    StorageEngine ..> DatabaseCoreServer : Persist
-    StorageEngine --> DurabilityData : Enforce
-    DurabilityData --> StorageEngine : Write
-    Automatic ..> DurabilityData : Backup
-    Monitoring ..> ExecutionEngine : Track
-    Monitoring ..> StorageEngine : Audit
-    Monitoring ..> PerformanceScalability : Track
+    %% =========================================================
+    %% 5. STORAGE ENGINE (PHYSICAL PERSISTENCE)
+    %% =========================================================
+    class FileManager
+    class PageManager
+    class BufferPoolManager
+    class BufferPool
+    class BufferFrame
+    class PageReplacer { <<Interface>> }
+    class ClockPageReplacer
+    class LockManager
+    class LockTable
+    class TransactionManager
+    class DataPage
+
+    %% =========================================================
+    %% 6. AUXILIARY SUBSYSTEMS (DURABILITY, SECURITY, ETC.)
+    %% =========================================================
+    class WALManager
+    class CheckpointManager
+    class RecoveryManager
+    class AuthenticationManager
+    class AuthorizationManager
+    class AuditManager
+    class CacheManager
+    class MemoryManager
+    class MetricsCollector
+    class AutoVacuum
+
+    %% =========================================================
+    %% COMPOSITION & INHERITANCE (MODULE INNER-STRUCTURE)
+    %% =========================================================
+    
+    %% Shared Metadata Tree
+    CatalogManager "1" *-- "*" Database
+    Database "1" *-- "*" Schema
+    Schema "1" *-- "*" Table
+    Schema "1" *-- "*" View
+    Table "1" *-- "*" Column
+    Table "1" *-- "*" Index
+    Column --> DataType
+
+    %% Module 1: Core Server
+    DatabaseCoreServer *-- DatabaseServer
+    DatabaseCoreServer *-- SessionManager
+    DatabaseCoreServer *-- ConnectionManager
+    DatabaseCoreServer *-- ConfigurationManager
+
+    %% Module 2: Query Processor
+    QueryProcessor *-- SQLParser
+    QueryProcessor *-- Lexer
+    QueryProcessor *-- ASTBuilder
+    QueryProcessor *-- QueryOptimizer
+    QueryProcessor *-- StatisticsManager
+
+    %% Module 3: Execution Engine
+    ExecutionEngine *-- ExecutionPlanner
+    ExecutionEngine *-- ExecutionContext
+    ExecutionEngine *-- QueryExecutor
+    ExecutionEngine *-- OperatorPipeline
+    ExecutionEngine *-- ResultSet
+    OperatorPipeline *-- ScanOperator
+    OperatorPipeline *-- FilterOperator
+    OperatorPipeline *-- JoinOperator
+    OperatorPipeline *-- AggregateOperator
+    OperatorPipeline *-- SortOperator
+
+    %% Module 4: Storage Engine
+    StorageEngine *-- FileManager
+    StorageEngine *-- PageManager
+    StorageEngine *-- BufferPoolManager
+    StorageEngine *-- LockManager
+    StorageEngine *-- TransactionManager
+    BufferPoolManager --> BufferPool
+    BufferPool *-- BufferFrame
+    BufferFrame *-- DataPage
+    PageReplacer <|.. ClockPageReplacer
+    BufferPoolManager --> PageReplacer
+    LockManager --> LockTable
+
+    %% Supporting Modules Composition
+    DurabilityData *-- WALManager
+    DurabilityData *-- CheckpointManager
+    DurabilityData *-- RecoveryManager
+    SecurityPermission *-- AuthenticationManager
+    SecurityPermission *-- AuthorizationManager
+    SecurityPermission *-- AuditManager
+    PerformanceScalability *-- CacheManager
+    PerformanceScalability *-- MemoryManager
+    Monitoring *-- MetricsCollector
+    Automation *-- AutoVacuum
+
+    %% =========================================================
+    %% CROSS-MODULE INTER-DEPENDENCIES (THE SYSTEM FLOW)
+    %% =========================================================
+    DatabaseServer --> SessionManager : Validates
+    SessionManager --> QueryProcessor : Passes SQL
+    
+    %% Nút thắt ranh giới: Query Processor mượn Catalog để Validate logic
+    QueryProcessor ..> CatalogManager : Reads Metadata Schema
+    QueryOptimizer --> StatisticsManager : Requests Data Density Cost
+    
+    %% Luồng kích hoạt thực thi
+    QueryProcessor --> ExecutionEngine : Dispatches Physical Plan
+    QueryExecutor --> OperatorPipeline : Drives Volcano Pull
+    
+    %% Tầng thực thi chọc xuống lưu trữ vật lý
+    OperatorPipeline --> BufferPoolManager : Fetches Data Pages
+    QueryExecutor --> TransactionManager : Begins/Commits Transaction
+    QueryExecutor --> LockManager : Requests Logical Locks
+    
+    %% Đồng bộ Transaction Log bền vững
+    TransactionManager --> WALManager : Forces Append-Only Log Flush
+    CheckpointManager --> BufferPoolManager : Flushes Dirty RAM Pages
+    RecoveryManager --> FileManager : Replays WAL Logs on Crash
+    
+    %% Phân quyền mức bảng
+    AuthorizationManager ..> Table : Verifies Access Rights
+
 ```
-
 ---
-
-# 🔄 High-Level Sequence Diagram
-
-```mermaid
-sequenceDiagram
-    autonumber
-    
-    %% --- FIXED ARCHITECTURAL OBJECTS (TOP ROW ONLY) ---
-    actor User as User
-    participant QP as QueryProcessor
-    participant MC as ObjectMetadataCache
-    participant EE as ExecutionEngine
-    participant SE as StorageEngine
-
-    %% ========================================================
-    %% PHASE 1: COMPILATION & OPTIMIZATION (QUERY PROCESSOR)
-    %% ========================================================
-    Note over User, SE: PHASE 1: QUERY COMPILE-TIME 
-    User->>QP: Send raw SQL Text string (e.g., "INSERT INTO users...")
-    activate QP
-    
-    QP->>MC: validateAgainstCatalog()
-    activate MC
-    Note over MC: Module 2 (Metadata)
-    MC-->>QP: Return schema validation status
-    deactivate MC
-
-    QP->>QP: Cost-Based Optimization (CBO)
-    Note over QP: Computes I/O costs and creates ExecutionPlan
-    
-    QP-->>EE: Dispatch ExecutionPlan
-    deactivate QP
-    activate EE
-
-    %% ========================================================
-    %% PHASE 2: RUNTIME VALIDATION (DATABASE OBJECTS)
-    %% ========================================================
-    Note over EE, MC: PHASE 2: SCHEMA CONFORMITY VALIDATION 
-    Note over EE: Module 3 (Execution Engine)
-    
-    EE->>EE: Table.validateRow(transientRow)
-    Note over EE: Module 1 (Database Object)
-
-    %% ========================================================
-    %% PHASE 3: PHYSICAL STORAGE I/O (STORAGE ENGINE)
-    %% ========================================================
-    Note over EE, SE: PHASE 3: TRANSACTION & PHYSICAL DISK WRITE 
-    EE->>SE: writeRowToDisk(validatedRow)
-    activate SE
-    
-    Note over SE: Module 4 (Storage Engine)
-    
-    SE-->>EE: Write success
-    deactivate SE
-
-    EE-->>User: Return ResultSet bytes / RowCount success packet
-    deactivate EE
-```
