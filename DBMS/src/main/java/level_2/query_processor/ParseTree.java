@@ -1,11 +1,11 @@
 package level_2.query_processor;
 
-public class Token {
-    public TokenType getType() {
+public class ParseTree {
+    public ParseTreeNode getRootNode() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public String getValue() {
+    public String toDebugString() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

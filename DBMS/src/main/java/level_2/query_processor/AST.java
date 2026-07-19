@@ -1,11 +1,11 @@
 package level_2.query_processor;
 
-public class Token {
-    public TokenType getType() {
+public class AST {
+    public ASTNode getRootASTNode() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public String getValue() {
+    public void traverseTree() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

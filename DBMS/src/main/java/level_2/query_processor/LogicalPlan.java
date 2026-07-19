@@ -1,11 +1,11 @@
 package level_2.query_processor;
 
-public class Token {
-    public TokenType getType() {
+public class LogicalPlan {
+    public void applyRule(String ruleName) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public String getValue() {
+    public LogicalPlanNode getLogicalRoot() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

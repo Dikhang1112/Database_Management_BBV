@@ -1,64 +1,178 @@
-﻿```mermaid
 classDiagram
     direction LR
-    %% ==========================================
-    %% LAYER 1: PHYSICAL STORAGE
-    %% ==========================================
-    class DiskFileManager {
-        -String dataDirectoryPath
-        +readPageFromDisk(int pageID) byte[]
-        +writePageToDisk(int pageID, byte[] pageData) void
+
+    %% =========================================================
+    %% PHYSICAL STORAGE LAYER
+    %% =========================================================
+
+    class FileManager {
+        +readPage(PageId id) DataPage
+        +writePage(DataPage page) void
+        +allocatePage() PageId
+        +deallocatePage(PageId id) void
+    }
+
+    class PageManager {
+        +createPage() DataPage
+        +formatPage(DataPage page) void
+        +splitPage(DataPage page) void
+        +mergePage(DataPage page) void
+    }
+
+    class PageFactory {
+        +createHeapPage() DataPage
+        +createIndexPage() DataPage
+        +createOverflowPage() DataPage
     }
 
     class DataPage {
-        -int pageID [PK]
-        -int tableID [FK]
-        -int slotCount
-        -byte[] binaryBuffer
-        +insertRecord(byte[] recordBytes) boolean
-        +getRecord(int slotNumber) byte[]
+        -PageId pageId
+        -PageHeader header
+        -SlotDirectory slotDirectory
+        -Tuple[] tuples
+        +insertRecord() void
+        +deleteRecord() void
+        +updateRecord() void
+        +readRecord() void
     }
 
-    %% ==========================================
-    %% LAYER 2: BUFFER POOL MANAGEMENT
-    %% ==========================================
+    class PageHeader {
+        -int pageSize
+        -int freeSpace
+        -PageType pageType
+    }
+
+    class SlotDirectory {
+        -Slot[] slots
+    }
+
+    class Tuple {
+        -RID rid
+        -byte[] payload
+    }
+
+    class PageId {
+        <<Value Object>>
+    }
+
+    class RID {
+        <<Value Object>>
+    }
+
+    class PageType {
+        <<enumeration>>
+    }
+
+    %% =========================================================
+    %% BUFFER POOL LAYER
+    %% =========================================================
+
     class BufferPoolManager {
-        -Map~Integer,DataPage~ pageCacheMap
-        -int poolCapacity
-        -PageReplacer currentReplacer
-        -DiskFileManager fileManagerReference
-        +fetchPage(int pageID) DataPage
-        +flushPage(int pageID) void
+        -BufferFrame[] frames
+        -PageReplacer replacer
+        -FileManager fileManager
+        -Map<Integer,DataPage> pageCacheMap
+        +fetchPage(PageId id) DataPage
+        +newPage() DataPage
+        +flushPage(PageId id) void
+        +pinPage(PageId id) void
+        +unpinPage(PageId id) void
+    }
+
+    class BufferFrame {
+        -DataPage page
+        -boolean dirty
+        -int pinCount
+    }
+
+    class BufferPool {
+        -BufferFrame[] frames
     }
 
     class PageReplacer {
-        <<interface>>
-        +selectVictimPage(Map~Integer,DataPage~ cacheMap) int
+        <<Interface>>
+        +selectVictimPage() BufferFrame
     }
 
-    class LruPageReplacer {
-        -List~Integer~ lruList
+    class LRUPageReplacer {
     }
 
-    %% ==========================================
-    %% LAYER 3: TRANSACTION CONCURRENCY
-    %% ==========================================
+    class ClockPageReplacer {
+    }
+
+    %% =========================================================
+    %% TRANSACTION CONCURRENCY
+    %% =========================================================
+
+    class TransactionManager {
+        +begin() void
+        +commit() void
+        +rollback() void
+    }
+
+    class Transaction {
+        -TransactionId transactionId
+        -TransactionState state
+    }
+
+    class TransactionId {
+        <<Value Object>>
+    }
+
+    class TransactionState {
+        <<enumeration>>
+    }
+
     class LockManager {
-        -Map~Integer,List~LockRequest~~ lockTable
-        +acquireLock(int resourceID, int txID, String lockMode) boolean
-        +releaseLock(int resourceID, int txID) void
+        -LockTable lockTable
+        +acquireLock() void
+        +releaseLock() void
+    }
+
+    class LockTable {
+        -Map<ResourceId,LockRequest[]> locks
     }
 
     class LockRequest {
-        -int transactionID
-        -String lockMode
-        -boolean isGranted
+        -Transaction transaction
+        -LockMode mode
+        -boolean granted
     }
 
-    %% ==========================================
-    %% CORE UML REALIZATIONS & CONNECTIONS
-    %% ==========================================
-    PageReplacer <|.. LruPageReplacer : implements swap strategy
-    LockManager "1" *-- "*" LockRequest : tracks active tokens
-    BufferPoolManager "1" o-- "*" DataPage : buffers active frames
-```
+    class LockMode {
+        <<enumeration>>
+    }
+
+    class ResourceId {
+        <<Value Object>>
+    }
+
+    %% =========================================================
+    %% RELATIONSHIPS
+    %% =========================================================
+
+    FileManager --> PageManager
+    PageManager --> PageFactory
+    PageFactory --> DataPage
+
+    DataPage *-- PageHeader
+    DataPage *-- SlotDirectory
+    DataPage *-- Tuple
+
+    BufferPoolManager --> FileManager
+    BufferPoolManager --> BufferPool
+    BufferPoolManager --> PageReplacer
+
+    BufferPool *-- BufferFrame
+    BufferFrame *-- DataPage
+
+    PageReplacer <|.. LRUPageReplacer
+    PageReplacer <|.. ClockPageReplacer
+
+    TransactionManager --> Transaction
+
+    LockManager --> LockTable
+    LockTable *-- LockRequest
+
+    LockRequest --> Transaction
+    LockRequest --> LockMode

@@ -1,11 +1,15 @@
 package level_2.query_processor;
 
-public class Token {
-    public TokenType getType() {
+public class TokenStream {
+    public boolean hasNext() {
+        return false;
+    }
+
+    public Token consume() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public String getValue() {
+    public Token lookAhead() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }
