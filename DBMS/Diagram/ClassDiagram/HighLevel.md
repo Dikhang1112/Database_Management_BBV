@@ -21,7 +21,7 @@ classDiagram
         <<Module>>
     }
 
-    class MetadataModule {
+    class Metadata {
         <<Module>>
     }
 
@@ -146,14 +146,14 @@ classDiagram
 %% =========================================================
 
 %% Metadata Module Composition
-    MetadataModule *-- CatalogManager
-    MetadataModule *-- Database
-    MetadataModule *-- Schema
-    MetadataModule *-- Table
-    MetadataModule *-- Column
-    MetadataModule *-- Index
-    MetadataModule *-- View
-    MetadataModule *-- DataType
+    Metadata *-- CatalogManager
+    Metadata *-- Database
+    Metadata *-- Schema
+    Metadata *-- Table
+    Metadata *-- Column
+    Metadata *-- Index
+    Metadata *-- View
+    Metadata *-- DataType
 
     CatalogManager *-- Database
     Database *-- Schema
@@ -229,7 +229,7 @@ classDiagram
     SessionManager --> QueryProcessor
 
 %% Query Processor interacts with Metadata Module instead of loose inner objects
-    QueryProcessor ..> MetadataModule : "Validates Schemas & Tables via Catalog"
+    QueryProcessor ..> Metadata : "Validates Schemas & Tables via Catalog"
     QueryOptimizer --> StatisticsManager
 
     QueryProcessor --> ExecutionEngine
@@ -247,5 +247,5 @@ classDiagram
     RecoveryManager --> FileManager
 
 %% Security & Permissions link to Metadata
-    AuthorizationManager ..> MetadataModule : "Verifies Permissions on Tables"
+    AuthorizationManager ..> Metadata : "Verifies Permissions on Tables"
 ```

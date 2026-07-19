@@ -6,216 +6,256 @@ This project implements a full-fledged **Relational Database Management System (
 
 #  Class diagram overview
 
-``` mermaid
+```mermaid
 classDiagram
     direction TD
-    %% =========================================================
-    %% SYSTEM MODULE BOUNDARIES
-    %% =========================================================
-    class DatabaseCoreServer { <<Module>> }
-    class QueryProcessor { <<Module>> }
-    class ExecutionEngine { <<Module>> }
-    class StorageEngine { <<Module>> }
-    class DurabilityData { <<Module>> }
-    class SecurityPermission { <<Module>> }
-    class PerformanceScalability { <<Module>> }
-    class Monitoring { <<Module>> }
-    class Automation { <<Module>> }
 
-    %% =========================================================
-    %% 1. SYSTEM CATALOG & METADATA (SHARED LOGICAL DOMAIN)
-    %% =========================================================
-    class CatalogManager {
-        -Map<String,Database> databaseRegistry
-        +getDatabase(String name) Database
-    }
-    class Database {
-        -String dbName
-        -Map<String,Schema> schemas
-    }
-    class Schema {
-        -String schemaName
-        -Map<String,Table> tables
-        -Map<String,View> views
-    }
-    class Table {
-        -int tableID
-        -String tableName
-        -List<Column> columns
-        -List<Index> indexes
-    }
-    class Column {
-        -int columnID
-        -String columnName
-        -DataType dataType
-        -boolean isPrimaryKey
-    }
-    class Index {
-        -int indexID
-        -String indexName
-        -String indexType
-    }
-    class View {
-        -String viewName
-        -String definitionSql
-    }
-    class DataType {
-        <<enumeration>>
-        INT
-        VARCHAR
-        DATETIME
+%% =========================================================
+%% SYSTEM MODULE BOUNDARIES
+%% =========================================================
+    class DatabaseCoreServer {
+        <<Module>>
     }
 
-    %% =========================================================
-    %% 2. DATABASE CORE SERVER
-    %% =========================================================
+    class QueryProcessor {
+        <<Module>>
+    }
+
+    class ExecutionEngine {
+        <<Module>>
+    }
+
+    class StorageEngine {
+        <<Module>>
+    }
+
+    class MetadataModule {
+        <<Module>>
+    }
+
+    class DurabilityData {
+        <<Module>>
+    }
+
+    class SecurityPermission {
+        <<Module>>
+    }
+
+    class PerformanceScalability {
+        <<Module>>
+    }
+
+    class Monitoring {
+        <<Module>>
+    }
+
+    class Automation {
+        <<Module>>
+    }
+
+%% =========================================================
+%% METADATA MODULE INNER COMPONENTS
+%% =========================================================
+    class CatalogManager
+    class Database
+    class Schema
+    class Table
+    class Column
+    class Index
+    class View
+    class DataType{
+        <<Enumeration>>
+    }
+
+%% =========================================================
+%% DATABASE CORE SERVER INNER COMPONENTS
+%% =========================================================
     class DatabaseServer
     class SessionManager
     class ConnectionManager
     class ConfigurationManager
 
-    %% =========================================================
-    %% 3. QUERY PROCESSOR (DML COMPILER)
-    %% =========================================================
-    class SQLParser
+%% =========================================================
+%% QUERY PROCESSOR INNER COMPONENTS
+%% =========================================================
     class Lexer
+    class SQLParser
     class ASTBuilder
     class QueryOptimizer
     class StatisticsManager
 
-    %% =========================================================
-    %% 4. EXECUTION ENGINE (RELATIONAL OPERATORS)
-    %% =========================================================
+%% =========================================================
+%% EXECUTION ENGINE INNER COMPONENTS
+%% =========================================================
     class ExecutionPlanner
     class ExecutionContext
     class QueryExecutor
     class OperatorPipeline
     class ResultSet
-    
+
     class ScanOperator
     class FilterOperator
     class JoinOperator
     class AggregateOperator
     class SortOperator
 
-    %% =========================================================
-    %% 5. STORAGE ENGINE (PHYSICAL PERSISTENCE)
-    %% =========================================================
+%% =========================================================
+%% STORAGE ENGINE INNER COMPONENTS
+%% =========================================================
     class FileManager
     class PageManager
     class BufferPoolManager
     class BufferPool
     class BufferFrame
-    class PageReplacer { <<Interface>> }
+
+    class PageReplacer{
+        <<Interface>>
+    }
+
     class ClockPageReplacer
+
     class LockManager
     class LockTable
     class TransactionManager
     class DataPage
 
-    %% =========================================================
-    %% 6. AUXILIARY SUBSYSTEMS (DURABILITY, SECURITY, ETC.)
-    %% =========================================================
+%% =========================================================
+%% DURABILITY INNER COMPONENTS
+%% =========================================================
     class WALManager
     class CheckpointManager
     class RecoveryManager
+
+%% =========================================================
+%% SECURITY INNER COMPONENTS
+%% =========================================================
     class AuthenticationManager
     class AuthorizationManager
     class AuditManager
+
+%% =========================================================
+%% PERFORMANCE INNER COMPONENTS
+%% =========================================================
     class CacheManager
     class MemoryManager
+
+%% =========================================================
+%% MONITORING INNER COMPONENTS
+%% =========================================================
     class MetricsCollector
+
+%% =========================================================
+%% AUTOMATION INNER COMPONENTS
+%% =========================================================
     class AutoVacuum
 
-    %% =========================================================
-    %% COMPOSITION & INHERITANCE (MODULE INNER-STRUCTURE)
-    %% =========================================================
-    
-    %% Shared Metadata Tree
-    CatalogManager "1" *-- "*" Database
-    Database "1" *-- "*" Schema
-    Schema "1" *-- "*" Table
-    Schema "1" *-- "*" View
-    Table "1" *-- "*" Column
-    Table "1" *-- "*" Index
+%% =========================================================
+%% MODULE COMPOSITION
+%% =========================================================
+
+%% Metadata Module Composition
+    MetadataModule *-- CatalogManager
+    MetadataModule *-- Database
+    MetadataModule *-- Schema
+    MetadataModule *-- Table
+    MetadataModule *-- Column
+    MetadataModule *-- Index
+    MetadataModule *-- View
+    MetadataModule *-- DataType
+
+    CatalogManager *-- Database
+    Database *-- Schema
+    Schema *-- Table
+    Schema *-- View
+    Table *-- Column
+    Table *-- Index
     Column --> DataType
 
-    %% Module 1: Core Server
+%% Database Core Server Composition
     DatabaseCoreServer *-- DatabaseServer
     DatabaseCoreServer *-- SessionManager
     DatabaseCoreServer *-- ConnectionManager
     DatabaseCoreServer *-- ConfigurationManager
 
-    %% Module 2: Query Processor
-    QueryProcessor *-- SQLParser
+%% Query Processor Composition
     QueryProcessor *-- Lexer
+    QueryProcessor *-- SQLParser
     QueryProcessor *-- ASTBuilder
     QueryProcessor *-- QueryOptimizer
     QueryProcessor *-- StatisticsManager
 
-    %% Module 3: Execution Engine
+%% Execution Engine Composition
     ExecutionEngine *-- ExecutionPlanner
     ExecutionEngine *-- ExecutionContext
     ExecutionEngine *-- QueryExecutor
     ExecutionEngine *-- OperatorPipeline
     ExecutionEngine *-- ResultSet
+
     OperatorPipeline *-- ScanOperator
     OperatorPipeline *-- FilterOperator
     OperatorPipeline *-- JoinOperator
     OperatorPipeline *-- AggregateOperator
     OperatorPipeline *-- SortOperator
 
-    %% Module 4: Storage Engine
+%% Storage Engine Composition
     StorageEngine *-- FileManager
     StorageEngine *-- PageManager
     StorageEngine *-- BufferPoolManager
     StorageEngine *-- LockManager
     StorageEngine *-- TransactionManager
+
     BufferPoolManager --> BufferPool
     BufferPool *-- BufferFrame
     BufferFrame *-- DataPage
+
     PageReplacer <|.. ClockPageReplacer
     BufferPoolManager --> PageReplacer
+
     LockManager --> LockTable
 
-    %% Supporting Modules Composition
+%% Infrastructure Modules Compositions
     DurabilityData *-- WALManager
     DurabilityData *-- CheckpointManager
     DurabilityData *-- RecoveryManager
+
     SecurityPermission *-- AuthenticationManager
     SecurityPermission *-- AuthorizationManager
     SecurityPermission *-- AuditManager
+
     PerformanceScalability *-- CacheManager
     PerformanceScalability *-- MemoryManager
+
     Monitoring *-- MetricsCollector
+
     Automation *-- AutoVacuum
 
-    %% =========================================================
-    %% CROSS-MODULE INTER-DEPENDENCIES (THE SYSTEM FLOW)
-    %% =========================================================
-    DatabaseServer --> SessionManager : Validates
-    SessionManager --> QueryProcessor : Passes SQL
-    
-    %% Nút thắt ranh giới: Query Processor mượn Catalog để Validate logic
-    QueryProcessor ..> CatalogManager : Reads Metadata Schema
-    QueryOptimizer --> StatisticsManager : Requests Data Density Cost
-    
-    %% Luồng kích hoạt thực thi
-    QueryProcessor --> ExecutionEngine : Dispatches Physical Plan
-    QueryExecutor --> OperatorPipeline : Drives Volcano Pull
-    
-    %% Tầng thực thi chọc xuống lưu trữ vật lý
-    OperatorPipeline --> BufferPoolManager : Fetches Data Pages
-    QueryExecutor --> TransactionManager : Begins/Commits Transaction
-    QueryExecutor --> LockManager : Requests Logical Locks
-    
-    %% Đồng bộ Transaction Log bền vững
-    TransactionManager --> WALManager : Forces Append-Only Log Flush
-    CheckpointManager --> BufferPoolManager : Flushes Dirty RAM Pages
-    RecoveryManager --> FileManager : Replays WAL Logs on Crash
-    
-    %% Phân quyền mức bảng
-    AuthorizationManager ..> Table : Verifies Access Rights
+%% =========================================================
+%% CROSS MODULE DEPENDENCIES
+%% =========================================================
 
+    DatabaseServer --> SessionManager
+    SessionManager --> QueryProcessor
+
+%% Query Processor interacts with Metadata Module instead of loose inner objects
+    QueryProcessor ..> MetadataModule : "Validates Schemas & Tables via Catalog"
+    QueryOptimizer --> StatisticsManager
+
+    QueryProcessor --> ExecutionEngine
+
+    QueryExecutor --> OperatorPipeline
+    OperatorPipeline --> BufferPoolManager
+
+    QueryExecutor --> TransactionManager
+    QueryExecutor --> LockManager
+
+    TransactionManager --> WALManager
+
+    CheckpointManager --> BufferPoolManager
+
+    RecoveryManager --> FileManager
+
+%% Security & Permissions link to Metadata
+    AuthorizationManager ..> MetadataModule : "Verifies Permissions on Tables"
 ```
 ---
+
