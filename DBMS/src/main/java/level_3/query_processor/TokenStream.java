@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TokenStream {
-    private List<Token> tokenList;
+    private final List<Token> tokenList;
     private int headPointer;
 
     public TokenStream() {
