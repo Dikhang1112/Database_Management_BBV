@@ -1,98 +1,28 @@
-flowchart TD
-
-%% =====================================================
-%% LEXICAL ANALYSIS
-%% =====================================================
-
-Lexer["Lexer"]
-TokenStream["Token Stream"]
-
-%% =====================================================
-%% SYNTAX ANALYSIS
-%% =====================================================
-
-SQLParser["SQL Parser"]
-ParseTree["Parse Tree"]
-
-%% =====================================================
-%% AST CONSTRUCTION
-%% =====================================================
-
-ASTBuilder["AST Builder"]
-AST["Abstract Syntax Tree"]
-
-%% =====================================================
-%% SEMANTIC ANALYSIS
-%% =====================================================
-
-SemanticAnalyzer["Semantic Analyzer"]
-NameResolver["Name Resolver"]
-TypeChecker["Type Checker"]
-
-%% =====================================================
-%% QUERY OPTIMIZER
-%% =====================================================
-
-QueryOptimizer["Query Optimizer"]
-LogicalPlan["Logical Plan"]
-CostEstimator["Cost Estimator"]
-StatisticsManager["Statistics Manager"]
-PlanGenerator["Physical Plan Generator"]
-PhysicalPlan["Physical Plan"]
-
-%% =====================================================
-%% EXTERNAL MODULES
-%% =====================================================
-
-MetadataModule["Metadata Module"]
-ExecutionEngine["Execution Engine"]
-ResultSet["Result Set"]
-
-%% =====================================================
-%% MAIN PIPELINE
-%% =====================================================
-
-Lexer --> TokenStream
-
-TokenStream --> SQLParser
-
-SQLParser --> ParseTree
-
-ParseTree --> ASTBuilder
-
-ASTBuilder --> AST
-
-AST --> SemanticAnalyzer
-
-SemanticAnalyzer --> QueryOptimizer
-
-QueryOptimizer --> LogicalPlan
-
-LogicalPlan --> CostEstimator
-
-CostEstimator --> StatisticsManager
-
-CostEstimator --> PlanGenerator
-
-PlanGenerator --> PhysicalPlan
-
-PhysicalPlan --> ExecutionEngine
-
-ExecutionEngine --> ResultSet
-
-%% =====================================================
-%% INTERNAL RESPONSIBILITIES
-%% =====================================================
-
-SemanticAnalyzer -. delegates .-> NameResolver
-SemanticAnalyzer -. delegates .-> TypeChecker
-
-%% =====================================================
-%% METADATA LOOKUPS
-%% =====================================================
-
-NameResolver -. lookup .-> MetadataModule
-TypeChecker -. validate .-> MetadataModule
-QueryOptimizer -. statistics .-> MetadataModule
-StatisticsManager -. metadata .-> MetadataModule
+```mermaid
+mindmap
+  root((QueryProcessor Architecture))
+    LexicalAnalysis["Lexical Analysis Division"]
+      Lexer["Lexer"]
+      TokenStream["TokenStream"]
+      Token["Token"]
+    SyntaxAnalysis["Syntax Analysis Division"]
+      SQLParser["SQLParser"]
+      ParseTree["ParseTree"]
+    ASTConstruction["AST Construction Division"]
+      ASTBuilder["ASTBuilder"]
+      AST["AST"]
+    SemanticAnalysis["Semantic Analysis Division"]
+      SemanticAnalyzer["SemanticAnalyzer"]
+      NameResolver["NameResolver"]
+      TypeChecker["TypeChecker"]
+    QueryOptimizerDivision["Query Optimizer Division"]
+      QueryOptimizer["QueryOptimizer"]
+      LogicalPlan["LogicalPlan"]
+      PhysicalPlan["PhysicalPlan"]
+      CostEstimator["CostEstimator"]
+      PlanGenerator["PlanGenerator"]
+      StatisticsManager["StatisticsManager"]
+    ExternalContextBoundaries["External Context Boundaries"]
+      MetadataModule["MetadataModule"]
+      ExecutionEngine["ExecutionEngine"]
 ```
