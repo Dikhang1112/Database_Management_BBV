@@ -1,15 +1,15 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Client as Client / QueryProcessor
+    actor Client as "Client / QueryProcessor"
     participant Parser as SQLParser
     participant TS as TokenStream
     participant T as Token
-    participant AST as AST
-    participant SelectNode as SelectASTNode
-    participant BinOpNode as BinaryOpASTNode
     participant IdNode as IdentifierASTNode
     participant LitNode as LiteralASTNode
+    participant BinOpNode as BinaryOpASTNode
+    participant SelectNode as SelectASTNode
+    participant AST as AST
 
     %% =====================================================
     %% GIAI ĐOẠN 1: LEXICAL STREAM CONSUMPTION
@@ -48,7 +48,7 @@ sequenceDiagram
     %% GIAI ĐOẠN 2: AST NODE TREE CONSTRUCTION
     %% (Xây dựng các nút cây AST đa hình & biểu thức điều kiện)
     %% =====================================================
-    Note over Parser, LitNode: Phase 2: Building AST Nodes & Expression Tree
+    Note over Parser, SelectNode: Phase 2: Building AST Nodes & Expression Tree
 
     %% Parsing Identifier AST Node
     Parser->>TS: consume()
@@ -56,7 +56,6 @@ sequenceDiagram
     TS-->>Parser: Token (Identifier: "age")
     deactivate TS
 
-    create participant IdNode as IdentifierASTNode
     Parser->>IdNode: new IdentifierASTNode("age")
     IdNode-->>Parser: instance
     Parser->>IdNode: getValue()
@@ -70,7 +69,6 @@ sequenceDiagram
     TS-->>Parser: Token (Literal: "18")
     deactivate TS
 
-    create participant LitNode as LiteralASTNode
     Parser->>LitNode: new LiteralASTNode("18", "INTEGER")
     LitNode-->>Parser: instance
     Parser->>LitNode: getValue()
@@ -83,7 +81,6 @@ sequenceDiagram
     deactivate LitNode
 
     %% Parsing Binary Operation AST Node
-    create participant BinOpNode as BinaryOpASTNode
     Parser->>BinOpNode: new BinaryOpASTNode(">", leftNode: IdentifierASTNode, rightNode: LiteralASTNode)
     BinOpNode-->>Parser: instance
     Parser->>BinOpNode: getOperatorType()
@@ -100,7 +97,6 @@ sequenceDiagram
     deactivate BinOpNode
 
     %% Parsing Select AST Node
-    create participant SelectNode as SelectASTNode
     Parser->>SelectNode: new SelectASTNode("users", projectionFields, whereCondition: BinaryOpASTNode)
     SelectNode-->>Parser: instance
     Parser->>SelectNode: getTableName()
@@ -121,7 +117,6 @@ sequenceDiagram
     %% (Đóng gói nút gốc vào đối tượng AST)
     %% =====================================================
     Note over Parser, AST: Phase 3: Root AST Encapsulation
-    create participant AST as AST
     Parser->>AST: new AST(rootASTNode: SelectASTNode)
     AST-->>Parser: instance
 
