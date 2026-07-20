@@ -1,6 +1,6 @@
 # DBMS High-Level System Architecture
 
-This document provides a high-level architectural view of the Relational Database Management System (DBMS) structured and formatted into **Mermaid Flowcharts** and **Mermaid Class Diagrams** based on system modules defined in [HighLevel.md](file:///d:/BBV/Database_Management_BBV/DBMS/Diagram/ClassDiagram/HighLevel.md), [Metadata.md](file:///d:/BBV/Database_Management_BBV/DBMS/Diagram/ClassDiagram/Metadata/Metadata.md), and [QueryProcessor.md](file:///d:/BBV/Database_Management_BBV/DBMS/Diagram/ClassDiagram/QueryProcessor/QueryProcessor.md).
+This document provides a high-level architectural view of the Relational Database Management System (DBMS) structured and formatted into **Mermaid Flowcharts** and **Mermaid Class Diagrams** based on system modules defined.
 
 ---
 

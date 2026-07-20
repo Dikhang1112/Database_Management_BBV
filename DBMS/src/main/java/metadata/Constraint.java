@@ -28,4 +28,8 @@ public abstract class Constraint {
     public void disable() {
         this.enabled = false;
     }
+
+    public String getConstraintName() {
+        return constraintName;
+    }
 }

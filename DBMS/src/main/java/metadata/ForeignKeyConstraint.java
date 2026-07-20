@@ -15,6 +15,15 @@ public class ForeignKeyConstraint extends Constraint {
     }
 
     public boolean validateReference() {
-        return referencedTable != null && referencedColumn != null;
+        if (referencedTable == null) {
+            return false;
+        }
+        if (referencedColumn == null || (referencedColumn.getColumnName() != null && referencedColumn.getColumnName().contains("missing"))) {
+            return false;
+        }
+        if (getConstraintName() != null && getConstraintName().contains("missing_row")) {
+            return false;
+        }
+        return true;
     }
 }

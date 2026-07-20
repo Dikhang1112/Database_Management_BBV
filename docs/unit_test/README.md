@@ -1,7 +1,6 @@
 # DBMS Unit Test Scenarios & Test Coverage Architecture
 
-This document provides a roadmap of all unit test scenarios across all DBMS system modules defined in [HighLevel.md](file:///d:/BBV/Database_Management_BBV/docs/class_diagram/HighLevel.md).
-
+This document provides a comprehensive roadmap of all unit test scenarios across all DBMS system modules and class/interface components.
 ---
 
 ## 1. Summary Testcase Statistics Tables
@@ -10,64 +9,17 @@ This document provides a roadmap of all unit test scenarios across all DBMS syst
 
 | STT | Module | Number of Test Classes | Total Testcases | Status |
 |:---:|:---|:---:|:---:|:---:|
-| 1 | Metadata | 7 | 33 | Doing |
-| 2 | Query Processor | 8 | 22 | Doing |
-| 3 | Database Core Server | 4 | 12 | Planned |
-| 4 | Execution Engine | 5 | 14 | Planned |
-| 5 | Storage Engine | 6 | 14 | Planned |
-| 6 | Durability & Recovery | 3 | 8 | Planned |
-| 7 | Security & Permissions | 3 | 6 | Planned |
-| 8 | Performance & Scalability | 2 | 5 | Planned |
-| 9 | Monitoring | 1 | 3 | Planned |
-| 10 | Automation | 1 | 3 | Planned |
-| **Total** | **10 Modules** | **40 Classes** | **120 Testcases** | |
-
----
-
-### Table 2: Detailed Statistics by Test Class
-
-| Module | Test Class | Testcases Count |
-|:---|:---|:---:|
-| Metadata | CatalogManagerTest | 8 |
-| Metadata | DatabaseTest | 5 |
-| Metadata | SchemaTest | 4 |
-| Metadata | TableTest | 5 |
-| Metadata | ColumnTest | 3 |
-| Metadata | IndexTest | 3 |
-| Metadata | ConstraintTest | 5 |
-| Query Processor | LexerTest | 2 |
-| Query Processor | TokenStreamTest | 4 |
-| Query Processor | TokenTest | 2 |
-| Query Processor | SQLParserTest | 3 |
-| Query Processor | ASTTest | 2 |
-| Query Processor | ASTNodeTest | 4 |
-| Query Processor | QueryOptimizerTest | 3 |
-| Query Processor | StatisticsManagerTest | 2 |
-| Database Core Server | DatabaseServerTest | 3 |
-| Database Core Server | SessionManagerTest | 3 |
-| Database Core Server | ConnectionManagerTest | 3 |
-| Database Core Server | ConfigurationManagerTest | 3 |
-| Execution Engine | ExecutionPlannerTest | 2 |
-| Execution Engine | ExecutionContextTest | 2 |
-| Execution Engine | QueryExecutorTest | 2 |
-| Execution Engine | OperatorPipelineTest | 5 |
-| Execution Engine | ResultSetTest | 3 |
-| Storage Engine | FileManagerTest | 2 |
-| Storage Engine | PageManagerTest | 2 |
-| Storage Engine | BufferPoolManagerTest | 3 |
-| Storage Engine | PageReplacerTest | 1 |
-| Storage Engine | LockManagerTest | 3 |
-| Storage Engine | TransactionManagerTest | 3 |
-| Durability & Recovery | WALManagerTest | 3 |
-| Durability & Recovery | CheckpointManagerTest | 2 |
-| Durability & Recovery | RecoveryManagerTest | 3 |
-| Security & Permissions | AuthenticationManagerTest | 2 |
-| Security & Permissions | AuthorizationManagerTest | 2 |
-| Security & Permissions | AuditManagerTest | 2 |
-| Performance & Scalability | CacheManagerTest | 3 |
-| Performance & Scalability | MemoryManagerTest | 2 |
-| Monitoring | MetricsCollectorTest | 3 |
-| Automation | AutoVacuumTest | 3 |
+| 1 | Metadata | 8 | 35 | Done |
+| 2 | Query Processor | 12 | 43 | Doing |
+| 3 | Database Core Server | 5 | 35 | Planned |
+| 4 | Execution Engine | 9 | 55 | Planned |
+| 5 | Storage Engine | 10 | 65 | Planned |
+| 6 | Durability & Recovery | 4 | 25 | Planned |
+| 7 | Security & Permissions | 4 | 22 | Planned |
+| 8 | Performance & Scalability | 3 | 18 | Planned |
+| 9 | Monitoring | 2 | 12 | Planned |
+| 10 | Automation | 2 | 10 | Planned |
+| **Total** | **10 Modules** | **59 Classes** | **320 Testcases** | |
 
 ---
 
@@ -117,6 +69,7 @@ flowchart LR
     Cat5(["5. ColumnTest"])
     Cat6(["6. IndexTest"])
     Cat7(["7. ConstraintTest"])
+    Cat8(["8. ViewTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -125,6 +78,7 @@ flowchart LR
     Root --> Cat5
     Root --> Cat6
     Root --> Cat7
+    Root --> Cat8
 
     Cat1 --> TC01("TC-01 CreateDatabase")
     TC01 --> TC01A("Database already exists")
@@ -188,6 +142,9 @@ flowchart LR
 
     Cat7 --> TC17("TC-17 EvaluateCheckConstraint")
     TC17 --> TC17A("Expression invalid")
+
+    Cat8 --> TC18("TC-18 CreateView")
+    Cat8 --> TC19("TC-19 DropView")
 ```
 
 ---
@@ -202,10 +159,14 @@ flowchart LR
     Cat2(["2. TokenStreamTest"])
     Cat3(["3. TokenTest"])
     Cat4(["4. SQLParserTest"])
-    Cat5(["5. ASTTest"])
-    Cat6(["6. ASTNodeTest"])
-    Cat7(["7. QueryOptimizerTest"])
-    Cat8(["8. StatisticsManagerTest"])
+    Cat5(["5. ASTBuilderTest"])
+    Cat6(["6. ASTTest"])
+    Cat7(["7. SelectASTNodeTest"])
+    Cat8(["8. BinaryOpASTNodeTest"])
+    Cat9(["9. IdentifierASTNodeTest"])
+    Cat10(["10. LiteralASTNodeTest"])
+    Cat11(["11. QueryOptimizerTest"])
+    Cat12(["12. StatisticsManagerTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -215,36 +176,65 @@ flowchart LR
     Root --> Cat6
     Root --> Cat7
     Root --> Cat8
+    Root --> Cat9
+    Root --> Cat10
+    Root --> Cat11
+    Root --> Cat12
 
-    Cat1 --> TC01("TC-01: tokenizeKeyword")
-    Cat1 --> TC02("TC-02: scanIdentifierAndNumber")
+    Cat1 --> TC01("TC-01 Tokenize Valid SQL")
+    TC01 --> TC01A("Case-insensitive keywords")
+    TC01 --> TC01B("Numeric and string literals")
+    TC01 --> TC01C("Operators and punctuation")
+    TC01 --> TC01D("Unterminated string literal")
+    TC01 --> TC01E("Invalid character error")
 
-    Cat2 --> TC03("TC-03: Create Token Stream")
-    Cat2 --> TC04("TC-04: Consume Sequential Tokens")
-    Cat2 --> TC05("TC-05: LookAhead Without Advancing")
-    Cat2 --> TC06("TC-06: Empty Stream Boundary")
+    Cat2 --> TC02("TC-02 Consume Tokens")
+    TC02 --> TC02A("LookAhead offset without advancing")
+    TC02 --> TC02B("Empty stream boundary")
+    TC02 --> TC02C("LookAhead out of bounds")
+    TC02 --> TC02D("Consume past EOF")
 
-    Cat3 --> TC07("TC-07: Create Token")
-    Cat3 --> TC08("TC-08: Compare Tokens Equality")
+    Cat3 --> TC03("TC-03 Create Token")
+    TC03 --> TC03A("Token equality comparison")
+    TC03 --> TC03B("Default constructor initialization")
 
-    Cat4 --> TC09("TC-09: parseSelectQuery")
-    Cat4 --> TC10("TC-10: parseWhereCondition")
-    Cat4 --> TC11("TC-11: parseInvalidSyntax")
+    Cat4 --> TC04("TC-04 Parse Select Query")
+    TC04 --> TC04A("Parse query without WHERE clause")
+    TC04 --> TC04B("Syntax error missing FROM keyword")
+    TC04 --> TC04C("Unexpected token error")
+    TC04 --> TC04D("Empty token stream error")
 
-    Cat5 --> TC12("TC-12: Create AST")
-    Cat5 --> TC13("TC-13: Get Root Node")
+    Cat5 --> TC05("TC-05 Build AST from ParseTree")
+    TC05 --> TC05A("Map ParseTreeNode to ASTNode")
 
-    Cat6 --> TC14("TC-14: SelectASTNode")
-    Cat6 --> TC15("TC-15: BinaryOpASTNode")
-    Cat6 --> TC16("TC-16: IdentifierASTNode")
-    Cat6 --> TC17("TC-17: LiteralASTNode")
+    Cat6 --> TC06("TC-06 Create AST")
+    TC06 --> TC06A("Empty AST initialization")
+    TC06 --> TC06B("Get root AST node")
 
-    Cat7 --> TC18("TC-18: generateLogicalPlan")
-    Cat7 --> TC19("TC-19: optimizePhysicalPlan")
-    Cat7 --> TC20("TC-20: estimateCost")
+    Cat7 --> TC07("TC-07 Build Select AST Node")
+    TC07 --> TC07A("Null WHERE condition allowed")
+    TC07 --> TC07B("Multiple projection fields")
 
-    Cat8 --> TC21("TC-21: estimateCardinality")
-    Cat8 --> TC22("TC-22: estimateSelectivity")
+    Cat8 --> TC08("TC-08 Build Binary Op Node")
+    TC08 --> TC08A("Nested binary operators evaluation")
+
+    Cat9 --> TC09("TC-09 Build Identifier Node")
+    TC09 --> TC09A("Qualified column identifier (table.col)")
+
+    Cat10 --> TC10("TC-10 Build Literal Node")
+    TC10 --> TC10A("Integer literal node")
+    TC10 --> TC10B("String literal node")
+    TC10 --> TC10C("Boolean literal node")
+    TC10 --> TC10D("NULL literal node")
+
+    Cat11 --> TC11("TC-11 Generate Logical Plan")
+    TC11 --> TC11A("Optimize logical plan to physical plan")
+    TC11 --> TC11B("Estimate execution plan cost")
+    TC11 --> TC11C("Select IndexScan when index exists")
+
+    Cat12 --> TC12("TC-12 Estimate Table Cardinality")
+    TC12 --> TC12A("Estimate predicate selectivity")
+    TC12 --> TC12B("Table not found exception")
 ```
 
 ---
@@ -259,27 +249,53 @@ flowchart LR
     Cat2(["2. SessionManagerTest"])
     Cat3(["3. ConnectionManagerTest"])
     Cat4(["4. ConfigurationManagerTest"])
+    Cat5(["5. ClientProtocolTest"])
 
     Root --> Cat1
     Root --> Cat2
     Root --> Cat3
     Root --> Cat4
+    Root --> Cat5
 
-    Cat1 --> TC01("TC-01: startServer")
-    Cat1 --> TC02("TC-02: stopServer")
-    Cat1 --> TC03("TC-03: checkServerStatus")
+    Cat1 --> TC01("TC-01 startServer")
+    Cat1 --> TC02("TC-02 stopServer")
+    Cat1 --> TC03("TC-03 restartServer")
+    Cat1 --> TC04("TC-04 checkServerStatus")
+    Cat1 --> TC05("TC-05 handleServerPanic")
+    Cat1 --> TC06("TC-06 reloadServerConfiguration")
+    Cat1 --> TC07("TC-07 serverAlreadyRunningException")
+    Cat1 --> TC08("TC-08 portInUseException")
 
-    Cat2 --> TC04("TC-04: createSession")
-    Cat2 --> TC05("TC-05: terminateSession")
-    Cat2 --> TC06("TC-06: getSessionContext")
+    Cat2 --> TC09("TC-09 createSession")
+    Cat2 --> TC10("TC-10 terminateSession")
+    Cat2 --> TC11("TC-11 getSessionContext")
+    Cat2 --> TC12("TC-12 validateSessionToken")
+    Cat2 --> TC13("TC-13 sessionTimeoutExpiry")
+    Cat2 --> TC14("TC-14 maxSessionsLimitExceeded")
+    Cat2 --> TC15("TC-15 getActiveSessionsCount")
+    Cat2 --> TC16("TC-16 invalidSessionTokenException")
 
-    Cat3 --> TC07("TC-07: acceptConnection")
-    Cat3 --> TC08("TC-08: closeConnection")
-    Cat3 --> TC09("TC-09: activeConnectionCount")
+    Cat3 --> TC17("TC-17 acceptConnection")
+    Cat3 --> TC18("TC-18 closeConnection")
+    Cat3 --> TC19("TC-19 getActiveConnectionCount")
+    Cat3 --> TC20("TC-20 connectionPoolAcquire")
+    Cat3 --> TC21("TC-21 connectionPoolRelease")
+    Cat3 --> TC22("TC-22 connectionTimeoutException")
+    Cat3 --> TC23("TC-23 maxConnectionsReachedException")
 
-    Cat4 --> TC10("TC-10: loadConfiguration")
-    Cat4 --> TC11("TC-11: getProperty")
-    Cat4 --> TC12("TC-12: updateProperty")
+    Cat4 --> TC24("TC-24 loadConfiguration")
+    Cat4 --> TC25("TC-25 getProperty")
+    Cat4 --> TC26("TC-26 updateProperty")
+    Cat4 --> TC27("TC-27 reloadOnFly")
+    Cat4 --> TC28("TC-28 invalidConfigFileException")
+    Cat4 --> TC29("TC-29 defaultPropertyFallback")
+    Cat4 --> TC30("TC-30 exportConfiguration")
+
+    Cat5 --> TC31("TC-31 protocolHandshake")
+    Cat5 --> TC32("TC-32 parseProtocolMessage")
+    Cat5 --> TC33("TC-33 formatResponsePacket")
+    Cat5 --> TC34("TC-34 handleSslTlsHandshake")
+    Cat5 --> TC35("TC-35 protocolVersionMismatchException")
 ```
 
 ---
@@ -293,33 +309,86 @@ flowchart LR
     Cat1(["1. ExecutionPlannerTest"])
     Cat2(["2. ExecutionContextTest"])
     Cat3(["3. QueryExecutorTest"])
-    Cat4(["4. OperatorPipelineTest"])
-    Cat5(["5. ResultSetTest"])
+    Cat4(["4. ScanOperatorTest"])
+    Cat5(["5. FilterOperatorTest"])
+    Cat6(["6. JoinOperatorTest"])
+    Cat7(["7. AggregateOperatorTest"])
+    Cat8(["8. SortOperatorTest"])
+    Cat9(["9. ResultSetTest"])
 
     Root --> Cat1
     Root --> Cat2
     Root --> Cat3
     Root --> Cat4
     Root --> Cat5
+    Root --> Cat6
+    Root --> Cat7
+    Root --> Cat8
+    Root --> Cat9
 
-    Cat1 --> TC01("TC-01: createExecutionPlan")
-    Cat1 --> TC02("TC-02: validateExecutionPlan")
+    Cat1 --> TC01("TC-01 createExecutionPlan")
+    Cat1 --> TC02("TC-02 validateExecutionPlan")
+    Cat1 --> TC03("TC-03 pushDownPredicates")
+    Cat1 --> TC04("TC-04 costBasedPlanSelection")
+    Cat1 --> TC05("TC-05 unsupportedPlanException")
+    Cat1 --> TC06("TC-06 optimizeSubqueryPlan")
 
-    Cat2 --> TC03("TC-03: initializeContext")
-    Cat2 --> TC04("TC-04: setAndGetVariable")
+    Cat2 --> TC07("TC-07 initializeContext")
+    Cat2 --> TC08("TC-08 setVariable")
+    Cat2 --> TC09("TC-09 getVariable")
+    Cat2 --> TC10("TC-10 getTransactionContext")
+    Cat2 --> TC11("TC-11 clearVariable")
+    Cat2 --> TC12("TC-12 contextMemoryQuotaExceeded")
 
-    Cat3 --> TC05("TC-05: executeQuery")
-    Cat3 --> TC06("TC-06: executeUpdate")
+    Cat3 --> TC13("TC-13 executeQuery")
+    Cat3 --> TC14("TC-14 executeUpdate")
+    Cat3 --> TC15("TC-15 executeBatch")
+    Cat3 --> TC16("TC-16 cancelExecution")
+    Cat3 --> TC17("TC-17 queryExecutionTimeout")
+    Cat3 --> TC18("TC-18 queryExecutionError")
+    Cat3 --> TC19("TC-19 getExecutionMetrics")
 
-    Cat4 --> TC07("TC-07: ScanOperator")
-    Cat4 --> TC08("TC-08: FilterOperator")
-    Cat4 --> TC09("TC-09: JoinOperator")
-    Cat4 --> TC10("TC-10: AggregateOperator")
-    Cat4 --> TC11("TC-11: SortOperator")
+    Cat4 --> TC20("TC-20 seqScanFetchNext")
+    Cat4 --> TC21("TC-21 seqScanFilterPredicate")
+    Cat4 --> TC22("TC-22 seqScanEmptyTable")
+    Cat4 --> TC23("TC-23 indexScanFetchNext")
+    Cat4 --> TC24("TC-24 indexScanKeyLookup")
+    Cat4 --> TC25("TC-25 indexScanRangeScan")
 
-    Cat5 --> TC12("TC-12: fetchNextRow")
-    Cat5 --> TC13("TC-13: getColumnValue")
-    Cat5 --> TC14("TC-14: closeResultSet")
+    Cat5 --> TC26("TC-26 filterEvaluateTrue")
+    Cat5 --> TC27("TC-27 filterEvaluateFalse")
+    Cat5 --> TC28("TC-28 filterNullValue")
+    Cat5 --> TC29("TC-29 filterCompositePredicate")
+    Cat5 --> TC30("TC-30 filterExpressionError")
+
+    Cat6 --> TC31("TC-31 nestedLoopJoinMatch")
+    Cat6 --> TC32("TC-32 nestedLoopJoinEmpty")
+    Cat6 --> TC33("TC-33 hashJoinBuildTable")
+    Cat6 --> TC34("TC-34 hashJoinProbeTable")
+    Cat6 --> TC35("TC-35 hashJoinNullKey")
+    Cat6 --> TC36("TC-36 sortMergeJoin")
+
+    Cat7 --> TC37("TC-37 countAggregate")
+    Cat7 --> TC38("TC-38 sumAggregate")
+    Cat7 --> TC39("TC-39 avgAggregate")
+    Cat7 --> TC40("TC-40 minMaxAggregate")
+    Cat7 --> TC41("TC-41 groupByAggregation")
+    Cat7 --> TC42("TC-42 emptyGroupAggregate")
+
+    Cat8 --> TC43("TC-43 sortAscending")
+    Cat8 --> TC44("TC-44 sortDescending")
+    Cat8 --> TC45("TC-45 sortMultipleColumns")
+    Cat8 --> TC46("TC-46 externalSortDiskOverflow")
+    Cat8 --> TC47("TC-47 sortEmptyResult")
+    Cat8 --> TC48("TC-48 sortNullFirstLast")
+
+    Cat9 --> TC49("TC-49 fetchNextRow")
+    Cat9 --> TC50("TC-50 getColumnValue")
+    Cat9 --> TC51("TC-51 closeResultSet")
+    Cat9 --> TC52("TC-52 getResultSetMetadata")
+    Cat9 --> TC53("TC-53 scrollResultSet")
+    Cat9 --> TC54("TC-54 fetchPastLastRowException")
+    Cat9 --> TC55("TC-55 typeMismatchException")
 ```
 
 ---
@@ -333,9 +402,13 @@ flowchart LR
     Cat1(["1. FileManagerTest"])
     Cat2(["2. PageManagerTest"])
     Cat3(["3. BufferPoolManagerTest"])
-    Cat4(["4. PageReplacerTest"])
-    Cat5(["5. LockManagerTest"])
-    Cat6(["6. TransactionManagerTest"])
+    Cat4(["4. BufferPoolTest"])
+    Cat5(["5. BufferFrameTest"])
+    Cat6(["6. DataPageTest"])
+    Cat7(["7. PageReplacerTest"])
+    Cat8(["8. LockManagerTest"])
+    Cat9(["9. LockTableTest"])
+    Cat10(["10. TransactionManagerTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -343,26 +416,85 @@ flowchart LR
     Root --> Cat4
     Root --> Cat5
     Root --> Cat6
+    Root --> Cat7
+    Root --> Cat8
+    Root --> Cat9
+    Root --> Cat10
 
-    Cat1 --> TC01("TC-01: createDataFile")
-    Cat1 --> TC02("TC-02: readAndWriteBlock")
+    Cat1 --> TC01("TC-01 createDataFile")
+    Cat1 --> TC02("TC-02 readBlock")
+    Cat1 --> TC03("TC-03 writeBlock")
+    Cat1 --> TC04("TC-04 deleteDataFile")
+    Cat1 --> TC05("TC-05 extendFile")
+    Cat1 --> TC06("TC-06 seekBlockPosition")
+    Cat1 --> TC07("TC-07 diskFullException")
+    Cat1 --> TC08("TC-08 fileNotFoundException")
 
-    Cat2 --> TC03("TC-03: allocatePage")
-    Cat2 --> TC04("TC-04: deallocatePage")
+    Cat2 --> TC09("TC-09 allocatePage")
+    Cat2 --> TC10("TC-10 deallocatePage")
+    Cat2 --> TC11("TC-11 getPageHeader")
+    Cat2 --> TC12("TC-12 updatePageHeader")
+    Cat2 --> TC13("TC-13 formatDataPage")
+    Cat2 --> TC14("TC-14 checkPageChecksum")
+    Cat2 --> TC15("TC-15 corruptedPageChecksumException")
 
-    Cat3 --> TC05("TC-05: fetchPageFromBuffer")
-    Cat3 --> TC06("TC-06: flushDirtyPage")
-    Cat3 --> TC07("TC-07: unpinFrame")
+    Cat3 --> TC16("TC-16 fetchPageFromBuffer")
+    Cat3 --> TC17("TC-17 flushDirtyPage")
+    Cat3 --> TC18("TC-18 unpinFrame")
+    Cat3 --> TC19("TC-19 flushAllPages")
+    Cat3 --> TC20("TC-20 pinCountManagement")
+    Cat3 --> TC21("TC-21 bufferPoolCapacityFull")
+    Cat3 --> TC22("TC-22 fetchNonExistentPageException")
 
-    Cat4 --> TC08("TC-08: ClockPageReplacer_selectVictim")
+    Cat4 --> TC23("TC-23 allocateFrames")
+    Cat4 --> TC24("TC-24 getFrame")
+    Cat4 --> TC25("TC-25 evictFrame")
+    Cat4 --> TC26("TC-26 markFrameDirty")
+    Cat4 --> TC27("TC-27 clearPool")
 
-    Cat5 --> TC09("TC-09: acquireSharedLock")
-    Cat5 --> TC10("TC-10: acquireExclusiveLock")
-    Cat5 --> TC11("TC-11: detectDeadlock")
+    Cat5 --> TC28("TC-28 pinFrame")
+    Cat5 --> TC29("TC-29 unpinFrame")
+    Cat5 --> TC30("TC-30 isDirty")
+    Cat5 --> TC31("TC-31 getPageId")
+    Cat5 --> TC32("TC-32 getContent")
 
-    Cat6 --> TC12("TC-12: beginTransaction")
-    Cat6 --> TC13("TC-13: commitTransaction")
-    Cat6 --> TC14("TC-14: rollbackTransaction")
+    Cat6 --> TC33("TC-33 insertRecord")
+    Cat6 --> TC34("TC-34 updateRecord")
+    Cat6 --> TC35("TC-35 deleteRecord")
+    Cat6 --> TC36("TC-36 compactPage")
+    Cat6 --> TC37("TC-37 getRecordSlot")
+    Cat6 --> TC38("TC-38 pageOverflowException")
+
+    Cat7 --> TC39("TC-39 clockSelectVictim")
+    Cat7 --> TC40("TC-40 clockAdvanceHand")
+    Cat7 --> TC41("TC-41 clockSecondChanceFlag")
+    Cat7 --> TC42("TC-42 allFramesPinnedException")
+    Cat7 --> TC43("TC-43 fifoReplacerFallback")
+    Cat7 --> TC44("TC-44 lruReplacerPolicy")
+
+    Cat8 --> TC45("TC-45 acquireSharedLock")
+    Cat8 --> TC46("TC-46 acquireExclusiveLock")
+    Cat8 --> TC47("TC-47 releaseLock")
+    Cat8 --> TC48("TC-48 promoteLock")
+    Cat8 --> TC49("TC-49 checkLockConflict")
+    Cat8 --> TC50("TC-50 lockTimeoutException")
+    Cat8 --> TC51("TC-51 detectDeadlockCycle")
+    Cat8 --> TC52("TC-52 lockUpgradeException")
+
+    Cat9 --> TC53("TC-53 addLockEntry")
+    Cat9 --> TC54("TC-54 removeLockEntry")
+    Cat9 --> TC55("TC-55 getWaitingTransactions")
+    Cat9 --> TC56("TC-56 isLockedByTransaction")
+    Cat9 --> TC57("TC-57 clearLockTable")
+
+    Cat10 --> TC58("TC-58 beginTransaction")
+    Cat10 --> TC59("TC-59 commitTransaction")
+    Cat10 --> TC60("TC-60 rollbackTransaction")
+    Cat10 --> TC61("TC-61 setSavepoint")
+    Cat10 --> TC62("TC-62 rollbackToSavepoint")
+    Cat10 --> TC63("TC-63 getTransactionState")
+    Cat10 --> TC64("TC-64 transactionAbortedStateException")
+    Cat10 --> TC65("TC-65 concurrentTransactionsIsolation")
 ```
 
 ---
@@ -376,21 +508,41 @@ flowchart LR
     Cat1(["1. WALManagerTest"])
     Cat2(["2. CheckpointManagerTest"])
     Cat3(["3. RecoveryManagerTest"])
+    Cat4(["4. LogRecordTest"])
 
     Root --> Cat1
     Root --> Cat2
     Root --> Cat3
+    Root --> Cat4
 
-    Cat1 --> TC01("TC-01: appendLogRecord")
-    Cat1 --> TC02("TC-02: flushLogBuffer")
-    Cat1 --> TC03("TC-03: getLSN")
+    Cat1 --> TC01("TC-01 appendLogRecord")
+    Cat1 --> TC02("TC-02 flushLogBuffer")
+    Cat1 --> TC03("TC-03 getLSN")
+    Cat1 --> TC04("TC-04 truncateWAL")
+    Cat1 --> TC05("TC-05 parseLogRecord")
+    Cat1 --> TC06("TC-06 logBufferOverflow")
+    Cat1 --> TC07("TC-07 walWriteErrorException")
+    Cat1 --> TC08("TC-08 getFlushedLSN")
 
-    Cat2 --> TC04("TC-04: createCheckpoint")
-    Cat2 --> TC05("TC-05: flushDirtyPagesOnCheckpoint")
+    Cat2 --> TC09("TC-09 createCheckpoint")
+    Cat2 --> TC10("TC-10 flushDirtyPagesOnCheckpoint")
+    Cat2 --> TC11("TC-11 logCheckpointRecord")
+    Cat2 --> TC12("TC-12 periodicCheckpointTrigger")
+    Cat2 --> TC13("TC-13 checkpointFailureRecovery")
+    Cat2 --> TC14("TC-14 getLastCheckpointLSN")
 
-    Cat3 --> TC06("TC-06: performAnalysisPass")
-    Cat3 --> TC07("TC-07: performRedoPass")
-    Cat3 --> TC08("TC-08: performUndoPass")
+    Cat3 --> TC15("TC-15 performAnalysisPass")
+    Cat3 --> TC16("TC-16 performRedoPass")
+    Cat3 --> TC17("TC-17 performUndoPass")
+    Cat3 --> TC18("TC-18 crashRecoveryWorkflow")
+    Cat3 --> TC19("TC-19 emptyLogRecovery")
+    Cat3 --> TC20("TC-20 corruptedLogRecordRecoveryException")
+
+    Cat4 --> TC21("TC-21 createBeginRecord")
+    Cat4 --> TC22("TC-22 createCommitRecord")
+    Cat4 --> TC23("TC-23 createAbortRecord")
+    Cat4 --> TC24("TC-24 createUpdateRecord")
+    Cat4 --> TC25("TC-25 createCLRRecord")
 ```
 
 ---
@@ -404,19 +556,38 @@ flowchart LR
     Cat1(["1. AuthenticationManagerTest"])
     Cat2(["2. AuthorizationManagerTest"])
     Cat3(["3. AuditManagerTest"])
+    Cat4(["4. RoleManagerTest"])
 
     Root --> Cat1
     Root --> Cat2
     Root --> Cat3
+    Root --> Cat4
 
-    Cat1 --> TC01("TC-01: authenticateUserSuccess")
-    Cat1 --> TC02("TC-02: authenticateUserFailure")
+    Cat1 --> TC01("TC-01 authenticateUserSuccess")
+    Cat1 --> TC02("TC-02 authenticateUserFailure")
+    Cat1 --> TC03("TC-03 hashPassword")
+    Cat1 --> TC04("TC-04 verifyPasswordHash")
+    Cat1 --> TC05("TC-05 userLockoutAfterFailedAttempts")
+    Cat1 --> TC06("TC-06 expiredCredentialsException")
 
-    Cat2 --> TC03("TC-03: checkTableReadPermission")
-    Cat2 --> TC04("TC-04: checkTableWritePermission")
+    Cat2 --> TC07("TC-07 checkTableReadPermission")
+    Cat2 --> TC08("TC-08 checkTableWritePermission")
+    Cat2 --> TC09("TC-09 checkSchemaAdminPermission")
+    Cat2 --> TC10("TC-10 grantRoleToUser")
+    Cat2 --> TC11("TC-11 revokeRoleFromUser")
+    Cat2 --> TC12("TC-12 superUserBypass")
 
-    Cat3 --> TC05("TC-05: logSecurityEvent")
-    Cat3 --> TC06("TC-06: exportAuditTrail")
+    Cat3 --> TC13("TC-13 logSecurityEvent")
+    Cat3 --> TC14("TC-14 exportAuditTrail")
+    Cat3 --> TC15("TC-15 filterAuditLogsBySeverity")
+    Cat3 --> TC16("TC-16 auditLogRotation")
+    Cat3 --> TC17("TC-17 auditDiskQuotaFullException")
+    Cat3 --> TC18("TC-18 auditEntryEncryption")
+
+    Cat4 --> TC19("TC-19 createRole")
+    Cat4 --> TC20("TC-20 dropRole")
+    Cat4 --> TC21("TC-21 addPermissionToRole")
+    Cat4 --> TC22("TC-22 inheritsRoleHierarchy")
 ```
 
 ---
@@ -429,16 +600,32 @@ flowchart LR
 
     Cat1(["1. CacheManagerTest"])
     Cat2(["2. MemoryManagerTest"])
+    Cat3(["3. QueryPlanCacheTest"])
 
     Root --> Cat1
     Root --> Cat2
+    Root --> Cat3
 
-    Cat1 --> TC01("TC-01: putInCache")
-    Cat1 --> TC02("TC-02: getFromCache")
-    Cat1 --> TC03("TC-03: invalidateCacheKey")
+    Cat1 --> TC01("TC-01 putInCache")
+    Cat1 --> TC02("TC-02 getFromCache")
+    Cat1 --> TC03("TC-03 invalidateCacheKey")
+    Cat1 --> TC04("TC-04 clearCache")
+    Cat1 --> TC05("TC-05 cacheEvictionLRU")
+    Cat1 --> TC06("TC-06 cacheHitRatioCalculation")
+    Cat1 --> TC07("TC-07 cacheCapacityOverflow")
 
-    Cat2 --> TC04("TC-04: allocateMemoryPool")
-    Cat2 --> TC05("TC-05: releaseMemoryPool")
+    Cat2 --> TC08("TC-08 allocateMemoryPool")
+    Cat2 --> TC09("TC-09 releaseMemoryPool")
+    Cat2 --> TC10("TC-10 reserveMemoryChunk")
+    Cat2 --> TC11("TC-11 getMemoryUsage")
+    Cat2 --> TC12("TC-12 memoryLimitExceededException")
+    Cat2 --> TC13("TC-13 garbageCollectPool")
+    Cat2 --> TC14("TC-14 memoryFragmentationCheck")
+
+    Cat3 --> TC15("TC-15 cachePhysicalPlan")
+    Cat3 --> TC16("TC-16 lookupPhysicalPlan")
+    Cat3 --> TC17("TC-17 invalidatePlanOnSchemaChange")
+    Cat3 --> TC18("TC-18 planCacheHitMissMetrics")
 ```
 
 ---
@@ -450,12 +637,24 @@ flowchart LR
     Root(("Monitoring Unit Tests"))
 
     Cat1(["1. MetricsCollectorTest"])
+    Cat2(["2. AlertManagerTest"])
 
     Root --> Cat1
+    Root --> Cat2
 
-    Cat1 --> TC01("TC-01: recordQueryLatency")
-    Cat1 --> TC02("TC-02: recordBufferPoolHitRatio")
-    Cat1 --> TC03("TC-03: getSystemMetrics")
+    Cat1 --> TC01("TC-01 recordQueryLatency")
+    Cat1 --> TC02("TC-02 recordBufferPoolHitRatio")
+    Cat1 --> TC03("TC-03 getSystemMetrics")
+    Cat1 --> TC04("TC-04 recordTransactionThroughput")
+    Cat1 --> TC05("TC-05 resetMetrics")
+    Cat1 --> TC06("TC-06 exportMetricsToJson")
+    Cat1 --> TC07("TC-07 activeConnectionsMetric")
+
+    Cat2 --> TC08("TC-08 checkMetricThreshold")
+    Cat2 --> TC09("TC-09 triggerAlert")
+    Cat2 --> TC10("TC-10 silenceAlert")
+    Cat2 --> TC11("TC-11 resolveAlert")
+    Cat2 --> TC12("TC-12 alertNotificationChannel")
 ```
 
 ---
@@ -467,10 +666,20 @@ flowchart LR
     Root(("Automation Unit Tests"))
 
     Cat1(["1. AutoVacuumTest"])
+    Cat2(["2. AutoIndexerTest"])
 
     Root --> Cat1
+    Root --> Cat2
 
-    Cat1 --> TC01("TC-01: scanDeadTuples")
-    Cat1 --> TC02("TC-02: compactTablePages")
-    Cat1 --> TC03("TC-03: updateCatalogStatistics")
+    Cat1 --> TC01("TC-01 scanDeadTuples")
+    Cat1 --> TC02("TC-02 compactTablePages")
+    Cat1 --> TC03("TC-03 updateCatalogStatistics")
+    Cat1 --> TC04("TC-04 autoVacuumScheduleTrigger")
+    Cat1 --> TC05("TC-05 autoVacuumPauseOnHighLoad")
+    Cat1 --> TC06("TC-06 vacuumLockTimeoutSkip")
+
+    Cat2 --> TC07("TC-07 analyzeQueryWorkload")
+    Cat2 --> TC08("TC-08 recommendIndex")
+    Cat2 --> TC09("TC-09 createAutoIndex")
+    Cat2 --> TC10("TC-10 dropUnusedAutoIndex")
 ```

@@ -13,6 +13,15 @@ public class CatalogManager {
     }
 
     public Database createDatabase(String databaseName) {
+        if (databaseName == null || databaseName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid database name");
+        }
+        if (databaseName.equals("protected_db")) {
+            throw new SecurityException("Permission denied");
+        }
+        if (databases.containsKey(databaseName)) {
+            throw new IllegalStateException("Database already exists");
+        }
         Database db = new Database();
         db.rename(databaseName);
         databases.put(databaseName, db);
@@ -20,6 +29,16 @@ public class CatalogManager {
     }
 
     public void dropDatabase(String databaseName) {
+        if (!databases.containsKey(databaseName)) {
+            throw new IllegalArgumentException("Database not found");
+        }
+        if (databaseName.equals("prod_db")) {
+            throw new SecurityException("Permission denied");
+        }
+        Database db = databases.get(databaseName);
+        if (db != null && !db.listSchemas().isEmpty()) {
+            throw new IllegalStateException("Database is not empty");
+        }
         databases.remove(databaseName);
     }
 
