@@ -35,7 +35,8 @@ class ColumnTest {
         Column column = new Column("protected_col", DataType.INT);
 
         assertThatThrownBy(() -> column.changeDataType(DataType.VARCHAR))
-                .isInstanceOf(IllegalAccessError.class).hasMessageContaining("Permission denied");
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("Permission denied");
     }
 
     @Test

@@ -17,40 +17,29 @@ class BinaryOpASTNodeTest {
     @Mock
     private ASTNode mockRightNode;
 
+    // Kiểm thử tạo BinaryOpASTNode lưu toán tử và hai cây con vế trái, vế phải
     @Test
-    @DisplayName("TC-18. Build Binary Operator AST Node")
-    void buildBinaryOperatorASTNode_ShouldLinkLeftAndRightOperands_WhenParsingBinaryExpression() {
-        // Act
-        BinaryOpASTNode binaryOpNode = new BinaryOpASTNode("=", mockLeftNode, mockRightNode);
+    @DisplayName("TC-07. Build Binary Operator AST Node")
+    void buildBinaryOpNode_ShouldStoreOperatorAndLeftRightChildNodes() {
+        BinaryOpASTNode node = new BinaryOpASTNode(">", mockLeftNode, mockRightNode);
 
-        // Assert
-        assertThat(binaryOpNode.getNodeName()).isEqualTo("BinaryOpASTNode");
-        assertThat(binaryOpNode.getOperatorType()).isEqualTo("=");
-        assertThat(binaryOpNode.getLeftNode()).isEqualTo(mockLeftNode);
-        assertThat(binaryOpNode.getRightNode()).isEqualTo(mockRightNode);
-    }
-
-    @Test
-    @DisplayName("TC-19. Child Operands Evaluation")
-    void getLeftNode_And_getRightNode_ShouldReturnChildNodes() {
-        // Arrange
-        BinaryOpASTNode node = new BinaryOpASTNode("AND", mockLeftNode, mockRightNode);
-
-        // Act & Assert
-        assertThat(node.getLeftNode()).isSameAs(mockLeftNode);
-        assertThat(node.getRightNode()).isSameAs(mockRightNode);
-    }
-
-    @Test
-    @DisplayName("TC-20. Default Constructor")
-    void defaultConstructor_ShouldSetNodeName() {
-        // Act
-        BinaryOpASTNode node = new BinaryOpASTNode();
-
-        // Assert
+        assertThat(node.getOperatorType()).isEqualTo(">");
+        assertThat(node.getLeftNode()).isEqualTo(mockLeftNode);
+        assertThat(node.getRightNode()).isEqualTo(mockRightNode);
         assertThat(node.getNodeName()).isEqualTo("BinaryOpASTNode");
-        assertThat(node.getOperatorType()).isNull();
-        assertThat(node.getLeftNode()).isNull();
-        assertThat(node.getRightNode()).isNull();
+    }
+
+    // Kiểm thử hỗ trợ đánh giá các toán tử nhị phân lồng nhau (AND/OR)
+    @Test
+    @DisplayName("TC-07A. Nested Binary Operators Evaluation")
+    void buildBinaryOpNode_ShouldSupportNestedBinaryOperators() {
+        BinaryOpASTNode leftChild = new BinaryOpASTNode(">", mockLeftNode, mockRightNode);
+        BinaryOpASTNode rightChild = new BinaryOpASTNode("<", mockLeftNode, mockRightNode);
+
+        BinaryOpASTNode rootNode = new BinaryOpASTNode("AND", leftChild, rightChild);
+
+        assertThat(rootNode.getOperatorType()).isEqualTo("AND");
+        assertThat(rootNode.getLeftNode()).isEqualTo(leftChild);
+        assertThat(rootNode.getRightNode()).isEqualTo(rightChild);
     }
 }

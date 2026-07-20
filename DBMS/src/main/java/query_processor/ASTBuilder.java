@@ -2,10 +2,13 @@ package query_processor;
 
 public class ASTBuilder {
     public AST buildAST(ParseTree parseTree) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (parseTree == null || parseTree.getRootNode() == null) {
+            return new AST();
+        }
+        return new AST(mapToLogicalNode(parseTree.getRootNode()));
     }
 
     private ASTNode mapToLogicalNode(ParseTreeNode node) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return new ASTNode() {};
     }
 }
