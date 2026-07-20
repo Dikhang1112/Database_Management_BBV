@@ -13,12 +13,11 @@ sequenceDiagram
 
     %% =====================================================
     %% GIAI ĐOẠN 1: LEXICAL STREAM CONSUMPTION
-    %% (Duyệt và lấy các Token từ TokenStream)
     %% =====================================================
     Client->>Parser: parse(tokenStream)
     activate Parser
     
-    Note over Parser, TS: Phase 1: Stream Breakdown & Token Inspection
+    Note over Parser, TS: Phase 1: Stream Inspection & Token Consumption
     Parser->>TS: hasNext()
     activate TS
     TS-->>Parser: boolean (true)
@@ -46,7 +45,6 @@ sequenceDiagram
 
     %% =====================================================
     %% GIAI ĐOẠN 2: AST NODE TREE CONSTRUCTION
-    %% (Xây dựng các nút cây AST đa hình & biểu thức điều kiện)
     %% =====================================================
     Note over Parser, SelectNode: Phase 2: Building AST Nodes & Expression Tree
 
@@ -114,7 +112,6 @@ sequenceDiagram
 
     %% =====================================================
     %% GIAI ĐOẠN 3: AST TREE ROOT ENCAPSULATION
-    %% (Đóng gói nút gốc vào đối tượng AST)
     %% =====================================================
     Note over Parser, AST: Phase 3: Root AST Encapsulation
     Parser->>AST: new AST(rootASTNode: SelectASTNode)
