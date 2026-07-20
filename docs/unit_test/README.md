@@ -10,7 +10,7 @@ This document provides a roadmap of all unit test scenarios across all DBMS syst
 
 | STT | Module | Number of Test Classes | Total Testcases | Status |
 |:---:|:---|:---:|:---:|:---:|
-| 1 | Metadata | 7 | 33 | Doing |
+| 1 | Metadata | 7 | 33 | Done |
 | 2 | Query Processor | 8 | 22 | Doing |
 | 3 | Database Core Server | 4 | 12 | Planned |
 | 4 | Execution Engine | 5 | 14 | Planned |

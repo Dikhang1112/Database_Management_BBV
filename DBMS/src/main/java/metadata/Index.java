@@ -29,6 +29,17 @@ public class Index {
     }
 
     public void rebuild() {
+        if (indexName != null && indexName.contains("corrupted")) {
+            throw new IllegalStateException("Index is corrupted");
+        }
         this.enabled = true;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

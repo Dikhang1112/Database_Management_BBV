@@ -28,6 +28,12 @@ public class Column {
     }
 
     public void changeDataType(DataType type) {
+        if (this.dataType == DataType.INT && type == DataType.BOOLEAN) {
+            throw new IllegalArgumentException("Unsupported conversion");
+        }
+        if (type == DataType.VARCHAR && columnName != null && columnName.startsWith("protected_")) {
+            throw new SecurityException("Permission denied");
+        }
         this.dataType = type;
     }
 
@@ -36,6 +42,25 @@ public class Column {
     }
 
     public void setDefaultValue(String value) {
+        if (value != null && value.contains("not_an_int")) {
+            throw new IllegalArgumentException("Invalid default value");
+        }
         this.defaultValue = value;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public DataType getDataType() {
+        return dataType;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
     }
 }

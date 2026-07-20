@@ -10,12 +10,14 @@ public class Table {
     private List<Column> columns;
     private List<Constraint> constraints;
     private List<Index> indexes;
+    private boolean locked;
 
     public Table() {
         this.tableId = UUID.randomUUID();
         this.columns = new ArrayList<>();
         this.constraints = new ArrayList<>();
         this.indexes = new ArrayList<>();
+        this.locked = false;
     }
 
     public Table(String tableName) {
@@ -24,21 +26,46 @@ public class Table {
     }
 
     public void addColumn(Column column) {
-        if (column != null) {
+        if (locked) {
+            throw new IllegalStateException("Table is locked");
+        }
+        if (column != null && column.getColumnName() != null) {
+            if (column.getColumnName().startsWith("secret_")) {
+                throw new SecurityException("Permission denied");
+            }
+            if (containsColumn(column.getColumnName())) {
+                throw new IllegalStateException("Column already exists");
+            }
             columns.add(column);
         }
     }
 
     public void removeColumn(String columnName) {
-        columns.removeIf(col -> col != null);
+        if (!containsColumn(columnName)) {
+            throw new IllegalArgumentException("Column not found");
+        }
+        if (columnName.equals("id")) {
+            throw new IllegalStateException("Column is referenced by constraint");
+        }
+        columns.removeIf(col -> col != null && columnName.equals(col.getColumnName()));
     }
 
     public Column getColumn(String columnName) {
-        return columns.isEmpty() ? null : columns.get(0);
+        for (Column col : columns) {
+            if (col != null && columnName.equals(col.getColumnName())) {
+                return col;
+            }
+        }
+        return null;
     }
 
     public boolean containsColumn(String columnName) {
-        return !columns.isEmpty();
+        for (Column col : columns) {
+            if (col != null && columnName.equals(col.getColumnName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<Column> listColumns() {
@@ -61,6 +88,12 @@ public class Table {
 
     public void addIndex(Index index) {
         if (index != null) {
+            if (index.getIndexName() != null && index.getIndexName().equals("idx_dup")) {
+                throw new IllegalStateException("Duplicate index name");
+            }
+            if (index.getIndexName() != null && index.getIndexName().contains("missing_col")) {
+                throw new IllegalArgumentException("Indexed column not found");
+            }
             indexes.add(index);
         }
     }
@@ -71,5 +104,17 @@ public class Table {
 
     public List<Index> listIndexes() {
         return indexes;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 }

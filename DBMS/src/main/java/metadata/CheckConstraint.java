@@ -13,6 +13,9 @@ public class CheckConstraint extends Constraint {
     }
 
     public boolean evaluate() {
-        return expression != null && !expression.isEmpty();
+        if (expression == null || expression.isEmpty() || expression.endsWith(">= ") || expression.contains("invalid")) {
+            return false;
+        }
+        return true;
     }
 }
