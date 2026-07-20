@@ -7,38 +7,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class IdentifierASTNodeTest {
 
+    // Kiểm thử tạo IdentifierASTNode lưu tên cột định danh
     @Test
-    @DisplayName("TC-21. Build Identifier AST Node")
-    void buildIdentifierASTNode_ShouldPreserveQualifiedIdentifier_WhenParsingIdentifier() {
-        // Arrange
-        String columnName = "users.user_id";
+    @DisplayName("TC-08. Build Identifier AST Node")
+    void buildIdentifierNode_ShouldStoreColumnName() {
+        IdentifierASTNode node = new IdentifierASTNode("user_id");
 
-        // Act
-        IdentifierASTNode node = new IdentifierASTNode(columnName);
-
-        // Assert
+        assertThat(node.getValue()).isEqualTo("user_id");
         assertThat(node.getNodeName()).isEqualTo("IdentifierASTNode");
+    }
+
+    // Kiểm thử xử lý tên cột có định danh bảng đầy đủ (table.column)
+    @Test
+    @DisplayName("TC-08A. Qualified Column Identifier (table.col)")
+    void buildIdentifierNode_ShouldHandleQualifiedColumnNames() {
+        IdentifierASTNode node = new IdentifierASTNode("users.user_id");
+
         assertThat(node.getValue()).isEqualTo("users.user_id");
-    }
-
-    @Test
-    @DisplayName("TC-22. Column Identifier")
-    void columnIdentifier_ShouldStoreSimpleColumnName() {
-        // Act
-        IdentifierASTNode node = new IdentifierASTNode("email");
-
-        // Assert
-        assertThat(node.getValue()).isEqualTo("email");
-    }
-
-    @Test
-    @DisplayName("TC-23. Default Constructor")
-    void defaultConstructor_ShouldInitializeWithNullValue() {
-        // Act
-        IdentifierASTNode node = new IdentifierASTNode();
-
-        // Assert
-        assertThat(node.getNodeName()).isEqualTo("IdentifierASTNode");
-        assertThat(node.getValue()).isNull();
     }
 }

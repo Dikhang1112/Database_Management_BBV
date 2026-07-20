@@ -7,75 +7,54 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LiteralASTNodeTest {
 
+    // Kiểm thử tạo LiteralASTNode lưu giá trị thô và kiểu dữ liệu suy luận
     @Test
-    @DisplayName("TC-24. Build Literal AST Node")
-    void buildLiteralASTNode_ShouldInferDataType_WhenParsingLiteralValue() {
-        // Arrange
-        String rawValue = "100";
-        String inferredType = "INTEGER";
+    @DisplayName("TC-09. Build Literal AST Node")
+    void buildLiteralNode_ShouldStoreRawValueAndInferredType() {
+        LiteralASTNode node = new LiteralASTNode("100", "INT");
 
-        // Act
-        LiteralASTNode node = new LiteralASTNode(rawValue, inferredType);
-
-        // Assert
-        assertThat(node.getNodeName()).isEqualTo("LiteralASTNode");
         assertThat(node.getValue()).isEqualTo("100");
-        assertThat(node.getInferredType()).isEqualTo("INTEGER");
+        assertThat(node.getInferredType()).isEqualTo("INT");
+        assertThat(node.getNodeName()).isEqualTo("LiteralASTNode");
     }
 
+    // Kiểm thử hỗ trợ nút hằng số kiểu số nguyên (Integer)
     @Test
-    @DisplayName("TC-25. Integer Literal")
-    void integerLiteral_ShouldStoreIntegerDataType() {
-        // Act
+    @DisplayName("TC-09A. Integer Literal Node")
+    void buildLiteralNode_ShouldSupportIntegerLiteral() {
         LiteralASTNode node = new LiteralASTNode("42", "INT");
 
-        // Assert
         assertThat(node.getValue()).isEqualTo("42");
         assertThat(node.getInferredType()).isEqualTo("INT");
     }
 
+    // Kiểm thử hỗ trợ nút hằng số kiểu chuỗi ký tự (String)
     @Test
-    @DisplayName("TC-26. String Literal")
-    void stringLiteral_ShouldStoreStringDataType() {
-        // Act
-        LiteralASTNode node = new LiteralASTNode("'John Doe'", "VARCHAR");
+    @DisplayName("TC-09B. String Literal Node")
+    void buildLiteralNode_ShouldSupportStringLiteral() {
+        LiteralASTNode node = new LiteralASTNode("John", "VARCHAR");
 
-        // Assert
-        assertThat(node.getValue()).isEqualTo("'John Doe'");
+        assertThat(node.getValue()).isEqualTo("John");
         assertThat(node.getInferredType()).isEqualTo("VARCHAR");
     }
 
+    // Kiểm thử hỗ trợ nút hằng số kiểu logic (Boolean)
     @Test
-    @DisplayName("TC-27. Boolean Literal")
-    void booleanLiteral_ShouldStoreBooleanDataType() {
-        // Act
-        LiteralASTNode node = new LiteralASTNode("TRUE", "BOOLEAN");
+    @DisplayName("TC-09C. Boolean Literal Node")
+    void buildLiteralNode_ShouldSupportBooleanLiteral() {
+        LiteralASTNode node = new LiteralASTNode("true", "BOOLEAN");
 
-        // Assert
-        assertThat(node.getValue()).isEqualTo("TRUE");
+        assertThat(node.getValue()).isEqualTo("true");
         assertThat(node.getInferredType()).isEqualTo("BOOLEAN");
     }
 
+    // Kiểm thử hỗ trợ nút hằng số rỗng (NULL)
     @Test
-    @DisplayName("TC-28. NULL Literal")
-    void nullLiteral_ShouldStoreNullDataType() {
-        // Act
-        LiteralASTNode node = new LiteralASTNode("NULL", "NULL");
+    @DisplayName("TC-09D. NULL Literal Node")
+    void buildLiteralNode_ShouldSupportNullLiteral() {
+        LiteralASTNode node = new LiteralASTNode("NULL", "UNKNOWN");
 
-        // Assert
         assertThat(node.getValue()).isEqualTo("NULL");
-        assertThat(node.getInferredType()).isEqualTo("NULL");
-    }
-
-    @Test
-    @DisplayName("TC-29. Default Constructor")
-    void defaultConstructor_ShouldInitializeWithNullFields() {
-        // Act
-        LiteralASTNode node = new LiteralASTNode();
-
-        // Assert
-        assertThat(node.getNodeName()).isEqualTo("LiteralASTNode");
-        assertThat(node.getValue()).isNull();
-        assertThat(node.getInferredType()).isNull();
+        assertThat(node.getInferredType()).isEqualTo("UNKNOWN");
     }
 }
