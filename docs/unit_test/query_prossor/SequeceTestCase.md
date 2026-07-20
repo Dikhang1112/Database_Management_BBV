@@ -1,507 +1,579 @@
-# Sequence Diagrams - Lexical Stream & AST Hierarchy Test Cases
+# Sequence Diagrams - Query Processor Subsystem Unit Test Scenarios
+
+This document provides detailed Mermaid sequence diagrams for all positive (happy path) and negative (edge cases / exception) unit test scenarios mapped out in [MindmapTest.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/query_prossor/MindmapTest.md) and specified in [QueryProcessorTestcase.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/query_prossor/QueryProcessorTestcase.md).
 
 ---
 
-## TC-01. Create Token Stream (`createTokenStream_ShouldInitializeHeadPointer_WhenValidTokenListIsProvided` / SD-01)
+## 1. Lexer Unit Tests
 
+### TC-01: `tokenize`
+
+#### Happy Path: `tokenize_ShouldReturnTokenStream_WhenValidSqlIsProvided`
 ```mermaid
 sequenceDiagram
-    title TC-01: Create Token Stream
+    title TC-01: tokenize_ShouldReturnTokenStream_WhenValidSqlIsProvided
     participant Test
+    participant Lexer
     participant TokenStream
 
-    Test->>TokenStream: new TokenStream(tokens)
-    TokenStream-->>Test: TokenStream Initialized (headPointer = 0)
-    Test->>TokenStream: hasNext()
-    TokenStream-->>Test: true
-    Test->>TokenStream: lookAhead(0)
-    TokenStream-->>Test: tokens[0]
+    Test->>Lexer: tokenize("SELECT id FROM users")
+    Lexer->>TokenStream: new TokenStream(tokens)
+    Lexer-->>Test: TokenStream instance
+    Test->>TokenStream: consume()
+    TokenStream-->>Test: Token("KEYWORD", "SELECT")
+```
+
+#### TC-01A: `tokenize_ShouldHandleKeywordsCaseInsensitively_WhenMixedCase`
+```mermaid
+sequenceDiagram
+    title TC-01A: tokenize_ShouldHandleKeywordsCaseInsensitively_WhenMixedCase
+    participant Test
+    participant Lexer
+
+    Test->>Lexer: tokenize("sElEcT name FrOm users")
+    Lexer-->>Test: TokenStream with KEYWORD("sElEcT") & KEYWORD("FrOm")
+```
+
+#### TC-01B: `tokenize_ShouldScanNumericAndStringLiterals_WhenPresent`
+```mermaid
+sequenceDiagram
+    title TC-01B: tokenize_ShouldScanNumericAndStringLiterals_WhenPresent
+    participant Test
+    participant Lexer
+
+    Test->>Lexer: tokenize("SELECT * FROM users WHERE age = 25 AND name = 'Alice'")
+    Lexer-->>Test: TokenStream containing LITERAL("25") & LITERAL("Alice")
+```
+
+#### TC-01C: `tokenize_ShouldScanOperatorsAndPunctuation_WhenValid`
+```mermaid
+sequenceDiagram
+    title TC-01C: tokenize_ShouldScanOperatorsAndPunctuation_WhenValid
+    participant Test
+    participant Lexer
+
+    Test->>Lexer: tokenize("SELECT id, age FROM users WHERE age <= 30")
+    Lexer-->>Test: TokenStream containing OPERATOR("<=") & PUNCTUATION(",")
+```
+
+#### TC-01D: `tokenize_ShouldThrowException_WhenUnterminatedStringLiteral`
+```mermaid
+sequenceDiagram
+    title TC-01D: tokenize_ShouldThrowException_WhenUnterminatedStringLiteral
+    participant Test
+    participant Lexer
+
+    Test->>Lexer: tokenize("SELECT * FROM users WHERE name = 'Alice")
+    Lexer->>Lexer: scanStringLiteral()
+    Lexer-->>Test: throw LexerException ("Unterminated string literal")
+```
+
+#### TC-01E: `tokenize_ShouldThrowException_WhenInvalidCharacterEncountered`
+```mermaid
+sequenceDiagram
+    title TC-01E: tokenize_ShouldThrowException_WhenInvalidCharacterEncountered
+    participant Test
+    participant Lexer
+
+    Test->>Lexer: tokenize("SELECT @ FROM users")
+    Lexer->>Lexer: scanToken('@')
+    Lexer-->>Test: throw LexerException ("Unexpected character '@'")
 ```
 
 ---
 
-## TC-02. Consume Sequential Tokens (`consume_ShouldReturnNextToken_WhenMoreTokensExist` / SD-02)
+## 2. TokenStream Unit Tests
 
+### TC-02: `consume` & `lookAhead`
+
+#### Happy Path: `consume_ShouldReturnNextTokenAndAdvance_WhenHasNext`
 ```mermaid
 sequenceDiagram
-    title TC-02: Consume Sequential Tokens
+    title TC-02: consume_ShouldReturnNextTokenAndAdvance_WhenHasNext
     participant Test
     participant TokenStream
 
     Test->>TokenStream: consume()
-    TokenStream-->>Test: token1 ("SELECT")
+    TokenStream-->>Test: Token("KEYWORD", "SELECT")
     Test->>TokenStream: consume()
-    TokenStream-->>Test: token2 ("name")
-    Test->>TokenStream: hasNext()
-    TokenStream-->>Test: false
+    TokenStream-->>Test: Token("IDENTIFIER", "id")
 ```
 
----
-
-## TC-03. LookAhead Without Advancing (`lookAhead_ShouldReturnTokenWithoutAdvancingPointer_WhenOffsetIsValid` / SD-03)
-
+#### TC-02A: `lookAhead_ShouldReturnTokenAtOffset_WithoutAdvancingPointer`
 ```mermaid
 sequenceDiagram
-    title TC-03: LookAhead Without Advancing Pointer
+    title TC-02A: lookAhead_ShouldReturnTokenAtOffset_WithoutAdvancingPointer
     participant Test
     participant TokenStream
 
-    Test->>TokenStream: lookAhead(0)
-    TokenStream-->>Test: token1 ("SELECT")
     Test->>TokenStream: lookAhead(1)
-    TokenStream-->>Test: token2 ("age")
-    Test->>TokenStream: consume()
-    TokenStream-->>Test: token1 ("SELECT")
+    TokenStream-->>Test: Token("IDENTIFIER", "id")
+    Test->>TokenStream: hasNext()
+    TokenStream-->>Test: true (pointer remains at 0)
 ```
 
----
-
-## TC-04. Empty Stream (`emptyStream_ShouldBeEmpty`)
-
+#### TC-02B: `consume_ShouldReturnNullOrThrow_WhenStreamIsEmpty`
 ```mermaid
 sequenceDiagram
-    title TC-04: Empty Stream Behavior
+    title TC-02B: consume_ShouldReturnNullOrThrow_WhenStreamIsEmpty
     participant Test
     participant TokenStream
 
-    Test->>TokenStream: new TokenStream()
     Test->>TokenStream: hasNext()
     TokenStream-->>Test: false
     Test->>TokenStream: consume()
     TokenStream-->>Test: null
 ```
 
----
-
-## TC-05. LookAhead Boundary (`lookAhead_ShouldReturnNull_WhenOffsetIsOutOfBounds`)
-
+#### TC-02C: `lookAhead_ShouldReturnNull_WhenOffsetExceedsBounds`
 ```mermaid
 sequenceDiagram
-    title TC-05: LookAhead Boundary Out of Bounds
+    title TC-02C: lookAhead_ShouldReturnNull_WhenOffsetExceedsBounds
     participant Test
     participant TokenStream
 
-    Test->>TokenStream: lookAhead(-1)
-    TokenStream-->>Test: null
-    Test->>TokenStream: lookAhead(1)
-    TokenStream-->>Test: null
-    Test->>TokenStream: lookAhead(99)
-    TokenStream-->>Test: null
+    Test->>TokenStream: lookAhead(5)
+    TokenStream-->>Test: null (index out of bounds)
 ```
 
----
-
-## TC-06. Consume After EOF (`consume_ShouldReturnNull_WhenConsumedPastEOF`)
-
+#### TC-02D: `consume_ShouldReturnNull_WhenConsumingPastEOF`
 ```mermaid
 sequenceDiagram
-    title TC-06: Consume Past EOF
+    title TC-02D: consume_ShouldReturnNull_WhenConsumingPastEOF
     participant Test
     participant TokenStream
 
-    Test->>TokenStream: consume() [All tokens consumed]
-    TokenStream-->>Test: token
-    Test->>TokenStream: hasNext()
-    TokenStream-->>Test: false
+    Test->>TokenStream: consume()
+    TokenStream-->>Test: Token("EOF", "")
     Test->>TokenStream: consume()
     TokenStream-->>Test: null
 ```
 
 ---
 
-## TC-07. Create Token (`createToken_ShouldStoreTypeAndValue_WhenTokenIsConstructed` / SD-04)
+## 3. Token Unit Tests
 
+### TC-03: `createToken`
+
+#### Happy Path: `createToken_ShouldInitializeTypeAndValue_WhenValidArgsProvided`
 ```mermaid
 sequenceDiagram
-    title TC-07: Create Token
+    title TC-03: createToken_ShouldInitializeTypeAndValue_WhenValidArgsProvided
     participant Test
     participant Token
 
     Test->>Token: new Token("KEYWORD", "SELECT")
-    Token-->>Test: Token Instance Created
+    Token-->>Test: Token instance
     Test->>Token: getType()
     Token-->>Test: "KEYWORD"
     Test->>Token: getValue()
     Token-->>Test: "SELECT"
 ```
 
----
-
-## TC-08. Compare Tokens Equality (`equals_ShouldReturnTrue_WhenTokensContainIdenticalTypeAndValue` / SD-05)
-
+#### TC-03A: `equals_ShouldCompareTokenTypeAndValue_WhenObjectsChecked`
 ```mermaid
 sequenceDiagram
-    title TC-08: Compare Tokens Equality
+    title TC-03A: equals_ShouldCompareTokenTypeAndValue_WhenObjectsChecked
     participant Test
-    participant TokenA
-    participant TokenB
+    participant Token1
+    participant Token2
 
-    Test->>TokenA: getType() / getValue()
-    TokenA-->>Test: "IDENTIFIER" / "users"
-    Test->>TokenB: getType() / getValue()
-    TokenB-->>Test: "IDENTIFIER" / "users"
-    Test->>Test: Compare Type & Value Equality
-    Test-->>Test: True
+    Test->>Token1: equals(Token2)
+    Token1-->>Test: true
 ```
 
----
-
-## TC-09. Default Constructor (`defaultConstructor_ShouldInitializeWithNullValues`)
-
+#### TC-03B: `defaultConstructor_ShouldInitializeWithNulls`
 ```mermaid
 sequenceDiagram
-    title TC-09: Token Default Constructor
+    title TC-03B: defaultConstructor_ShouldInitializeWithNulls
     participant Test
     participant Token
 
     Test->>Token: new Token()
+    Token-->>Test: Token instance
     Test->>Token: getType()
     Token-->>Test: null
-    Test->>Token: getValue()
-    Token-->>Test: null
 ```
 
 ---
 
-## TC-10. Create AST (`createAST_ShouldAssignRootNode_WhenRootNodeIsProvided` / SD-06)
+## 4. SQLParser Unit Tests
 
+### TC-04: `parse`
+
+#### Happy Path: `parse_ShouldGenerateParseTree_WhenValidSelectQuery`
 ```mermaid
 sequenceDiagram
-    title TC-10: Create AST With Root Node
+    title TC-04: parse_ShouldGenerateParseTree_WhenValidSelectQuery
+    participant Test
+    participant SQLParser
+    participant AST
+
+    Test->>SQLParser: parse(tokenStream)
+    SQLParser->>SQLParser: parseSelectClause()
+    SQLParser->>SQLParser: parseWhereClause()
+    SQLParser->>AST: new AST(rootNode)
+    SQLParser-->>Test: AST instance
+```
+
+#### TC-04A: `parse_ShouldParseQueryWithoutWhereClause_WhenWhereIsOmitted`
+```mermaid
+sequenceDiagram
+    title TC-04A: parse_ShouldParseQueryWithoutWhereClause_WhenWhereIsOmitted
+    participant Test
+    participant SQLParser
+    participant SelectASTNode
+
+    Test->>SQLParser: parse(tokenStreamWithoutWhere)
+    SQLParser->>SelectASTNode: new SelectASTNode("users", fields, null)
+    SQLParser-->>Test: AST instance with null whereCondition
+```
+
+#### TC-04B: `parse_ShouldThrowException_WhenSyntaxIsInvalid`
+```mermaid
+sequenceDiagram
+    title TC-04B: parse_ShouldThrowException_WhenSyntaxIsInvalid
+    participant Test
+    participant SQLParser
+
+    Test->>SQLParser: parse("SELECT name users")
+    SQLParser->>SQLParser: matchKeyword("FROM")
+    SQLParser-->>Test: throw ParserException ("Expected 'FROM' keyword")
+```
+
+#### TC-04C: `parse_ShouldThrowException_WhenUnexpectedTokenEncountered`
+```mermaid
+sequenceDiagram
+    title TC-04C: parse_ShouldThrowException_WhenUnexpectedTokenEncountered
+    participant Test
+    participant SQLParser
+
+    Test->>SQLParser: parse("SELECT name WHERE users")
+    SQLParser->>SQLParser: parseSelectClause()
+    SQLParser-->>Test: throw ParserException ("Unexpected token 'WHERE'")
+```
+
+#### TC-04D: `parse_ShouldThrowException_WhenStreamIsEmpty`
+```mermaid
+sequenceDiagram
+    title TC-04D: parse_ShouldThrowException_WhenStreamIsEmpty
+    participant Test
+    participant SQLParser
+
+    Test->>SQLParser: parse(emptyTokenStream)
+    SQLParser-->>Test: throw ParserException ("Unexpected end of stream")
+```
+
+---
+
+## 5. AST Unit Tests
+
+### TC-05: `createAST`
+
+#### Happy Path: `createAST_ShouldAssignRootNode_WhenProvided`
+```mermaid
+sequenceDiagram
+    title TC-05: createAST_ShouldAssignRootNode_WhenProvided
     participant Test
     participant AST
-    participant mockRootNode
+    participant ASTNode
 
-    Test->>AST: new AST(mockRootNode)
-    AST-->>Test: AST Created
+    Test->>AST: new AST(rootNode)
+    AST-->>Test: AST instance
     Test->>AST: getRootASTNode()
-    AST-->>Test: mockRootNode
+    AST-->>Test: rootNode
 ```
 
----
-
-## TC-11. Empty AST (`defaultConstructor_ShouldInitializeWithNullRootNode`)
-
+#### TC-05A: `defaultConstructor_ShouldInitializeNullRoot`
 ```mermaid
 sequenceDiagram
-    title TC-11: Empty AST Default Constructor
+    title TC-05A: defaultConstructor_ShouldInitializeNullRoot
     participant Test
     participant AST
 
     Test->>AST: new AST()
+    AST-->>Test: AST instance
     Test->>AST: getRootASTNode()
     AST-->>Test: null
 ```
 
----
-
-## TC-12. Get Root Node (`getRootASTNode_ShouldReturnAssignedRootNode` / SD-07)
-
+#### TC-05B: `getRootASTNode_ShouldReturnAssignedRootNode`
 ```mermaid
 sequenceDiagram
-    title TC-12: Get Assigned Root Node
+    title TC-05B: getRootASTNode_ShouldReturnAssignedRootNode
     participant Test
     participant AST
 
     Test->>AST: getRootASTNode()
-    AST-->>Test: mockRootNode
+    AST-->>Test: selectASTNode
 ```
 
 ---
 
-## TC-13. Build Select AST Node (`buildSelectASTNode_ShouldPopulateTableProjectionAndWhereClause_WhenParsingSelectStatement` / SD-08)
+## 6. SelectASTNode Unit Tests
 
+### TC-06: `buildSelectASTNode`
+
+#### Happy Path: `buildSelectASTNode_ShouldStoreTableFieldsAndWhereCondition`
 ```mermaid
 sequenceDiagram
-    title TC-13: Build Select AST Node
+    title TC-06: buildSelectASTNode_ShouldStoreTableFieldsAndWhereCondition
     participant Test
     participant SelectASTNode
-    participant mockWhereCondition
 
-    Test->>SelectASTNode: new SelectASTNode("employees", ["id", "name", "salary"], mockWhereCondition)
-    SelectASTNode-->>Test: SelectASTNode Created
-    Test->>SelectASTNode: getNodeName()
-    SelectASTNode-->>Test: "SelectASTNode"
+    Test->>SelectASTNode: new SelectASTNode("orders", ["id"], whereNode)
+    SelectASTNode-->>Test: Node instance
     Test->>SelectASTNode: getTableName()
-    SelectASTNode-->>Test: "employees"
-    Test->>SelectASTNode: getProjectionFields()
-    SelectASTNode-->>Test: ["id", "name", "salary"]
+    SelectASTNode-->>Test: "orders"
     Test->>SelectASTNode: getWhereCondition()
-    SelectASTNode-->>Test: mockWhereCondition
+    SelectASTNode-->>Test: whereNode
 ```
 
----
-
-## TC-14. Projection Fields (`projectionFields_ShouldMaintainListOfColumns`)
-
+#### TC-06A: `buildSelectASTNode_ShouldAllowNullWhereCondition_WhenNoWhereClause`
 ```mermaid
 sequenceDiagram
-    title TC-14: Maintain Projection Fields
+    title TC-06A: buildSelectASTNode_ShouldAllowNullWhereCondition_WhenNoWhereClause
     participant Test
     participant SelectASTNode
 
-    Test->>SelectASTNode: new SelectASTNode("my_table", ["column_a", "column_b"], null)
-    Test->>SelectASTNode: getProjectionFields()
-    SelectASTNode-->>Test: ["column_a", "column_b"]
-```
-
----
-
-## TC-15. WHERE Condition (`whereCondition_ShouldReturnAssignedCondition`)
-
-```mermaid
-sequenceDiagram
-    title TC-15: Retain WHERE Condition Node
-    participant Test
-    participant SelectASTNode
-
-    Test->>SelectASTNode: new SelectASTNode("orders", ["order_id"], mockWhereCondition)
+    Test->>SelectASTNode: new SelectASTNode("users", ["name"], null)
+    SelectASTNode-->>Test: Node instance
     Test->>SelectASTNode: getWhereCondition()
-    SelectASTNode-->>Test: mockWhereCondition
-```
-
----
-
-## TC-16. Build Complete AST (`buildAST_ShouldConstructCompleteSyntaxTree_WhenParsingSelectStatement` / SD-12)
-
-```mermaid
-sequenceDiagram
-    title TC-16: Build Complete AST Syntax Tree
-    participant Test
-    participant IdentifierASTNode
-    participant LiteralASTNode
-    participant BinaryOpASTNode
-    participant SelectASTNode
-    participant AST
-
-    Test->>IdentifierASTNode: new IdentifierASTNode("age")
-    IdentifierASTNode-->>Test: leftOperand
-    Test->>LiteralASTNode: new LiteralASTNode("30", "INT")
-    LiteralASTNode-->>Test: rightOperand
-    Test->>BinaryOpASTNode: new BinaryOpASTNode(">", leftOperand, rightOperand)
-    BinaryOpASTNode-->>Test: whereOp
-    Test->>SelectASTNode: new SelectASTNode("users", ["name", "age"], whereOp)
-    SelectASTNode-->>Test: selectNode
-    Test->>AST: new AST(selectNode)
-    AST-->>Test: ast Instance
-```
-
----
-
-## TC-17. Default Constructor (`defaultConstructor_ShouldSetNodeName`)
-
-```mermaid
-sequenceDiagram
-    title TC-17: SelectASTNode Default Constructor
-    participant Test
-    participant SelectASTNode
-
-    Test->>SelectASTNode: new SelectASTNode()
-    Test->>SelectASTNode: getNodeName()
-    SelectASTNode-->>Test: "SelectASTNode"
-    Test->>SelectASTNode: getTableName() / getProjectionFields() / getWhereCondition()
     SelectASTNode-->>Test: null
 ```
 
----
-
-## TC-18. Build Binary Operator AST Node (`buildBinaryOperatorASTNode_ShouldLinkLeftAndRightOperands_WhenParsingBinaryExpression` / SD-09)
-
+#### TC-06B: `buildSelectASTNode_ShouldSupportMultipleProjectionFields`
 ```mermaid
 sequenceDiagram
-    title TC-18: Build Binary Operator AST Node
+    title TC-06B: buildSelectASTNode_ShouldSupportMultipleProjectionFields
+    participant Test
+    participant SelectASTNode
+
+    Test->>SelectASTNode: new SelectASTNode("users", ["id", "name", "age"], null)
+    SelectASTNode-->>Test: Node instance
+    Test->>SelectASTNode: getProjectionFields()
+    SelectASTNode-->>Test: List of 3 fields
+```
+
+---
+
+## 7. BinaryOpASTNode Unit Tests
+
+### TC-07: `buildBinaryOpNode`
+
+#### Happy Path: `buildBinaryOpNode_ShouldStoreOperatorAndLeftRightChildNodes`
+```mermaid
+sequenceDiagram
+    title TC-07: buildBinaryOpNode_ShouldStoreOperatorAndLeftRightChildNodes
     participant Test
     participant BinaryOpASTNode
-    participant mockLeftNode
-    participant mockRightNode
 
-    Test->>BinaryOpASTNode: new BinaryOpASTNode("=", mockLeftNode, mockRightNode)
-    BinaryOpASTNode-->>Test: BinaryOpASTNode Created
-    Test->>BinaryOpASTNode: getNodeName()
-    BinaryOpASTNode-->>Test: "BinaryOpASTNode"
+    Test->>BinaryOpASTNode: new BinaryOpASTNode(">", leftNode, rightNode)
+    BinaryOpASTNode-->>Test: Node instance
     Test->>BinaryOpASTNode: getOperatorType()
-    BinaryOpASTNode-->>Test: "="
-    Test->>BinaryOpASTNode: getLeftNode() / getRightNode()
-    BinaryOpASTNode-->>Test: mockLeftNode / mockRightNode
+    BinaryOpASTNode-->>Test: ">"
 ```
 
----
-
-## TC-19. Child Operands Evaluation (`getLeftNode_And_getRightNode_ShouldReturnChildNodes`)
-
+#### TC-07A: `buildBinaryOpNode_ShouldSupportNestedBinaryOperators`
 ```mermaid
 sequenceDiagram
-    title TC-19: Get Left & Right Child Operands
+    title TC-07A: buildBinaryOpNode_ShouldSupportNestedBinaryOperators
     participant Test
     participant BinaryOpASTNode
 
-    Test->>BinaryOpASTNode: new BinaryOpASTNode("AND", mockLeftNode, mockRightNode)
-    Test->>BinaryOpASTNode: getLeftNode()
-    BinaryOpASTNode-->>Test: mockLeftNode
-    Test->>BinaryOpASTNode: getRightNode()
-    BinaryOpASTNode-->>Test: mockRightNode
+    Test->>BinaryOpASTNode: new BinaryOpASTNode("AND", leftOpNode, rightOpNode)
+    BinaryOpASTNode-->>Test: Nested Node instance
 ```
 
 ---
 
-## TC-20. Default Constructor (`defaultConstructor_ShouldSetNodeName`)
+## 8. IdentifierASTNode Unit Tests
 
+### TC-08: `buildIdentifierNode`
+
+#### Happy Path: `buildIdentifierNode_ShouldStoreColumnName`
 ```mermaid
 sequenceDiagram
-    title TC-20: BinaryOpASTNode Default Constructor
+    title TC-08: buildIdentifierNode_ShouldStoreColumnName
     participant Test
-    participant BinaryOpASTNode
+    participant IdentifierASTNode
 
-    Test->>BinaryOpASTNode: new BinaryOpASTNode()
-    Test->>BinaryOpASTNode: getNodeName()
-    BinaryOpASTNode-->>Test: "BinaryOpASTNode"
-    Test->>BinaryOpASTNode: getOperatorType() / getLeftNode() / getRightNode()
-    BinaryOpASTNode-->>Test: null
+    Test->>IdentifierASTNode: new IdentifierASTNode("user_id")
+    IdentifierASTNode-->>Test: Node instance
+    Test->>IdentifierASTNode: getValue()
+    IdentifierASTNode-->>Test: "user_id"
 ```
 
----
-
-## TC-21. Build Identifier AST Node (`buildIdentifierASTNode_ShouldPreserveQualifiedIdentifier_WhenParsingIdentifier` / SD-10)
-
+#### TC-08A: `buildIdentifierNode_ShouldHandleQualifiedColumnNames`
 ```mermaid
 sequenceDiagram
-    title TC-21: Preserve Qualified Identifier
+    title TC-08A: buildIdentifierNode_ShouldHandleQualifiedColumnNames
     participant Test
     participant IdentifierASTNode
 
     Test->>IdentifierASTNode: new IdentifierASTNode("users.user_id")
-    IdentifierASTNode-->>Test: IdentifierASTNode Created
-    Test->>IdentifierASTNode: getNodeName()
-    IdentifierASTNode-->>Test: "IdentifierASTNode"
+    IdentifierASTNode-->>Test: Node instance
     Test->>IdentifierASTNode: getValue()
     IdentifierASTNode-->>Test: "users.user_id"
 ```
 
 ---
 
-## TC-22. Column Identifier (`columnIdentifier_ShouldStoreSimpleColumnName`)
+## 9. LiteralASTNode Unit Tests
 
+### TC-09: `buildLiteralNode`
+
+#### Happy Path: `buildLiteralNode_ShouldStoreRawValueAndInferredType`
 ```mermaid
 sequenceDiagram
-    title TC-22: Simple Column Identifier
-    participant Test
-    participant IdentifierASTNode
-
-    Test->>IdentifierASTNode: new IdentifierASTNode("email")
-    Test->>IdentifierASTNode: getValue()
-    IdentifierASTNode-->>Test: "email"
-```
-
----
-
-## TC-23. Default Constructor (`defaultConstructor_ShouldInitializeWithNullValue`)
-
-```mermaid
-sequenceDiagram
-    title TC-23: IdentifierASTNode Default Constructor
-    participant Test
-    participant IdentifierASTNode
-
-    Test->>IdentifierASTNode: new IdentifierASTNode()
-    Test->>IdentifierASTNode: getNodeName()
-    IdentifierASTNode-->>Test: "IdentifierASTNode"
-    Test->>IdentifierASTNode: getValue()
-    IdentifierASTNode-->>Test: null
-```
-
----
-
-## TC-24. Build Literal AST Node (`buildLiteralASTNode_ShouldInferDataType_WhenParsingLiteralValue` / SD-11)
-
-```mermaid
-sequenceDiagram
-    title TC-24: Build Literal AST Node
+    title TC-09: buildLiteralNode_ShouldStoreRawValueAndInferredType
     participant Test
     participant LiteralASTNode
 
-    Test->>LiteralASTNode: new LiteralASTNode("100", "INTEGER")
-    LiteralASTNode-->>Test: LiteralASTNode Created
-    Test->>LiteralASTNode: getNodeName()
-    LiteralASTNode-->>Test: "LiteralASTNode"
+    Test->>LiteralASTNode: new LiteralASTNode("100", "INT")
+    LiteralASTNode-->>Test: Node instance
     Test->>LiteralASTNode: getValue()
     LiteralASTNode-->>Test: "100"
     Test->>LiteralASTNode: getInferredType()
-    LiteralASTNode-->>Test: "INTEGER"
+    LiteralASTNode-->>Test: "INT"
 ```
 
----
-
-## TC-25. Integer Literal (`integerLiteral_ShouldStoreIntegerDataType`)
-
+#### TC-09A: `buildLiteralNode_ShouldSupportIntegerLiteral`
 ```mermaid
 sequenceDiagram
-    title TC-25: Integer Literal
+    title TC-09A: buildLiteralNode_ShouldSupportIntegerLiteral
     participant Test
     participant LiteralASTNode
 
     Test->>LiteralASTNode: new LiteralASTNode("42", "INT")
-    Test->>LiteralASTNode: getValue() / getInferredType()
-    LiteralASTNode-->>Test: "42" / "INT"
+    LiteralASTNode-->>Test: Node instance
+```
+
+#### TC-09B: `buildLiteralNode_ShouldSupportStringLiteral`
+```mermaid
+sequenceDiagram
+    title TC-09B: buildLiteralNode_ShouldSupportStringLiteral
+    participant Test
+    participant LiteralASTNode
+
+    Test->>LiteralASTNode: new LiteralASTNode("John", "VARCHAR")
+    LiteralASTNode-->>Test: Node instance
+```
+
+#### TC-09C: `buildLiteralNode_ShouldSupportBooleanLiteral`
+```mermaid
+sequenceDiagram
+    title TC-09C: buildLiteralNode_ShouldSupportBooleanLiteral
+    participant Test
+    participant LiteralASTNode
+
+    Test->>LiteralASTNode: new LiteralASTNode("true", "BOOLEAN")
+    LiteralASTNode-->>Test: Node instance
+```
+
+#### TC-09D: `buildLiteralNode_ShouldSupportNullLiteral`
+```mermaid
+sequenceDiagram
+    title TC-09D: buildLiteralNode_ShouldSupportNullLiteral
+    participant Test
+    participant LiteralASTNode
+
+    Test->>LiteralASTNode: new LiteralASTNode("NULL", "UNKNOWN")
+    LiteralASTNode-->>Test: Node instance
 ```
 
 ---
 
-## TC-26. String Literal (`stringLiteral_ShouldStoreStringDataType`)
+## 10. QueryOptimizer Unit Tests
 
+### TC-10: `generateLogicalPlan` & `optimize`
+
+#### Happy Path: `generateLogicalPlan_ShouldConvertASTToLogicalPlan`
 ```mermaid
 sequenceDiagram
-    title TC-26: String Literal
+    title TC-10: generateLogicalPlan_ShouldConvertASTToLogicalPlan
     participant Test
-    participant LiteralASTNode
+    participant QueryOptimizer
+    participant LogicalPlan
 
-    Test->>LiteralASTNode: new LiteralASTNode("'John Doe'", "VARCHAR")
-    Test->>LiteralASTNode: getValue() / getInferredType()
-    LiteralASTNode-->>Test: "'John Doe'" / "VARCHAR"
+    Test->>QueryOptimizer: generateLogicalPlan(ast)
+    QueryOptimizer->>LogicalPlan: new LogicalPlan()
+    QueryOptimizer-->>Test: LogicalPlan instance
+```
+
+#### TC-10A: `optimize_ShouldTransformLogicalPlanToPhysicalPlan_WhenRulesApplied`
+```mermaid
+sequenceDiagram
+    title TC-10A: optimize_ShouldTransformLogicalPlanToPhysicalPlan_WhenRulesApplied
+    participant Test
+    participant QueryOptimizer
+    participant PhysicalPlan
+
+    Test->>QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>PhysicalPlan: new PhysicalPlan()
+    QueryOptimizer-->>Test: PhysicalPlan instance
+```
+
+#### TC-10B: `estimateCost_ShouldComputeTotalPlanCost_WhenPhysicalPlanOptimized`
+```mermaid
+sequenceDiagram
+    title TC-10B: estimateCost_ShouldComputeTotalPlanCost_WhenPhysicalPlanOptimized
+    participant Test
+    participant PhysicalPlan
+
+    Test->>PhysicalPlan: getEstimatedCost()
+    PhysicalPlan-->>Test: costValue (>= 0.0)
+```
+
+#### TC-10C: `optimize_ShouldSelectIndexScan_WhenIndexExistsOnFilterColumn`
+```mermaid
+sequenceDiagram
+    title TC-10C: optimize_ShouldSelectIndexScan_WhenIndexExistsOnFilterColumn
+    participant Test
+    participant QueryOptimizer
+    participant PhysicalPlan
+
+    Test->>QueryOptimizer: optimize(logicalPlanWithIndexFilter)
+    QueryOptimizer->>PhysicalPlan: createIndexScanNode()
+    QueryOptimizer-->>Test: PhysicalPlan with IndexScanNode
 ```
 
 ---
 
-## TC-27. Boolean Literal (`booleanLiteral_ShouldStoreBooleanDataType`)
+## 11. StatisticsManager Unit Tests
 
+### TC-11: `estimateCardinality`
+
+#### Happy Path: `estimateCardinality_ShouldReturnTableRowCount`
 ```mermaid
 sequenceDiagram
-    title TC-27: Boolean Literal
+    title TC-11: estimateCardinality_ShouldReturnTableRowCount
     participant Test
-    participant LiteralASTNode
+    participant StatisticsManager
 
-    Test->>LiteralASTNode: new LiteralASTNode("TRUE", "BOOLEAN")
-    Test->>LiteralASTNode: getValue() / getInferredType()
-    LiteralASTNode-->>Test: "TRUE" / "BOOLEAN"
+    Test->>StatisticsManager: estimateCardinality("users")
+    StatisticsManager-->>Test: rowCount (long)
 ```
 
----
-
-## TC-28. NULL Literal (`nullLiteral_ShouldStoreNullDataType`)
-
+#### TC-11A: `estimateSelectivity_ShouldComputeFractionalSelectivity_ForPredicate`
 ```mermaid
 sequenceDiagram
-    title TC-28: NULL Literal
+    title TC-11A: estimateSelectivity_ShouldComputeFractionalSelectivity_ForPredicate
     participant Test
-    participant LiteralASTNode
+    participant StatisticsManager
 
-    Test->>LiteralASTNode: new LiteralASTNode("NULL", "NULL")
-    Test->>LiteralASTNode: getValue() / getInferredType()
-    LiteralASTNode-->>Test: "NULL" / "NULL"
+    Test->>StatisticsManager: estimateSelectivity("status", "ACTIVE")
+    StatisticsManager-->>Test: selectivityValue (0.0 to 1.0)
 ```
 
----
-
-## TC-29. Default Constructor (`defaultConstructor_ShouldInitializeWithNullFields`)
-
+#### TC-11B: `estimateCardinality_ShouldThrowException_WhenTableNotFound`
 ```mermaid
 sequenceDiagram
-    title TC-29: LiteralASTNode Default Constructor
+    title TC-11B: estimateCardinality_ShouldThrowException_WhenTableNotFound
     participant Test
-    participant LiteralASTNode
+    participant StatisticsManager
 
-    Test->>LiteralASTNode: new LiteralASTNode()
-    Test->>LiteralASTNode: getNodeName()
-    LiteralASTNode-->>Test: "LiteralASTNode"
-    Test->>LiteralASTNode: getValue() / getInferredType()
-    LiteralASTNode-->>Test: null
+    Test->>StatisticsManager: estimateCardinality("unknown_table")
+    StatisticsManager->>StatisticsManager: checkTable("unknown_table")
+    StatisticsManager-->>Test: throw TableNotFoundException
 ```
