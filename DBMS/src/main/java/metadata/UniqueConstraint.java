@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.abstracts.Constraint;
+
 public class UniqueConstraint extends Constraint {
     public UniqueConstraint() {
         super();

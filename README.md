@@ -9,7 +9,7 @@ This document provides a high-level architectural view of the Relational Databas
 ### Master System Architecture Flowchart
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph CoreServer["Database Core Server"]
         DatabaseServer["DatabaseServer"]
         SessionManager["SessionManager"]

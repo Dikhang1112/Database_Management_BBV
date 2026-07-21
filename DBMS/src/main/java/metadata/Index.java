@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.enums.IndexType;
+import metadata.interfaces.IndexRebuildStrategy;
 import java.util.UUID;
 
 public class Index {
@@ -8,6 +9,7 @@ public class Index {
     private String indexName;
     private IndexType indexType;
     private boolean enabled;
+    private IndexRebuildStrategy rebuildStrategy;
 
     public Index() {
         this.indexId = UUID.randomUUID();
@@ -28,9 +30,19 @@ public class Index {
         this.enabled = false;
     }
 
+    // Pattern: Strategy
+    public void setRebuildStrategy(IndexRebuildStrategy strategy) {
+        this.rebuildStrategy = strategy;
+    }
+
     public void rebuild() {
         if (indexName != null && indexName.contains("corrupted")) {
             throw new IllegalStateException("Index is corrupted");
+        }
+        if (rebuildStrategy != null) {
+            rebuildStrategy.
+            
+            (this);
         }
         this.enabled = true;
     }
@@ -43,3 +55,4 @@ public class Index {
         return enabled;
     }
 }
+

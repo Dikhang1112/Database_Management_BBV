@@ -1,15 +1,29 @@
 package metadata;
 
+import metadata.interfaces.MetadataElement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CatalogManager {
+public class CatalogManager implements MetadataElement {
+    private static volatile CatalogManager instance;
     private Map<String, Database> databases;
 
     public CatalogManager() {
         this.databases = new HashMap<>();
+    }
+
+    // Pattern: Singleton
+    public static CatalogManager getInstance() {
+        if (instance == null) {
+            synchronized (CatalogManager.class) {
+                if (instance == null) {
+                    instance = new CatalogManager();
+                }
+            }
+        }
+        return instance;
     }
 
     public Database createDatabase(String databaseName) {
@@ -57,4 +71,12 @@ public class CatalogManager {
     public void clear() {
         databases.clear();
     }
+
+    // Pattern: Composite
+    @Override
+    public String getElementName() {
+        return "CatalogManager";
+    }
 }
+
+
