@@ -6,9 +6,9 @@ classDiagram
     %% METADATA MODULE & FACADE
     %% =====================================================
 
-    class MetadataModule{
+    class Metadata{
         <<Module / Facade>>
-        +getInstance() MetadataModule
+        +getInstance() Metadata
         +getTable(String dbName, String schemaName, String tableName) Table
         +executeDDL(DDLCommand command)
     }

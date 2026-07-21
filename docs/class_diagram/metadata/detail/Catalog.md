@@ -2,90 +2,137 @@
 classDiagram
     direction TD
 
-    %% =====================================================
-    %% METADATA MODULE
-    %% =====================================================
+%% =====================================================
+%% METADATA MODULE (FACADE)
+%% =====================================================
 
     class MetadataModule{
-        <<Module>>
-    }
+<<Module / Facade>>
 
-    %% =====================================================
-    %% CATALOG MANAGER
-    %% =====================================================
+-CatalogManager catalogManager
 
-    class CatalogManager{
-        -Map<String, Database> databases
++getInstance() MetadataModule$
++getCatalogManager() CatalogManager
++executeDDL(DDLCommand command)
++getDatabase(String databaseName) Database
+}
 
-        +createDatabase(String databaseName) Database
-        +dropDatabase(String databaseName) void
-        +getDatabase(String databaseName) Database
-        +containsDatabase(String databaseName) boolean
-        +listDatabases() List~Database~
-        +clear() void
-    }
+%% =====================================================
+%% CATALOG MANAGER (AGGREGATE ROOT)
+%% =====================================================
 
-    %% =====================================================
-    %% DATABASE
-    %% =====================================================
+class CatalogManager{
+<<Singleton / Composite Root>>
 
-    class Database{
-        -UUID databaseId
-        -String databaseName
-        -Map<String, Schema> schemas
-        -DatabaseStatus status
-        -LocalDateTime createdAt
+-UUID catalogId
+-Map~String,Database~ databases
+-LocalDateTime createdAt
+-LocalDateTime updatedAt
 
-        +createSchema(String schemaName) Schema
-        +dropSchema(String schemaName) void
-        +getSchema(String schemaName) Schema
-        +containsSchema(String schemaName) boolean
-        +listSchemas() List~Schema~
++getInstance() CatalogManager$
++createDatabase(String databaseName) Database
++dropDatabase(String databaseName)
++renameDatabase(String oldName,String newName)
++getDatabase(String databaseName) Database
++containsDatabase(String databaseName) boolean
++listDatabases() List~Database~
++clear()
+}
 
-        +rename(String newName) void
-        +setStatus(DatabaseStatus status) void
-    }
+%% =====================================================
+%% DATABASE (AGGREGATE REFERENCE)
+%% =====================================================
 
-    %% =====================================================
-    %% SCHEMA
-    %% =====================================================
+class Database{
+<<Aggregate Root>>
 
-    class Schema{
-        -UUID schemaId
-        -String schemaName
-        -Map<String, Table> tables
+-UUID databaseId
+-String databaseName
+-DatabaseStatus status
+-LocalDateTime createdAt
 
-        +createTable(String tableName) Table
-        +dropTable(String tableName) void
-        +getTable(String tableName) Table
-        +containsTable(String tableName) boolean
-        +listTables() List~Table~
++rename(String newName)
++setStatus(DatabaseStatus status)
++getDatabaseName() String
++getStatus() DatabaseStatus
+}
 
-        +rename(String newName) void
-    }
+%% =====================================================
+%% COMPOSITE
+%% =====================================================
 
-    %% =====================================================
-    %% ENUM
-    %% =====================================================
+class MetadataElement{
+<<Interface>>
 
-    class DatabaseStatus{
-        <<enumeration>>
-        ONLINE
-        OFFLINE
-        READ_ONLY
-    }
++getElementName() String*
+}
 
-    %% =====================================================
-    %% DEPENDENCIES
-    %% =====================================================
+%% =====================================================
+%% COMMAND PATTERN
+%% =====================================================
 
-    MetadataModule *-- CatalogManager
+class DDLCommand{
+<<Interface>>
 
-    CatalogManager "1" *-- "*" Database
++execute()*
++undo()*
+}
 
-    Database "1" *-- "*" Schema
+class CreateDatabaseCommand{
 
-    Schema --> Table
+-String databaseName
 
-    Database --> DatabaseStatus
++execute()
++undo()
+}
+
+class DropDatabaseCommand{
+
+-String databaseName
+
++execute()
++undo()
+}
+
+class RenameDatabaseCommand{
+
+-String oldName
+-String newName
+
++execute()
++undo()
+}
+
+%% =====================================================
+%% ENUM
+%% =====================================================
+
+class DatabaseStatus{
+<<Enumeration>>
+
+ONLINE
+OFFLINE
+READ_ONLY
+}
+
+%% =====================================================
+%% RELATIONSHIPS
+%% =====================================================
+
+MetadataModule *-- CatalogManager
+
+CatalogManager "1" *-- "*" Database
+
+MetadataElement <|.. CatalogManager
+MetadataElement <|.. Database
+
+Database --> DatabaseStatus
+
+DDLCommand <|.. CreateDatabaseCommand
+DDLCommand <|.. DropDatabaseCommand
+
+MetadataModule ..> DDLCommand
+
+CreateDatabaseCommand ..> CatalogManager
+DropDatabaseCommand ..> CatalogManager
 ```

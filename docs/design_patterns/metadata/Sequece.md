@@ -1,14 +1,14 @@
-# Sơ Đồ Tuần Tự (Sequence Diagrams) Các Pattern Quan Trọng Trong Metadata Module
+# Sequence Diagrams for Key Design Patterns in Metadata Module
 
-Tài liệu này chứa **13 Sơ đồ tuần tự (Sequence Diagrams)** bằng Mermaid mô tả chi tiết luồng tương tác của các **Design Pattern cốt lõi & tính năng nâng cao (Group 1 & 2)** trong module `metadata`, đồng bộ 100% từng trường (`Pattern`, `Class/Interface áp dụng`, `Method`) với file cấu trúc `ListPatterm.md`.
+This document contains **13 Mermaid Sequence Diagrams** illustrating interaction flows for core and operational **Design Patterns** in the `metadata` module, matching 100% with `ListPatterm.md` by object hierarchy from **Root Catalog** ➔ **Database & Schema** ➔ **Table** ➔ **Column, Constraint, & Index** ➔ **Schema Observers**.
 
 ---
 
-## 🏛️ 1. Cấp Độ CatalogManager & MetadataModule (Root Catalog Level)
+## 1. CatalogManager & MetadataModule Level (Root Catalog Level)
 
 ### 1.1. Singleton Pattern
 * **Pattern**: Singleton Pattern
-* **Class/Interface áp dụng**: CatalogManager
+* **Class/Interface Applied**: CatalogManager
 * **Method**: `getInstance()`
 
 ```mermaid
@@ -28,8 +28,8 @@ sequenceDiagram
 
 ### 1.2. Facade Pattern
 * **Pattern**: Facade Pattern
-* **Class/Interface áp dụng**: MetadataModule
-* **Method**: `getTable(databaseName, schemaName, tableName)`, `executeDDL()`
+* **Class/Interface Applied**: MetadataModule
+* **Method**: `getTable(databaseName, schemaName, tableName)`, `getDatabase(databaseName)`, `getCatalogManager()`, `executeDDL(command)`
 
 ```mermaid
 sequenceDiagram
@@ -40,6 +40,7 @@ sequenceDiagram
     participant DB as Database
     participant Schema as Schema
     participant Table as Table
+    participant Cmd as DDLCommand
 
     Caller->>Facade: getTable("sales_db", "public", "orders")
     Facade->>CM: getDatabase("sales_db")
@@ -59,7 +60,7 @@ sequenceDiagram
 
 ### 1.3. Composite Pattern
 * **Pattern**: Composite Pattern
-* **Class/Interface áp dụng**: MetadataElement (được implement bởi CatalogManager, Database, Schema, Table, Column)
+* **Class/Interface Applied**: MetadataElement (implemented by CatalogManager, Database, Schema, Table, Column)
 * **Method**: `getElementName()`
 
 ```mermaid
@@ -83,11 +84,11 @@ sequenceDiagram
 
 ---
 
-## 🗄️ 2. Cấp Độ Database (Database Level)
+## 2. Database Level
 
 ### 2.1. State Pattern
 * **Pattern**: State Pattern
-* **Class/Interface áp dụng**: DatabaseStatus, Database
+* **Class/Interface Applied**: DatabaseStatus, Database
 * **Method**: `setStatus(status)`, `createSchema(schemaName)`
 
 ```mermaid
@@ -109,11 +110,11 @@ sequenceDiagram
 
 ---
 
-## 📂 3. Cấp Độ Schema (Schema Level)
+## 3. Schema Level
 
 ### 3.1. Factory Method Pattern
 * **Pattern**: Factory Method Pattern
-* **Class/Interface áp dụng**: Schema
+* **Class/Interface Applied**: Schema
 * **Method**: `createTable(tableName)`, `createView(viewName, sql)`, `createSequence(sequenceName)`, `createTrigger(triggerName)`, `createProcedure(procedureName)`, `createFunction(functionName)`
 
 ```mermaid
@@ -138,7 +139,7 @@ sequenceDiagram
 
 ### 3.2. Command Pattern
 * **Pattern**: Command Pattern
-* **Class/Interface áp dụng**: DDLCommand (CreateTableCommand)
+* **Class/Interface Applied**: DDLCommand (CreateTableCommand, DropTableCommand, CreateSchemaCommand, DropSchemaCommand, RenameSchemaCommand)
 * **Method**: `execute()`, `undo()`
 
 ```mermaid
@@ -157,11 +158,11 @@ sequenceDiagram
 
 ---
 
-## 📋 4. Cấp Độ Table (Table Level)
+## 4. Table Level
 
 ### 4.1. Prototype Pattern
 * **Pattern**: Prototype Pattern
-* **Class/Interface áp dụng**: Table
+* **Class/Interface Applied**: Table, Column
 * **Method**: `clone()`
 
 ```mermaid
@@ -174,7 +175,7 @@ sequenceDiagram
     Schema->>TableOrig: clone()
     TableOrig->>TableClone: new Table("orders_copy")
     loop Clone Columns
-        TableOrig->>TableClone: addColumn(column.clone())
+        TableOrig->>TableClone: createColumn(column.clone())
     end
     TableOrig-->>Schema: TableClone instance
 ```
@@ -183,7 +184,7 @@ sequenceDiagram
 
 ### 4.2. Memento Pattern
 * **Pattern**: Memento Pattern
-* **Class/Interface áp dụng**: TableMemento, Table
+* **Class/Interface Applied**: TableMemento, Table
 * **Method**: `createMemento()`, `restore(memento)`
 
 ```mermaid
@@ -208,9 +209,9 @@ sequenceDiagram
 ---
 
 ### 4.3. Observer Pattern (Subject)
-* **Pattern**: Observer Pattern
-* **Class/Interface áp dụng**: Table, MetadataChangeListener
-* **Method**: `registerListener(listener)`, `notifyListeners(eventType, targetName)`
+* **Pattern**: Observer Pattern (Subject)
+* **Class/Interface Applied**: Table, MetadataChangeListener
+* **Method**: `registerListener(listener)`, `removeListener(listener)`, `notifyListeners(eventType, targetName)`
 
 ```mermaid
 sequenceDiagram
@@ -218,20 +219,20 @@ sequenceDiagram
     participant Table as Table (Subject)
     participant Listener as MetadataChangeListener (Observer)
 
-    Table->>Table: registerListener(Listener)
-    Table->>Table: removeColumn("email")
+    Table->>Table: registerListener(listener)
+    Table->>Table: dropColumn("email")
     Table->>Table: notifyListeners("COLUMN_REMOVED", "email")
     Table->>Listener: onMetadataChanged("COLUMN_REMOVED", "email")
 ```
 
 ---
 
-## 🏛️ 5. Cấp Độ Column (Column Level)
+## 5. Column Level
 
 ### 5.1. Builder Pattern
 * **Pattern**: Builder Pattern
-* **Class/Interface áp dụng**: ColumnBuilder
-* **Method**: `setType(dataType)`, `setNullable(nullable)`, `setDefaultValue(value)`, `build()`
+* **Class/Interface Applied**: ColumnBuilder
+* **Method**: `setName(name)`, `setType(dataType)`, `setNullable(nullable)`, `setDefaultValue(value)`, `build()`
 
 ```mermaid
 sequenceDiagram
@@ -240,7 +241,9 @@ sequenceDiagram
     participant CB as ColumnBuilder
     participant Col as Column
 
-    Table->>CB: new ColumnBuilder("user_id")
+    Table->>CB: new ColumnBuilder()
+    CB-->>Table: ColumnBuilder
+    Table->>CB: setName("user_id")
     CB-->>Table: ColumnBuilder
     Table->>CB: setType(DataType.INT)
     CB-->>Table: ColumnBuilder
@@ -256,11 +259,11 @@ sequenceDiagram
 
 ---
 
-## 🔒 6. Cấp Độ Constraint (Constraint Level)
+## 6. Constraint Level
 
 ### 6.1. Factory Method Pattern (Constraint)
 * **Pattern**: Factory Method Pattern
-* **Class/Interface áp dụng**: ConstraintFactory
+* **Class/Interface Applied**: ConstraintFactory
 * **Method**: `createConstraint(type, name, args)`
 
 ```mermaid
@@ -280,7 +283,7 @@ sequenceDiagram
 
 ### 6.2. Template Method Pattern
 * **Pattern**: Template Method Pattern
-* **Class/Interface áp dụng**: Constraint
+* **Class/Interface Applied**: Constraint
 * **Method**: `validate()`, `preValidate()`, `doValidate()`, `postValidate()`
 
 ```mermaid
@@ -302,8 +305,8 @@ sequenceDiagram
 
 ### 6.3. Chain of Responsibility Pattern
 * **Pattern**: Chain of Responsibility Pattern
-* **Class/Interface áp dụng**: ConstraintValidationChain
-* **Method**: `addConstraint(constraint)`, `validateAll()`
+* **Class/Interface Applied**: ConstraintValidationChain
+* **Method**: `addConstraint(constraint)`, `removeConstraint(constraint)`, `validateAll()`
 
 ```mermaid
 sequenceDiagram
@@ -313,6 +316,8 @@ sequenceDiagram
     participant PK as PrimaryKeyConstraint
     participant FK as ForeignKeyConstraint
 
+    Table->>Chain: addConstraint(pkConstraint)
+    Table->>Chain: addConstraint(fkConstraint)
     Table->>Chain: validateAll()
     Chain->>PK: validate()
     alt PK Valid
@@ -328,11 +333,11 @@ sequenceDiagram
 
 ---
 
-## ⚡ 7. Cấp Độ Index (Index Level)
+## 7. Index Level
 
 ### 7.1. Strategy Pattern
 * **Pattern**: Strategy Pattern
-* **Class/Interface áp dụng**: Index, IndexRebuildStrategy
+* **Class/Interface Applied**: Index, IndexRebuildStrategy
 * **Method**: `setRebuildStrategy(strategy)`, `rebuild()`
 
 ```mermaid
@@ -351,11 +356,11 @@ sequenceDiagram
 
 ---
 
-## 👁️ 8. Cấp Độ View & Trigger (Schema Observers Level)
+## 8. View & Trigger Level (Schema Observers)
 
 ### 8.1. Observer Pattern (Subscriber)
-* **Pattern**: Observer Pattern
-* **Class/Interface áp dụng**: View, Trigger, MetadataChangeListener
+* **Pattern**: Observer Pattern (Subscriber)
+* **Class/Interface Applied**: View, Trigger, MetadataChangeListener
 * **Method**: `onMetadataChanged(eventType, targetName)`, `compile()`, `refresh()`
 
 ```mermaid
