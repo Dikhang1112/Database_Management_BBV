@@ -3,187 +3,220 @@ classDiagram
     direction TD
 
     %% =====================================================
-    %% METADATA MODULE
+    %% METADATA MODULE & FACADE
     %% =====================================================
 
     class MetadataModule{
-        <<Module>>
+        <<Module / Facade>>
+        +getInstance() MetadataModule
+        +getTable(String dbName, String schemaName, String tableName) Table
+        +executeDDL(DDLCommand command)
     }
 
     %% =====================================================
-    %% CATALOG
+    %% CORE CATALOG TREE & DOMAIN ENTITIES
     %% =====================================================
 
     class CatalogManager{
-        createDatabase(String databaseName) Database
-        dropDatabase(String databaseName)
-        getDatabase(String databaseName) Database
-        containsDatabase(String databaseName) boolean
-        listDatabases() List~Database~
+        <<Singleton / Composite Node>>
+        +getInstance() CatalogManager$
+        +createDatabase(String databaseName) Database
+        +dropDatabase(String databaseName)
+        +getDatabase(String databaseName) Database
+        +containsDatabase(String databaseName) boolean
+        +listDatabases() List~Database~
+        +getElementName() String
     }
 
     class Database{
-        createSchema(String schemaName) Schema
-        dropSchema(String schemaName)
-        getSchema(String schemaName) Schema
-        listSchemas() List~Schema~
+        <<Composite Node / State Context>>
+        +createSchema(String schemaName) Schema
+        +dropSchema(String schemaName)
+        +getSchema(String schemaName) Schema
+        +setStatus(DatabaseStatus status)
+        +getElementName() String
     }
 
     class Schema{
-        createTable(String tableName) Table
-        dropTable(String tableName)
-        getTable(String tableName) Table
-
-        createView(String viewName,String sql) View
-        createSequence(String sequenceName) Sequence
-        createTrigger(String triggerName) Trigger
-        createProcedure(String procedureName) StoredProcedure
-        createFunction(String functionName) Function
-
-        listTables() List~Table~
-        listViews() List~View~
+        <<Composite Node / Factory Method>>
+        +createTable(String tableName) Table
+        +createView(String viewName, String sql) View
+        +createSequence(String sequenceName) Sequence
+        +createTrigger(String triggerName) Trigger
+        +createProcedure(String procedureName) StoredProcedure
+        +createFunction(String functionName) Function
+        +dropTable(String tableName)
+        +getTable(String tableName) Table
+        +getElementName() String
     }
 
-    %% =====================================================
-    %% TABLE
-    %% =====================================================
-
     class Table{
-        addColumn(Column column)
-        removeColumn(String columnName)
-
-        addConstraint(Constraint constraint)
-        removeConstraint(String constraintName)
-
-        addIndex(Index index)
-        removeIndex(String indexName)
-
-        getColumn(String columnName) Column
-        getIndex(String indexName) Index
-
-        listColumns() List~Column~
-        listIndexes() List~Index~
-        listConstraints() List~Constraint~
+        <<Composite Node / Prototype / Memento / Subject>>
+        +addColumn(Column column)
+        +removeColumn(String columnName)
+        +addConstraint(Constraint constraint)
+        +addIndex(Index index)
+        +createMemento() TableMemento
+        +restore(TableMemento memento)
+        +clone() Table
+        +registerListener(MetadataChangeListener listener)
+        +notifyListeners(String eventType, String targetName)
+        +getElementName() String
     }
 
     class Column{
-        rename(String columnName)
-        changeDataType(DataType dataType)
-        setNullable(boolean nullable)
-        setDefaultValue(String value)
+        <<Composite Leaf / Prototype>>
+        +rename(String columnName)
+        +changeDataType(DataType dataType)
+        +clone() Column
+        +getElementName() String
     }
 
     class DataType{
         <<Enumeration>>
+        INT
+        VARCHAR
+        BIGINT
+        BOOLEAN
+        TIMESTAMP
     }
-
-    %% =====================================================
-    %% INDEX
-    %% =====================================================
 
     class Index{
-        rebuild()
-        enable()
-        disable()
+        <<Strategy Context>>
+        +setRebuildStrategy(IndexRebuildStrategy strategy)
+        +rebuild()
+        +enable()
+        +disable()
     }
-
-    %% =====================================================
-    %% VIEW
-    %% =====================================================
 
     class View{
-        compile()
-        refresh()
-        updateDefinition(String sql)
+        <<Observer Subscriber>>
+        +compile()
+        +refresh()
+        +updateDefinition(String sql)
     }
 
-    %% =====================================================
-    %% CONSTRAINT
-    %% =====================================================
-
     class Constraint{
-        validate()
-        enable()
-        disable()
+        <<Abstract / Template Method>>
+        +validate() boolean
+        #preValidate() boolean
+        #doValidate() boolean
+        #postValidate(boolean result)
     }
 
     class PrimaryKeyConstraint{
+        +doValidate() boolean
     }
 
     class ForeignKeyConstraint{
-        validateReference()
+        +validateReference() boolean
+        +doValidate() boolean
     }
 
     class UniqueConstraint{
+        +doValidate() boolean
     }
 
     class CheckConstraint{
-        evaluate()
+        +evaluate() boolean
+        +doValidate() boolean
     }
-
-    %% =====================================================
-    %% SEQUENCE
-    %% =====================================================
 
     class Sequence{
-        nextValue() long
-        currentValue() long
-        reset(long value)
+        +nextValue() long
+        +currentValue() long
+        +reset(long value)
     }
-
-    %% =====================================================
-    %% TRIGGER
-    %% =====================================================
 
     class Trigger{
-        enable()
-        disable()
-        compile()
+        <<Observer Subscriber>>
+        +enable()
+        +disable()
+        +compile()
     }
-
-    %% =====================================================
-    %% STORED PROCEDURE
-    %% =====================================================
 
     class StoredProcedure{
-        compile()
-        execute()
+        +compile()
+        +execute()
     }
-
-    %% =====================================================
-    %% FUNCTION
-    %% =====================================================
 
     class Function{
-        compile()
-        execute()
+        +compile()
+        +execute()
     }
 
     %% =====================================================
-    %% MODULE COMPOSITION
+    %% CORE PATTERN INTERFACES & HELPER CLASSES (GROUP 1 & 2)
     %% =====================================================
 
-    MetadataModule *-- CatalogManager
-    MetadataModule *-- Database
-    MetadataModule *-- Schema
-    MetadataModule *-- Table
-    MetadataModule *-- Column
-    MetadataModule *-- Index
-    MetadataModule *-- View
-    MetadataModule *-- Constraint
-    MetadataModule *-- Sequence
-    MetadataModule *-- Trigger
-    MetadataModule *-- StoredProcedure
-    MetadataModule *-- Function
+    class MetadataElement{
+        <<Interface - Composite>>
+        +getElementName() String*
+    }
+
+    class MetadataChangeListener{
+        <<Interface - Observer>>
+        +onMetadataChanged(String eventType, String targetName)*
+    }
+
+    class DDLCommand{
+        <<Interface - Command>>
+        +execute()*
+        +undo()*
+    }
+
+    class CreateTableCommand{
+        <<Command Implementation>>
+        +execute()
+        +undo()
+    }
+
+    class IndexRebuildStrategy{
+        <<Interface - Strategy>>
+        +rebuildIndex(Index index)*
+    }
+
+    class ConstraintFactory{
+        <<Factory Method>>
+        +createConstraint(String type, String name, Object... args)$ Constraint
+    }
+
+    class ColumnBuilder{
+        <<Builder>>
+        +setType(DataType dataType) ColumnBuilder
+        +setNullable(boolean nullable) ColumnBuilder
+        +setDefaultValue(String defaultValue) ColumnBuilder
+        +build() Column
+    }
+
+    class TableMemento{
+        <<Memento>>
+        +getTableName() String
+        +getColumnsSnapshot() List~Column~
+    }
+
+    class ConstraintValidationChain{
+        <<Chain of Responsibility>>
+        +addConstraint(Constraint constraint)
+        +validateAll() boolean
+    }
 
     %% =====================================================
-    %% CATALOG TREE
+    %% RELATIONSHIPS & PATTERNS MAP
     %% =====================================================
+
+    MetadataElement <|.. CatalogManager
+    MetadataElement <|.. Database
+    MetadataElement <|.. Schema
+    MetadataElement <|.. Table
+    MetadataElement <|.. Column
+
+    DDLCommand <|.. CreateTableCommand
+    MetadataChangeListener <|.. View
+    MetadataChangeListener <|.. Trigger
 
     CatalogManager "1" *-- "*" Database
-
     Database "1" *-- "*" Schema
-
     Schema "1" *-- "*" Table
     Schema "1" *-- "*" View
     Schema "1" *-- "*" Sequence
@@ -194,15 +227,15 @@ classDiagram
     Table "1" *-- "*" Column
     Table "1" *-- "*" Index
     Table "1" *-- "*" Constraint
-
     Column --> DataType
-
-    %% =====================================================
-    %% INHERITANCE
-    %% =====================================================
 
     Constraint <|-- PrimaryKeyConstraint
     Constraint <|-- ForeignKeyConstraint
     Constraint <|-- UniqueConstraint
     Constraint <|-- CheckConstraint
+
+    Index --> IndexRebuildStrategy : Strategy
+    Table ..> TableMemento : Memento
+    Schema ..> ConstraintFactory : Factory Method
+    ColumnBuilder ..> Column : Builder
 ```
