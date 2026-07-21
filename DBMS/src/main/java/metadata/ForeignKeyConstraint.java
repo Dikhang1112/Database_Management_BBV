@@ -1,11 +1,17 @@
 package metadata;
 
+import metadata.abstracts.Constraint;
+
 public class ForeignKeyConstraint extends Constraint {
     private Table referencedTable;
     private Column referencedColumn;
 
     public ForeignKeyConstraint() {
         super();
+    }
+
+    public ForeignKeyConstraint(String constraintName) {
+        super(constraintName);
     }
 
     public ForeignKeyConstraint(String constraintName, Table referencedTable, Column referencedColumn) {

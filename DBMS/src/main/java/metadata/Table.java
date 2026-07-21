@@ -1,15 +1,19 @@
 package metadata;
 
+import metadata.abstracts.Constraint;
+import metadata.interfaces.MetadataChangeListener;
+import metadata.interfaces.MetadataElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Table {
+public class Table implements MetadataElement, Cloneable {
     private UUID tableId;
     private String tableName;
     private List<Column> columns;
     private List<Constraint> constraints;
     private List<Index> indexes;
+    private List<MetadataChangeListener> listeners;
     private boolean locked;
 
     public Table() {
@@ -17,6 +21,7 @@ public class Table {
         this.columns = new ArrayList<>();
         this.constraints = new ArrayList<>();
         this.indexes = new ArrayList<>();
+        this.listeners = new ArrayList<>();
         this.locked = false;
     }
 
@@ -37,6 +42,7 @@ public class Table {
                 throw new IllegalStateException("Column already exists");
             }
             columns.add(column);
+            notifyListeners("COLUMN_ADDED", column.getColumnName());
         }
     }
 
@@ -48,6 +54,7 @@ public class Table {
             throw new IllegalStateException("Column is referenced by constraint");
         }
         columns.removeIf(col -> col != null && columnName.equals(col.getColumnName()));
+        notifyListeners("COLUMN_REMOVED", columnName);
     }
 
     public Column getColumn(String columnName) {
@@ -117,4 +124,57 @@ public class Table {
     public String getTableName() {
         return tableName;
     }
+
+    // Pattern: Observer
+    public void registerListener(MetadataChangeListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    private void notifyListeners(String eventType, String targetName) {
+        for (MetadataChangeListener listener : listeners) {
+            if (listener != null) {
+                listener.onMetadataChanged(eventType, targetName);
+            }
+        }
+    }
+
+    // Pattern: Memento
+    public TableMemento createMemento() {
+        return new TableMemento(tableName, columns);
+    }
+
+    public void restore(TableMemento memento) {
+        if (memento != null) {
+            this.tableName = memento.getTableName();
+            this.columns = new ArrayList<>(memento.getColumnsSnapshot());
+        }
+    }
+
+    // Pattern: Prototype
+    @Override
+    public Table clone() {
+        try {
+            Table cloned = (Table) super.clone();
+            cloned.tableId = UUID.randomUUID();
+            cloned.columns = new ArrayList<>();
+            for (Column col : this.columns) {
+                if (col != null) cloned.columns.add(col.clone());
+            }
+            cloned.constraints = new ArrayList<>(this.constraints);
+            cloned.indexes = new ArrayList<>(this.indexes);
+            cloned.listeners = new ArrayList<>();
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone failed", e);
+        }
+    }
+
+    // Pattern: Composite
+    @Override
+    public String getElementName() {
+        return tableName;
+    }
 }
+

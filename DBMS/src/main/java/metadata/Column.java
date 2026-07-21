@@ -1,9 +1,10 @@
 package metadata;
 
 import metadata.enums.DataType;
+import metadata.interfaces.MetadataElement;
 import java.util.UUID;
 
-public class Column {
+public class Column implements MetadataElement, Cloneable {
     private UUID columnId;
     private String columnName;
     private DataType dataType;
@@ -63,4 +64,24 @@ public class Column {
     public String getDefaultValue() {
         return defaultValue;
     }
+
+    // Pattern: Prototype
+    @Override
+    public Column clone() {
+        try {
+            Column cloned = (Column) super.clone();
+            cloned.columnId = UUID.randomUUID();
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone failed", e);
+        }
+    }
+
+    // Pattern: Composite
+    @Override
+    public String getElementName() {
+        return columnName;
+    }
 }
+
+

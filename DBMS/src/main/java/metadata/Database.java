@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.enums.DatabaseStatus;
+import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Database {
+public class Database implements MetadataElement {
     private UUID databaseId;
     private String databaseName;
     private Map<String, Schema> schemas;
@@ -69,6 +70,7 @@ public class Database {
         this.databaseName = newName;
     }
 
+    // Pattern: State
     public void setStatus(DatabaseStatus status) {
         this.status = status;
     }
@@ -89,4 +91,12 @@ public class Database {
         schema.rename(newName);
         schemas.put(newName, schema);
     }
+
+    // Pattern: Composite
+    @Override
+    public String getElementName() {
+        return databaseName;
+    }
 }
+
+
