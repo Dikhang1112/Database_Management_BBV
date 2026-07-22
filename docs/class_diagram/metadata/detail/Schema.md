@@ -36,15 +36,12 @@ classDiagram
         -String schemaName
 
         -Map~String,Table~ tables
-        -Map~String,View~ views
 
         -LocalDateTime createdAt
         -LocalDateTime updatedAt
 
         +createTable(String tableName) Table
         +dropTable(String tableName)
-
-        +createView(String viewName,String sql) View
 
         +getTable(String tableName) Table
         +containsTable(String tableName) boolean
@@ -58,17 +55,6 @@ classDiagram
 %% =====================================================
 
     class Table
-
-    class View{
-
-        -UUID viewId
-        -String viewName
-        -String definition
-
-        +compile()
-        +refresh()
-        +updateDefinition(String sql)
-    }
 
 %% =====================================================
 %% COMMAND PATTERN
@@ -125,7 +111,6 @@ classDiagram
     Database *-- Schema
 
     Schema *-- Table
-    Schema *-- View
 
     Database --> DatabaseStatus
 

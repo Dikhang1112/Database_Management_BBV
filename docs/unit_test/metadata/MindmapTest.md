@@ -85,7 +85,6 @@ flowchart LR
 
     Cat3 --> TC08("TC-08 RenameSchema")
     TC08 --> TC08A("Schema not found")
-    TC08 --> TC08B("Create view in schema")
 
     %% =====================================================
     %% Table

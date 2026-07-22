@@ -334,15 +334,7 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Schema not found").
 
-### TC-08B. Create View in Schema
-- **Test method:** `createView_ShouldAddViewToSchema`
-- **Sequence diagram:** `TC-08B`
-- **Input:** View name `"v_active_users"`, SQL `"SELECT * FROM users WHERE active = true"`
-- **Steps:**
-  - Call `schema.createView("v_active_users", sql)`.
-- **Expected output:**
-  - Returns non-null `View` instance.
-  - `listViews()` contains the created view.
+---
 
 ## 4. TableTest
 

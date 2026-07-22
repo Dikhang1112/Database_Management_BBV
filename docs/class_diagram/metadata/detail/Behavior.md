@@ -67,15 +67,9 @@ class ConstraintValidationChain{
 %% REFERENCES
 %% =====================================================
 
-class CatalogManager
-
-class Database
-
 class Schema
 
 class Table
-
-class View
 
 class Index
 
@@ -90,8 +84,6 @@ MetadataElement <|.. Database
 MetadataElement <|.. Schema
 MetadataElement <|.. Table
 MetadataElement <|.. Column
-
-MetadataChangeListener <|.. View
 
 DDLCommand <|.. CreateTableCommand
 

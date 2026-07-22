@@ -79,11 +79,14 @@ class DatabaseTest {
     @Test
     @DisplayName("TC-06A. Rename Database - Duplicate Name")
     void renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName() {
-        Database database = new Database("app_db");
+        CatalogManager cm = CatalogManager.getInstance();
+        cm.clear();
+        cm.createDatabase("existing_db_name");
+        cm.createDatabase("app_db");
 
-        assertThatThrownBy(() -> database.rename("existing_db_name"))
+        assertThatThrownBy(() -> cm.renameDatabase("app_db", "existing_db_name"))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Duplicate database name");
+                .hasMessageContaining("Database already exists");
     }
 
     @Test

@@ -1,39 +1,25 @@
 package metadata;
 
 import metadata.helpers.CatalogValidator;
+import metadata.helpers.DatabaseManager;
 import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class CatalogManager implements MetadataElement {
     private static volatile CatalogManager instance;
-    private UUID catalogId;
-    private Map<String, Database> databases;
-    private LocalDateTime createdAt;
+    private final UUID catalogId;
+    private final DatabaseManager databaseManager;
+    private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public CatalogManager() {
         this.catalogId = UUID.randomUUID();
-        this.databases = new HashMap<>();
+        this.databaseManager = new DatabaseManager();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public UUID getCatalogId() {
-        return catalogId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     // Pattern: Singleton
@@ -48,52 +34,50 @@ public class CatalogManager implements MetadataElement {
         return instance;
     }
 
+    public UUID getCatalogId() {
+        return catalogId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
     public Database createDatabase(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
         SecurityValidator.validatePermission(databaseName, "CREATE");
-        CatalogValidator.ensureUniqueName(databaseName, databases.keySet(), "Database");
-
-        Database db = new Database();
-        db.rename(databaseName);
-        databases.put(databaseName, db);
-        return db;
+        return databaseManager.add(databaseName);
     }
 
     public void dropDatabase(String databaseName) {
-        CatalogValidator.ensureExists(databaseName, databases.keySet(), "Database");
+        CatalogValidator.validateIdentifier(databaseName, "Database");
         SecurityValidator.validatePermission(databaseName);
-
-        Database db = databases.get(databaseName);
-        if (db != null && !db.listSchemas().isEmpty()) {
-            throw new IllegalStateException("Database is not empty");
-        }
-        databases.remove(databaseName);
+        databaseManager.remove(databaseName);
     }
 
     public void renameDatabase(String oldName, String newName) {
-        CatalogValidator.ensureExists(oldName, databases.keySet(), "Database");
+        CatalogValidator.validateIdentifier(oldName, "Database");
         CatalogValidator.validateIdentifier(newName, "Database");
-        CatalogValidator.ensureUniqueName(newName, databases.keySet(), "Database");
-
-        Database db = databases.remove(oldName);
-        db.rename(newName);
-        databases.put(newName, db);
+        databaseManager.rename(oldName, newName);
     }
 
     public Database getDatabase(String databaseName) {
-        return databases.get(databaseName);
+        return databaseManager.get(databaseName);
     }
 
     public boolean containsDatabase(String databaseName) {
-        return databases.containsKey(databaseName);
+        return databaseManager.contains(databaseName);
     }
 
     public List<Database> listDatabases() {
-        return new ArrayList<>(databases.values());
+        return databaseManager.listAll();
     }
 
     public void clear() {
-        databases.clear();
+        databaseManager.clear();
     }
 
     // Pattern: Composite
@@ -102,5 +86,3 @@ public class CatalogManager implements MetadataElement {
         return "CatalogManager";
     }
 }
-
-

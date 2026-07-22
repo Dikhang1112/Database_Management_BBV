@@ -23,6 +23,6 @@ public class TableMemento {
 
     // Pattern: Memento
     public List<Column> getColumnsSnapshot() {
-        return columnsSnapshot;
+        return new ArrayList<>(columnsSnapshot);
     }
 }

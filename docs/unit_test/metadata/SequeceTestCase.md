@@ -446,20 +446,6 @@ sequenceDiagram
     Database-->>Test: throw SchemaNotFoundException
 ```
 
-#### TC-08B: `createView_ShouldAddViewToSchema`
-```mermaid
-sequenceDiagram
-    title TC-08B: createView_ShouldAddViewToSchema
-    participant Test
-    participant Schema
-    participant View
-
-    Test->>Schema: createView("v_active_users", sql)
-    Schema->>View: new View("v_active_users", sql)
-    View-->>Schema: View instance
-    Schema-->>Test: View instance
-```
-
 ---
 
 ## 4. Table & Column Unit Tests

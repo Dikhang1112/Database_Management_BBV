@@ -40,7 +40,6 @@ classDiagram
     class Schema{
         <<Composite Node / Factory Method>>
         +createTable(String tableName) Table
-        +createView(String viewName, String sql) View
         +dropTable(String tableName)
         +getTable(String tableName) Table
         +getElementName() String
@@ -85,12 +84,7 @@ classDiagram
         +disable()
     }
 
-    class View{
-        <<Observer Subscriber>>
-        +compile()
-        +refresh()
-        +updateDefinition(String sql)
-    }
+
 
     class Constraint{
         <<Abstract / Template Method>>
@@ -185,12 +179,10 @@ classDiagram
     MetadataElement <|.. Column
 
     DDLCommand <|.. CreateTableCommand
-    MetadataChangeListener <|.. View
 
     CatalogManager "1" *-- "*" Database
     Database "1" *-- "*" Schema
     Schema "1" *-- "*" Table
-    Schema "1" *-- "*" View
 
     Table "1" *-- "*" Column
     Table "1" *-- "*" Index

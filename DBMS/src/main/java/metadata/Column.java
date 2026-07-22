@@ -42,8 +42,12 @@ public class Column implements MetadataElement, Cloneable {
     }
 
     public void setDefaultValue(String value) {
-        if (value != null && value.contains("not_an_int")) {
-            throw new IllegalArgumentException("Invalid default value");
+        if (value != null && dataType == DataType.INT) {
+            try {
+                Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid default value");
+            }
         }
         this.defaultValue = value;
     }

@@ -9,7 +9,6 @@ sequenceDiagram
     participant C as Column
     participant CT as Constraint
     participant I as Index
-    participant V as View
     participant SP as StoredProcedure
 
     %% -----------------------------------------------------
@@ -69,19 +68,9 @@ sequenceDiagram
     deactivate T
 
     %% -----------------------------------------------------
-    %% Phase 3: Views & Stored Procedures Compilation/Execution
+    %% Phase 3: Stored Procedures & Advanced objects
     %% -----------------------------------------------------
-    Note over Client, SP: Phase 3: Views, Procedures, & Advanced objects
-    Client->>S: createView("active_orders", sqlText)
-    activate S
-    create participant V
-    S-->>V: new View("active_orders", sqlText)
-    S->>V: compile()
-    activate V
-    V-->>S: void
-    deactivate V
-    S-->>Client: View instance
-    deactivate S
+    Note over Client, SP: Phase 3: Procedures & Advanced objects
 
     Client->>S: createProcedure("archive_old_orders")
     activate S
