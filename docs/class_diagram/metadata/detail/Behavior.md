@@ -77,8 +77,6 @@ class Table
 
 class View
 
-class Trigger
-
 class Index
 
 class Constraint
@@ -94,7 +92,6 @@ MetadataElement <|.. Table
 MetadataElement <|.. Column
 
 MetadataChangeListener <|.. View
-MetadataChangeListener <|.. Trigger
 
 DDLCommand <|.. CreateTableCommand
 

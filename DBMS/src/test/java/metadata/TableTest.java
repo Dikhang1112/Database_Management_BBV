@@ -67,6 +67,17 @@ class TableTest {
     }
 
     @Test
+    @DisplayName("TC-09D. Add Column - Special Characters")
+    void addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters() {
+        Table table = new Table("orders");
+        when(mockColumn.getColumnName()).thenReturn("col#name!");
+
+        assertThatThrownBy(() -> table.addColumn(mockColumn))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Column name contains invalid characters");
+    }
+
+    @Test
     @DisplayName("TC-10. Remove Column")
     void removeColumn_ShouldDetachColumnFromTable_WhenColumnExists() {
         Table table = new Table("orders");

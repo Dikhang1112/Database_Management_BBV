@@ -43,7 +43,7 @@ Each test scenario follows this standard format:
 - **Steps:**
   - Call `catalogManager.createDatabase("")`.
 - **Expected output:**
-  - Throws `InvalidDatabaseNameException`.
+  - Throws `IllegalArgumentException` ("Value is empty").
 
 ### TC-01C. Create Database - Permission Denied
 - **Test method:** `createDatabase_ShouldThrowException_WhenPermissionDenied`
@@ -53,6 +53,15 @@ Each test scenario follows this standard format:
   - Call `catalogManager.createDatabase("protected_db")`.
 - **Expected output:**
   - Throws `SecurityException`.
+
+### TC-01D. Create Database - Special Characters
+- **Test method:** `createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters`
+- **Sequence diagram:** `TC-01D`
+- **Input:** Database name: `"sales@db!"`
+- **Steps:**
+  - Call `catalogManager.createDatabase("sales@db!")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException`.
 
 ---
 
@@ -168,6 +177,15 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `SecurityException`.
 
+### TC-05D. Create Schema - Special Characters
+- **Test method:** `createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters`
+- **Sequence diagram:** `TC-05D`
+- **Input:** Schema name: `"schema#123!"`
+- **Steps:**
+  - Call `database.createSchema("schema#123!")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException`.
+
 ---
 
 ### TC-06. Database Status & Rename (Happy Path)
@@ -197,7 +215,7 @@ Each test scenario follows this standard format:
 - **Steps:**
   - Call `database.rename("")`.
 - **Expected output:**
-  - Throws `InvalidDatabaseNameException`.
+  - Throws `IllegalArgumentException` ("Value is empty").
 
 ---
 
@@ -243,6 +261,15 @@ Each test scenario follows this standard format:
   - Call `schema.createTable("users")`.
 - **Expected output:**
   - Throws `SchemaReadOnlyException`.
+
+### TC-07D. Create Table - Special Characters
+- **Test method:** `createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters`
+- **Sequence diagram:** `TC-07D`
+- **Input:** Table name: `"user@table!"`
+- **Steps:**
+  - Call `schema.createTable("user@table!")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException`.
 
 ---
 
@@ -311,6 +338,15 @@ Each test scenario follows this standard format:
   - Call `table.addColumn(column)`.
 - **Expected output:**
   - Throws `SecurityException`.
+
+### TC-09D. Add Column - Special Characters
+- **Test method:** `addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters`
+- **Sequence diagram:** `TC-09D`
+- **Input:** Column with name `"col#name!"`
+- **Steps:**
+  - Call `table.addColumn(column)`.
+- **Expected output:**
+  - Throws `IllegalArgumentException`.
 
 ---
 
@@ -525,3 +561,200 @@ Each test scenario follows this standard format:
   - Call `checkConstraint.evaluate()`.
 - **Expected output:**
   - `evaluate()` returns `false`.
+
+---
+
+## 8. MetadataModuleTest
+
+### TC-18. Get Table Facade (Happy Path)
+- **Test method:** `getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist`
+- **Sequence diagram:** `TC-18`
+- **Input:** Database: `"sales_db"`, Schema: `"public"`, Table: `"orders"`
+- **Steps:**
+  - Call `metadataModule.getTable("sales_db", "public", "orders")`.
+- **Expected output:**
+  - Returns target `Table` instance.
+
+### TC-18A. Execute DDL Facade
+- **Test method:** `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
+- **Sequence diagram:** `TC-18A`
+- **Input:** `DDLCommand` mock object
+- **Steps:**
+  - Call `metadataModule.executeDDL(command)`.
+- **Expected output:**
+  - `command.execute()` is invoked once.
+
+---
+
+## 9. DDLCommandTest
+
+### TC-19A. CreateDatabaseCommand Execution
+- **Test method:** `execute_ShouldCallCatalogCreateDatabase`
+- **Sequence diagram:** `TC-19A`
+- **Input:** `CreateDatabaseCommand("sales_db")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Creates database `"sales_db"` in `CatalogManager`.
+
+### TC-19B. DropDatabaseCommand Execution
+- **Test method:** `execute_ShouldCallCatalogDropDatabase`
+- **Sequence diagram:** `TC-19B`
+- **Input:** `DropDatabaseCommand("temp_db")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Removes database `"temp_db"` from `CatalogManager`.
+
+### TC-19C. RenameDatabaseCommand Execution
+- **Test method:** `execute_ShouldCallCatalogRenameDatabase`
+- **Sequence diagram:** `TC-19C`
+- **Input:** `RenameDatabaseCommand("old_db", "new_db")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Renames database `"old_db"` to `"new_db"`.
+
+### TC-19D. CreateSchemaCommand Execution
+- **Test method:** `execute_ShouldCallDatabaseCreateSchema`
+- **Sequence diagram:** `TC-19D`
+- **Input:** `CreateSchemaCommand("public")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Schema `"public"` created in target database.
+
+### TC-19E. DropSchemaCommand Execution
+- **Test method:** `execute_ShouldCallDatabaseDropSchema`
+- **Sequence diagram:** `TC-19E`
+- **Input:** `DropSchemaCommand("staging")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Schema `"staging"` removed from target database.
+
+### TC-19F. RenameSchemaCommand Execution
+- **Test method:** `execute_ShouldCallDatabaseRenameSchema`
+- **Sequence diagram:** `TC-19F`
+- **Input:** `RenameSchemaCommand("old_schema", "new_schema")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Schema renamed to `"new_schema"`.
+
+### TC-19G. CreateTableCommand Execution
+- **Test method:** `execute_ShouldCallSchemaCreateTable`
+- **Sequence diagram:** `TC-19G`
+- **Input:** `CreateTableCommand(schema, "users")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Table `"users"` created in target schema.
+
+### TC-19H. DropTableCommand Execution
+- **Test method:** `execute_ShouldCallSchemaDropTable`
+- **Sequence diagram:** `TC-19H`
+- **Input:** `DropTableCommand("users")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Table `"users"` dropped from schema.
+
+### TC-19I. RenameTableCommand Execution
+- **Test method:** `execute_ShouldCallTableRename`
+- **Sequence diagram:** `TC-19I`
+- **Input:** `RenameTableCommand("old_table", "new_table")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Table renamed to `"new_table"`.
+
+### TC-19J. CreateColumnCommand Execution
+- **Test method:** `execute_ShouldCallTableAddColumn`
+- **Sequence diagram:** `TC-19J`
+- **Input:** `CreateColumnCommand(column)`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Column added to table.
+
+### TC-19K. DropColumnCommand Execution
+- **Test method:** `execute_ShouldCallTableRemoveColumn`
+- **Sequence diagram:** `TC-19K`
+- **Input:** `DropColumnCommand("age")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Column `"age"` removed from table.
+
+### TC-19L. RenameColumnCommand Execution
+- **Test method:** `execute_ShouldCallTableRenameColumn`
+- **Sequence diagram:** `TC-19L`
+- **Input:** `RenameColumnCommand("old_col", "new_col")`
+- **Steps:**
+  - Call `command.execute()`.
+- **Expected output:**
+  - Column renamed to `"new_col"`.
+
+---
+
+## 10. ColumnBuilderTest
+
+### TC-20. Build Column
+- **Test method:** `build_ShouldConstructColumn_WhenValidPropertiesSet`
+- **Sequence diagram:** `TC-20`
+- **Input:** `name: "email"`, `dataType: DataType.VARCHAR`, `nullable: false`, `defaultValue: "N/A"`
+- **Steps:**
+  - Invoke `new ColumnBuilder("email").setType(DataType.VARCHAR).setNullable(false).setDefaultValue("N/A").build()`.
+- **Expected output:**
+  - Non-null `Column` with exact matching properties.
+
+### TC-20A. Build Column with Default Values
+- **Test method:** `build_ShouldApplyDefaults_WhenOptionalPropertiesOmitted`
+- **Sequence diagram:** `TC-20A`
+- **Input:** `name: "id"`, `dataType: DataType.INT`
+- **Steps:**
+  - Invoke `new ColumnBuilder("id").setType(DataType.INT).build()`.
+- **Expected output:**
+  - `nullable` defaults to `true`, `defaultValue` is `null`.
+
+---
+
+## 11. TableMementoTest
+
+### TC-21. Memento Snapshot and Restore
+- **Test method:** `createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState`
+- **Sequence diagram:** `TC-21`
+- **Input:** `Table("products")` with initial columns
+- **Steps:**
+  - Call `TableMemento memento = table.createMemento()`.
+  - Modify table (add column).
+  - Call `table.restore(memento)`.
+- **Expected output:**
+  - `memento.getTableName()` returns `"products"`.
+  - Restored `table` matches initial snapshot columns.
+
+---
+
+## 12. ConstraintValidationChainTest
+
+### TC-22. Validate Chain (Pass)
+- **Test method:** `validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid`
+- **Sequence diagram:** `TC-22`
+- **Input:** Chain with valid PK and Check constraints
+- **Steps:**
+  - Call `chain.addConstraint(pkConstraint)`.
+  - Call `chain.addConstraint(checkConstraint)`.
+  - Call `chain.validateAll()`.
+- **Expected output:**
+  - `validateAll()` returns `true`.
+
+### TC-22A. Validate Chain (Fail Fast)
+- **Test method:** `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
+- **Sequence diagram:** `TC-22A`
+- **Input:** Chain containing an invalid constraint
+- **Steps:**
+  - Call `chain.addConstraint(invalidConstraint)`.
+  - Call `chain.validateAll()`.
+- **Expected output:**
+  - `validateAll()` returns `false`.

@@ -2,18 +2,34 @@ package metadata;
 
 import metadata.enums.IndexType;
 import metadata.interfaces.IndexRebuildStrategy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Index {
     private UUID indexId;
     private String indexName;
     private IndexType indexType;
+    private List<Column> columns;
     private boolean enabled;
     private IndexRebuildStrategy rebuildStrategy;
 
     public Index() {
         this.indexId = UUID.randomUUID();
+        this.columns = new ArrayList<>();
         this.enabled = true;
+    }
+
+    public UUID getIndexId() {
+        return indexId;
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<Column> columns) {
+        this.columns = columns;
     }
 
     public Index(String indexName, IndexType indexType) {
@@ -40,9 +56,7 @@ public class Index {
             throw new IllegalStateException("Index is corrupted");
         }
         if (rebuildStrategy != null) {
-            rebuildStrategy.
-            
-            (this);
+            rebuildStrategy.rebuildIndex(this);
         }
         this.enabled = true;
     }

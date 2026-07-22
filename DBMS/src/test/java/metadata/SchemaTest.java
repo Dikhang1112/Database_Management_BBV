@@ -54,6 +54,16 @@ class SchemaTest {
     }
 
     @Test
+    @DisplayName("TC-07D. Create Table - Special Characters")
+    void createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters() {
+        Schema schema = new Schema("public");
+
+        assertThatThrownBy(() -> schema.createTable("user@table!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Table name contains invalid characters");
+    }
+
+    @Test
     @DisplayName("TC-08. Rename Schema & List Tables")
     void rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed() {
         Schema schema = new Schema("raw_schema");

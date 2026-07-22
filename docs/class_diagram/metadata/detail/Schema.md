@@ -37,10 +37,6 @@ classDiagram
 
         -Map~String,Table~ tables
         -Map~String,View~ views
-        -Map~String,Sequence~ sequences
-        -Map~String,Trigger~ triggers
-        -Map~String,StoredProcedure~ procedures
-        -Map~String,Function~ functions
 
         -LocalDateTime createdAt
         -LocalDateTime updatedAt
@@ -49,10 +45,6 @@ classDiagram
         +dropTable(String tableName)
 
         +createView(String viewName,String sql) View
-        +createSequence(String sequenceName) Sequence
-        +createTrigger(String triggerName) Trigger
-        +createProcedure(String procedureName) StoredProcedure
-        +createFunction(String functionName) Function
 
         +getTable(String tableName) Table
         +containsTable(String tableName) boolean
@@ -76,47 +68,6 @@ classDiagram
         +compile()
         +refresh()
         +updateDefinition(String sql)
-    }
-
-    class Sequence{
-
-        -UUID sequenceId
-        -String sequenceName
-        -long currentValue
-        -long increment
-
-        +nextValue() long
-        +currentValue() long
-        +reset(long value)
-    }
-
-    class Trigger{
-
-        -UUID triggerId
-        -String triggerName
-        -boolean enabled
-
-        +enable()
-        +disable()
-        +compile()
-    }
-
-    class StoredProcedure{
-
-        -UUID procedureId
-        -String procedureName
-
-        +compile()
-        +execute()
-    }
-
-    class Function{
-
-        -UUID functionId
-        -String functionName
-
-        +compile()
-        +execute()
     }
 
 %% =====================================================
@@ -175,10 +126,6 @@ classDiagram
 
     Schema *-- Table
     Schema *-- View
-    Schema *-- Sequence
-    Schema *-- Trigger
-    Schema *-- StoredProcedure
-    Schema *-- Function
 
     Database --> DatabaseStatus
 

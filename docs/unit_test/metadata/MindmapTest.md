@@ -17,6 +17,11 @@ flowchart LR
     Cat5(["5. ColumnTest"])
     Cat6(["6. IndexTest"])
     Cat7(["7. ConstraintTest"])
+    Cat8(["8. MetadataModuleTest"])
+    Cat9(["9. DDLCommandTest"])
+    Cat10(["10. ColumnBuilderTest"])
+    Cat11(["11. TableMementoTest"])
+    Cat12(["12. ConstraintValidationChainTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -25,6 +30,11 @@ flowchart LR
     Root --> Cat5
     Root --> Cat6
     Root --> Cat7
+    Root --> Cat8
+    Root --> Cat9
+    Root --> Cat10
+    Root --> Cat11
+    Root --> Cat12
 
     %% =====================================================
     %% CatalogManager
@@ -34,6 +44,7 @@ flowchart LR
     TC01 --> TC01A("Database already exists")
     TC01 --> TC01B("Invalid database name")
     TC01 --> TC01C("Permission denied")
+    TC01 --> TC01D("Special characters")
 
     Cat1 --> TC02("TC-02 DropDatabase")
     TC02 --> TC02A("Database not found")
@@ -52,6 +63,7 @@ flowchart LR
     TC05 --> TC05A("Schema already exists")
     TC05 --> TC05B("Database offline")
     TC05 --> TC05C("Permission denied")
+    TC05 --> TC05D("Special characters")
 
     Cat2 --> TC06("TC-06 RenameDatabase")
     TC06 --> TC06A("Duplicate database name")
@@ -65,6 +77,7 @@ flowchart LR
     TC07 --> TC07A("Table already exists")
     TC07 --> TC07B("Permission denied")
     TC07 --> TC07C("Schema read-only")
+    TC07 --> TC07D("Special characters")
 
     Cat3 --> TC08("TC-08 RenameSchema")
     TC08 --> TC08A("Schema not found")
@@ -77,6 +90,7 @@ flowchart LR
     TC09 --> TC09A("Column already exists")
     TC09 --> TC09B("Table locked")
     TC09 --> TC09C("Permission denied")
+    TC09 --> TC09D("Special characters")
 
     Cat4 --> TC10("TC-10 RemoveColumn")
     TC10 --> TC10A("Column not found")
@@ -117,5 +131,50 @@ flowchart LR
 
     Cat7 --> TC17("TC-17 EvaluateCheckConstraint")
     TC17 --> TC17A("Expression invalid")
+
+    %% =====================================================
+    %% MetadataModule
+    %% =====================================================
+
+    Cat8 --> TC18("TC-18 GetTableFacade")
+    Cat8 --> TC18A("ExecuteDDLFacade")
+
+    %% =====================================================
+    %% DDLCommand
+    %% =====================================================
+
+    Cat9 --> TC19("TC-19 DDLCommandExecution")
+    TC19 --> TC19A("CreateDatabaseCommand")
+    TC19 --> TC19B("DropDatabaseCommand")
+    TC19 --> TC19C("RenameDatabaseCommand")
+    TC19 --> TC19D("CreateSchemaCommand")
+    TC19 --> TC19E("DropSchemaCommand")
+    TC19 --> TC19F("RenameSchemaCommand")
+    TC19 --> TC19G("CreateTableCommand")
+    TC19 --> TC19H("DropTableCommand")
+    TC19 --> TC19I("RenameTableCommand")
+    TC19 --> TC19J("CreateColumnCommand")
+    TC19 --> TC19K("DropColumnCommand")
+    TC19 --> TC19L("RenameColumnCommand")
+
+    %% =====================================================
+    %% ColumnBuilder
+    %% =====================================================
+
+    Cat10 --> TC20("TC-20 BuildColumn")
+    TC20 --> TC20A("BuildColumnDefaults")
+
+    %% =====================================================
+    %% TableMemento
+    %% =====================================================
+
+    Cat11 --> TC21("TC-21 MementoSnapshotRestore")
+
+    %% =====================================================
+    %% ConstraintValidationChain
+    %% =====================================================
+
+    Cat12 --> TC22("TC-22 ValidateChainPass")
+    TC22 --> TC22A("ValidateChainFail")
 ```
 

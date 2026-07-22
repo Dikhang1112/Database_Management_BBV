@@ -3,6 +3,7 @@ package metadata;
 import metadata.abstracts.Constraint;
 import metadata.interfaces.MetadataChangeListener;
 import metadata.interfaces.MetadataElement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,8 @@ public class Table implements MetadataElement, Cloneable {
     private List<Index> indexes;
     private List<MetadataChangeListener> listeners;
     private boolean locked;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Table() {
         this.tableId = UUID.randomUUID();
@@ -23,6 +26,20 @@ public class Table implements MetadataElement, Cloneable {
         this.indexes = new ArrayList<>();
         this.listeners = new ArrayList<>();
         this.locked = false;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public UUID getTableId() {
+        return tableId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public Table(String tableName) {
@@ -30,20 +47,40 @@ public class Table implements MetadataElement, Cloneable {
         this.tableName = tableName;
     }
 
+    public void createColumn(Column column) {
+        addColumn(column);
+    }
+
+    public void dropColumn(String columnName) {
+        removeColumn(columnName);
+    }
+
+    public void renameColumn(String oldName, String newName) {
+        Column col = getColumn(oldName);
+        if (col != null) {
+            col.rename(newName);
+            notifyListeners("COLUMN_RENAMED", newName);
+        }
+    }
+
     public void addColumn(Column column) {
         if (locked) {
             throw new IllegalStateException("Table is locked");
         }
-        if (column != null && column.getColumnName() != null) {
-            if (column.getColumnName().startsWith("secret_")) {
-                throw new SecurityException("Permission denied");
-            }
-            if (containsColumn(column.getColumnName())) {
-                throw new IllegalStateException("Column already exists");
-            }
-            columns.add(column);
-            notifyListeners("COLUMN_ADDED", column.getColumnName());
+        if (column == null || column.getColumnName() == null || column.getColumnName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Value is empty");
         }
+        if (column.getColumnName().startsWith("secret_")) {
+            throw new SecurityException("Permission denied");
+        }
+        if (!column.getColumnName().matches("^[a-zA-Z0-9_]+$")) {
+            throw new IllegalArgumentException("Column name contains invalid characters");
+        }
+        if (containsColumn(column.getColumnName())) {
+            throw new IllegalStateException("Column already exists");
+        }
+        columns.add(column);
+        notifyListeners("COLUMN_ADDED", column.getColumnName());
     }
 
     public void removeColumn(String columnName) {
@@ -79,6 +116,14 @@ public class Table implements MetadataElement, Cloneable {
         return columns;
     }
 
+    public void createConstraint(Constraint constraint) {
+        addConstraint(constraint);
+    }
+
+    public void dropConstraint(String constraintName) {
+        removeConstraint(constraintName);
+    }
+
     public void addConstraint(Constraint constraint) {
         if (constraint != null) {
             constraints.add(constraint);
@@ -91,6 +136,14 @@ public class Table implements MetadataElement, Cloneable {
 
     public List<Constraint> listConstraints() {
         return constraints;
+    }
+
+    public void createIndex(Index index) {
+        addIndex(index);
+    }
+
+    public void dropIndex(String indexName) {
+        removeIndex(indexName);
     }
 
     public void addIndex(Index index) {
@@ -121,6 +174,11 @@ public class Table implements MetadataElement, Cloneable {
         return locked;
     }
 
+    public void rename(String newName) {
+        this.tableName = newName;
+        notifyListeners("TABLE_RENAMED", newName);
+    }
+
     public String getTableName() {
         return tableName;
     }
@@ -129,6 +187,12 @@ public class Table implements MetadataElement, Cloneable {
     public void registerListener(MetadataChangeListener listener) {
         if (listener != null) {
             listeners.add(listener);
+        }
+    }
+
+    public void removeListener(MetadataChangeListener listener) {
+        if (listener != null) {
+            listeners.remove(listener);
         }
     }
 

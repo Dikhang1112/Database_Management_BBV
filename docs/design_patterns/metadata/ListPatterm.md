@@ -41,7 +41,7 @@ This document details the **13 core and operational Design Patterns** in the `me
 ### 3.1. Factory Method Pattern
 * **Pattern**: Factory Method Pattern
 * **Class/Interface Applied**: Schema
-* **Method**: `createTable(tableName)`, `createView(viewName, sql)`, `createSequence(sequenceName)`, `createTrigger(triggerName)`, `createProcedure(procedureName)`, `createFunction(functionName)`
+* **Method**: `createTable(tableName)`, `createView(viewName, sql)`
 * **Reason for Use**: Serves as a Creator encapsulating object instantiation logic for schema components, storing and managing created database objects within the Schema.
 
 ### 3.2. Command Pattern
@@ -70,7 +70,7 @@ This document details the **13 core and operational Design Patterns** in the `me
 * **Pattern**: Observer Pattern (Subject)
 * **Class/Interface Applied**: Table, MetadataChangeListener
 * **Method**: `registerListener(listener)`, `removeListener(listener)`, `notifyListeners(eventType, targetName)`
-* **Reason for Use**: `Table` acts as a Subject, automatically dispatching event notifications to registered subscribers (`View`, `Trigger`) whenever column definitions are modified (`createColumn`, `dropColumn`, `renameColumn`).
+* **Reason for Use**: `Table` acts as a Subject, automatically dispatching event notifications to registered subscribers (`View`) whenever column definitions are modified (`createColumn`, `dropColumn`, `renameColumn`).
 
 ---
 
@@ -116,10 +116,10 @@ This document details the **13 core and operational Design Patterns** in the `me
 
 ---
 
-## 8. View & Trigger Level (Schema Observers)
+## 8. View Level (Schema Observers)
 
 ### 8.1. Observer Pattern (Subscriber)
 * **Pattern**: Observer Pattern (Subscriber)
-* **Class/Interface Applied**: View, Trigger, MetadataChangeListener
+* **Class/Interface Applied**: View, MetadataChangeListener
 * **Method**: `onMetadataChanged(eventType, targetName)`, `compile()`, `refresh()`
 * **Reason for Use**: Acts as Subscribers registered to receive notification events from `Table`. When table structures change, they automatically trigger `compile()` or `refresh()` to update definitions.

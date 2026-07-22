@@ -13,6 +13,28 @@ public class MetadataModule {
         this.catalogManager = CatalogManager.getInstance();
     }
 
+    private static volatile MetadataModule instance;
+
+    public static MetadataModule getInstance() {
+        if (instance == null) {
+            synchronized (MetadataModule.class) {
+                if (instance == null) {
+                    instance = new MetadataModule();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public CatalogManager getCatalogManager() {
+        return catalogManager;
+    }
+
+    public Database getDatabase(String databaseName) {
+        if (catalogManager == null) return null;
+        return catalogManager.getDatabase(databaseName);
+    }
+
     // Pattern: Facade
     public Table getTable(String databaseName, String schemaName, String tableName) {
         if (catalogManager == null) return null;

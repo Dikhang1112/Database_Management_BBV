@@ -1,17 +1,37 @@
 package metadata;
 
 import metadata.interfaces.MetadataElement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class CatalogManager implements MetadataElement {
     private static volatile CatalogManager instance;
+    private UUID catalogId;
     private Map<String, Database> databases;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public CatalogManager() {
+        this.catalogId = UUID.randomUUID();
         this.databases = new HashMap<>();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public UUID getCatalogId() {
+        return catalogId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     // Pattern: Singleton
@@ -28,7 +48,10 @@ public class CatalogManager implements MetadataElement {
 
     public Database createDatabase(String databaseName) {
         if (databaseName == null || databaseName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid database name");
+            throw new IllegalArgumentException("Value is empty");
+        }
+        if (!databaseName.matches("^[a-zA-Z0-9_]+$")) {
+            throw new IllegalArgumentException("Database name contains invalid characters");
         }
         if (databaseName.equals("protected_db")) {
             throw new SecurityException("Permission denied");
@@ -54,6 +77,15 @@ public class CatalogManager implements MetadataElement {
             throw new IllegalStateException("Database is not empty");
         }
         databases.remove(databaseName);
+    }
+
+    public void renameDatabase(String oldName, String newName) {
+        if (!databases.containsKey(oldName)) {
+            throw new IllegalArgumentException("Database not found");
+        }
+        Database db = databases.remove(oldName);
+        db.rename(newName);
+        databases.put(newName, db);
     }
 
     public Database getDatabase(String databaseName) {

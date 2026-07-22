@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.interfaces.MetadataElement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,21 +13,29 @@ public class Schema implements MetadataElement {
     private String schemaName;
     private Map<String, Table> tables;
     private Map<String, View> views;
-    private Map<String, Sequence> sequences;
-    private Map<String, Trigger> triggers;
-    private Map<String, StoredProcedure> procedures;
-    private Map<String, Function> functions;
     private boolean readOnly;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Schema() {
         this.schemaId = UUID.randomUUID();
         this.tables = new HashMap<>();
         this.views = new HashMap<>();
-        this.sequences = new HashMap<>();
-        this.triggers = new HashMap<>();
-        this.procedures = new HashMap<>();
-        this.functions = new HashMap<>();
         this.readOnly = false;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public UUID getSchemaId() {
+        return schemaId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public Schema(String schemaName) {
@@ -39,8 +48,14 @@ public class Schema implements MetadataElement {
         if (readOnly) {
             throw new IllegalStateException("Schema is read-only");
         }
-        if (tableName == null || tableName.equals("restricted_table")) {
+        if (tableName == null || tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Value is empty");
+        }
+        if (tableName.equals("restricted_table")) {
             throw new SecurityException("Permission denied");
+        }
+        if (!tableName.matches("^[a-zA-Z0-9_]+$")) {
+            throw new IllegalArgumentException("Table name contains invalid characters");
         }
         if (tables.containsKey(tableName)) {
             throw new IllegalStateException("Table already exists");
@@ -55,34 +70,6 @@ public class Schema implements MetadataElement {
         View view = new View();
         views.put(viewName, view);
         return view;
-    }
-
-    // Pattern: Factory Method
-    public Sequence createSequence(String sequenceName) {
-        Sequence sequence = new Sequence();
-        sequences.put(sequenceName, sequence);
-        return sequence;
-    }
-
-    // Pattern: Factory Method
-    public Trigger createTrigger(String triggerName) {
-        Trigger trigger = new Trigger();
-        triggers.put(triggerName, trigger);
-        return trigger;
-    }
-
-    // Pattern: Factory Method
-    public StoredProcedure createProcedure(String procedureName) {
-        StoredProcedure procedure = new StoredProcedure();
-        procedures.put(procedureName, procedure);
-        return procedure;
-    }
-
-    // Pattern: Factory Method
-    public Function createFunction(String functionName) {
-        Function function = new Function();
-        functions.put(functionName, function);
-        return function;
     }
 
     public void dropTable(String tableName) {

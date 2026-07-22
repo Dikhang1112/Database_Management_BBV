@@ -15,12 +15,26 @@ public class Database implements MetadataElement {
     private Map<String, Schema> schemas;
     private DatabaseStatus status;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Database() {
         this.databaseId = java.util.UUID.randomUUID();
         this.schemas = new HashMap<>();
         this.status = DatabaseStatus.ONLINE;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public UUID getDatabaseId() {
+        return databaseId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public Database(String databaseName) {
@@ -32,8 +46,14 @@ public class Database implements MetadataElement {
         if (status == DatabaseStatus.OFFLINE) {
             throw new IllegalStateException("Database is offline");
         }
-        if (schemaName == null || schemaName.equals("secure_schema")) {
+        if (schemaName == null || schemaName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Value is empty");
+        }
+        if (schemaName.equals("secure_schema")) {
             throw new SecurityException("Permission denied");
+        }
+        if (!schemaName.matches("^[a-zA-Z0-9_]+$")) {
+            throw new IllegalArgumentException("Schema name contains invalid characters");
         }
         if (schemas.containsKey(schemaName)) {
             throw new IllegalStateException("Schema already exists");
@@ -62,7 +82,7 @@ public class Database implements MetadataElement {
 
     public void rename(String newName) {
         if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid database name");
+            throw new IllegalArgumentException("Value is empty");
         }
         if (newName.equals("existing_db_name")) {
             throw new IllegalStateException("Duplicate database name");

@@ -32,4 +32,9 @@ public class ForeignKeyConstraint extends Constraint {
         }
         return true;
     }
+
+    @Override
+    protected boolean doValidate() {
+        return validateReference();
+    }
 }

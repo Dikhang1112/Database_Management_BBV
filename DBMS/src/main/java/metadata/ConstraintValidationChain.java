@@ -15,6 +15,9 @@ public class ConstraintValidationChain {
     public void addConstraint(Constraint constraint) {
     }
 
+    public void removeConstraint(Constraint constraint) {
+    }
+
     // Pattern: Chain of Responsibility (Method nobody)
     public boolean validateAll() {
         return true;

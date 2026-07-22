@@ -45,7 +45,7 @@ sequenceDiagram
 
     Test->>CatalogManager: createDatabase("")
     CatalogManager->>CatalogManager: validateDatabaseName("")
-    CatalogManager-->>Test: throw InvalidDatabaseNameException
+    CatalogManager-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 #### TC-01C: `createDatabase_ShouldThrowException_WhenPermissionDenied`
@@ -60,6 +60,18 @@ sequenceDiagram
     CatalogManager->>SecurityManager: checkPermission("CREATE_DB")
     SecurityManager-->>CatalogManager: Access Denied
     CatalogManager-->>Test: throw SecurityException
+```
+
+#### TC-01D: `createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-01D: createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: createDatabase("sales@db!")
+    CatalogManager->>CatalogManager: validateNameFormat("sales@db!")
+    CatalogManager-->>Test: throw IllegalArgumentException ("Database name contains invalid characters")
 ```
 
 ---
@@ -223,6 +235,18 @@ sequenceDiagram
     Database-->>Test: throw SecurityException
 ```
 
+#### TC-05D: `createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-05D: createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters
+    participant Test
+    participant Database
+
+    Test->>Database: createSchema("schema#123!")
+    Database->>Database: validateNameFormat("schema#123!")
+    Database-->>Test: throw IllegalArgumentException ("Schema name contains invalid characters")
+```
+
 ---
 
 ### TC-06: `renameDatabase`
@@ -330,6 +354,18 @@ sequenceDiagram
     Schema-->>Test: throw SchemaReadOnlyException
 ```
 
+#### TC-07D: `createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-07D: createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters
+    participant Test
+    participant Schema
+
+    Test->>Schema: createTable("user@table!")
+    Schema->>Schema: validateNameFormat("user@table!")
+    Schema-->>Test: throw IllegalArgumentException ("Table name contains invalid characters")
+```
+
 ---
 
 ### TC-08: `renameSchema`
@@ -426,6 +462,19 @@ sequenceDiagram
     Table->>SecurityManager: checkPermission("ALTER_TABLE")
     SecurityManager-->>Table: Access Denied
     Table-->>Test: throw SecurityException
+```
+
+#### TC-09D: `addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-09D: addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters
+    participant Test
+    participant Table
+    participant Column
+
+    Test->>Table: addColumn(Column "col#name!")
+    Table->>Table: validateNameFormat("col#name!")
+    Table-->>Test: throw IllegalArgumentException ("Column name contains invalid characters")
 ```
 
 ---
@@ -732,4 +781,176 @@ sequenceDiagram
     Test->>CheckConstraint: evaluate()
     CheckConstraint->>CheckConstraint: parseExpression("age >= ")
     CheckConstraint-->>Test: false (Expression invalid)
+```
+
+---
+
+## 8. MetadataModule Unit Tests
+
+### TC-18: `getTableFacade`
+
+#### Happy Path: `getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist`
+```mermaid
+sequenceDiagram
+    title TC-18: getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist
+    participant Test
+    participant MetadataModule
+    participant CatalogManager
+    participant Database
+    participant Schema
+
+    Test->>MetadataModule: getTable("sales_db", "public", "orders")
+    MetadataModule->>CatalogManager: getDatabase("sales_db")
+    CatalogManager-->>MetadataModule: Database ("sales_db")
+    MetadataModule->>Database: getSchema("public")
+    Database-->>MetadataModule: Schema ("public")
+    MetadataModule->>Schema: getTable("orders")
+    Schema-->>MetadataModule: Table ("orders")
+    MetadataModule-->>Test: Table ("orders")
+```
+
+#### TC-18A: `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
+```mermaid
+sequenceDiagram
+    title TC-18A: executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided
+    participant Test
+    participant MetadataModule
+    participant DDLCommand
+
+    Test->>MetadataModule: executeDDL(command)
+    MetadataModule->>DDLCommand: execute()
+    DDLCommand-->>MetadataModule: void
+    MetadataModule-->>Test: void
+```
+
+---
+
+## 9. DDLCommand Unit Tests
+
+### TC-19: `DDLCommandExecution`
+
+#### TC-19A: `execute_ShouldCallCatalogCreateDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19A: execute_ShouldCallCatalogCreateDatabase
+    participant Test
+    participant CreateDatabaseCommand
+    participant CatalogManager
+
+    Test->>CreateDatabaseCommand: execute()
+    CreateDatabaseCommand->>CatalogManager: createDatabase("sales_db")
+    CatalogManager-->>CreateDatabaseCommand: Database ("sales_db")
+    CreateDatabaseCommand-->>Test: void
+```
+
+#### TC-19B: `execute_ShouldCallCatalogDropDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19B: execute_ShouldCallCatalogDropDatabase
+    participant Test
+    participant DropDatabaseCommand
+    participant CatalogManager
+
+    Test->>DropDatabaseCommand: execute()
+    DropDatabaseCommand->>CatalogManager: dropDatabase("temp_db")
+    CatalogManager-->>DropDatabaseCommand: void
+    DropDatabaseCommand-->>Test: void
+```
+
+#### TC-19C: `execute_ShouldCallCatalogRenameDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19C: execute_ShouldCallCatalogRenameDatabase
+    participant Test
+    participant RenameDatabaseCommand
+    participant CatalogManager
+
+    Test->>RenameDatabaseCommand: execute()
+    RenameDatabaseCommand->>CatalogManager: renameDatabase("old_db", "new_db")
+    CatalogManager-->>RenameDatabaseCommand: void
+    RenameDatabaseCommand-->>Test: void
+```
+
+---
+
+## 10. ColumnBuilder Unit Tests
+
+### TC-20: `buildColumn`
+
+#### Happy Path: `build_ShouldConstructColumn_WhenValidPropertiesSet`
+```mermaid
+sequenceDiagram
+    title TC-20: build_ShouldConstructColumn_WhenValidPropertiesSet
+    participant Test
+    participant ColumnBuilder
+    participant Column
+
+    Test->>ColumnBuilder: new ColumnBuilder("email")
+    Test->>ColumnBuilder: setType(VARCHAR).setNullable(false).setDefaultValue("N/A")
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>Column: new Column("email", VARCHAR)
+    Column-->>ColumnBuilder: Column instance
+    ColumnBuilder-->>Test: Column instance
+```
+
+---
+
+## 11. TableMemento Unit Tests
+
+### TC-21: `mementoSnapshotRestore`
+
+#### Happy Path: `createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState`
+```mermaid
+sequenceDiagram
+    title TC-21: createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState
+    participant Test
+    participant Table
+    participant TableMemento
+
+    Test->>Table: createMemento()
+    Table->>TableMemento: new TableMemento(tableName, columnsSnapshot)
+    TableMemento-->>Table: Memento instance
+    Table-->>Test: Memento instance
+    Test->>Table: addColumn("new_col")
+    Test->>Table: restore(memento)
+    Table->>TableMemento: getColumnsSnapshot()
+    TableMemento-->>Table: initialColumns
+    Table-->>Test: void (State restored)
+```
+
+---
+
+## 12. ConstraintValidationChain Unit Tests
+
+### TC-22: `validateChain`
+
+#### Happy Path: `validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid`
+```mermaid
+sequenceDiagram
+    title TC-22: validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid
+    participant Test
+    participant ConstraintValidationChain
+    participant Constraint
+
+    Test->>ConstraintValidationChain: addConstraint(pkConstraint)
+    Test->>ConstraintValidationChain: addConstraint(checkConstraint)
+    Test->>ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>Constraint: validate()
+    Constraint-->>ConstraintValidationChain: true
+    ConstraintValidationChain-->>Test: true
+```
+
+#### TC-22A: `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
+```mermaid
+sequenceDiagram
+    title TC-22A: validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails
+    participant Test
+    participant ConstraintValidationChain
+    participant Constraint
+
+    Test->>ConstraintValidationChain: addConstraint(invalidConstraint)
+    Test->>ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>Constraint: validate()
+    Constraint-->>ConstraintValidationChain: false
+    ConstraintValidationChain-->>Test: false
 ```

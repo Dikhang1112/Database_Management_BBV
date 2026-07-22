@@ -115,7 +115,7 @@ sequenceDiagram
 ### 3.1. Factory Method Pattern
 * **Pattern**: Factory Method Pattern
 * **Class/Interface Applied**: Schema
-* **Method**: `createTable(tableName)`, `createView(viewName, sql)`, `createSequence(sequenceName)`, `createTrigger(triggerName)`, `createProcedure(procedureName)`, `createFunction(functionName)`
+* **Method**: `createTable(tableName)`, `createView(viewName, sql)`
 
 ```mermaid
 sequenceDiagram
@@ -123,16 +123,12 @@ sequenceDiagram
     participant Schema as Schema
     participant Table as Table
     participant View as View
-    participant Sequence as Sequence
 
     Schema->>Table: createTable("orders")
     Table-->>Schema: tableInstance
 
     Schema->>View: createView("v_orders", sql)
     View-->>Schema: viewInstance
-
-    Schema->>Sequence: createSequence("seq_orders")
-    Sequence-->>Schema: sequenceInstance
 ```
 
 ---
@@ -356,11 +352,11 @@ sequenceDiagram
 
 ---
 
-## 8. View & Trigger Level (Schema Observers)
+## 8. View Level (Schema Observers)
 
 ### 8.1. Observer Pattern (Subscriber)
 * **Pattern**: Observer Pattern (Subscriber)
-* **Class/Interface Applied**: View, Trigger, MetadataChangeListener
+* **Class/Interface Applied**: View, MetadataChangeListener
 * **Method**: `onMetadataChanged(eventType, targetName)`, `compile()`, `refresh()`
 
 ```mermaid

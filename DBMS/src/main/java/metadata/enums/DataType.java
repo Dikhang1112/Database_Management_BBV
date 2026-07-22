@@ -7,5 +7,6 @@ public enum DataType {
     BOOLEAN,
     DATE,
     DATETIME,
-    DECIMAL
+    DECIMAL,
+    TIMESTAMP
 }
