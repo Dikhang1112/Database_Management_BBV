@@ -2,15 +2,15 @@ package metadata;
 
 import metadata.interfaces.DDLCommand;
 
-public class CreateTableCommand implements DDLCommand {
+public class DropTableCommand implements DDLCommand {
     private Schema schema;
     private String tableName;
 
-    public CreateTableCommand(String tableName) {
+    public DropTableCommand(String tableName) {
         this.tableName = tableName;
     }
 
-    public CreateTableCommand(Schema schema, String tableName) {
+    public DropTableCommand(Schema schema, String tableName) {
         this.schema = schema;
         this.tableName = tableName;
     }
@@ -18,14 +18,14 @@ public class CreateTableCommand implements DDLCommand {
     @Override
     public void execute() {
         if (schema != null) {
-            schema.createTable(tableName);
+            schema.dropTable(tableName);
         }
     }
 
     @Override
     public void undo() {
         if (schema != null) {
-            schema.dropTable(tableName);
+            schema.createTable(tableName);
         }
     }
 }

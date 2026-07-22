@@ -1,32 +1,27 @@
 package metadata;
 
+import metadata.helpers.CatalogValidator;
+import metadata.helpers.SecurityValidator;
+import metadata.helpers.TableManager;
 import metadata.interfaces.MetadataElement;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class Schema implements MetadataElement {
-    private UUID schemaId;
+    private final UUID schemaId;
     private String schemaName;
-    private Map<String, Table> tables;
-    private Map<String, View> views;
-    private Map<String, Sequence> sequences;
-    private Map<String, Trigger> triggers;
-    private Map<String, StoredProcedure> procedures;
-    private Map<String, Function> functions;
+    private final TableManager tableManager;
     private boolean readOnly;
+    private final LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Schema() {
         this.schemaId = UUID.randomUUID();
-        this.tables = new HashMap<>();
-        this.views = new HashMap<>();
-        this.sequences = new HashMap<>();
-        this.triggers = new HashMap<>();
-        this.procedures = new HashMap<>();
-        this.functions = new HashMap<>();
+        this.tableManager = new TableManager();
         this.readOnly = false;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Schema(String schemaName) {
@@ -34,78 +29,52 @@ public class Schema implements MetadataElement {
         this.schemaName = schemaName;
     }
 
-    // Pattern: Factory Method
-    public Table createTable(String tableName) {
+    private void ensureNotReadOnly() {
         if (readOnly) {
             throw new IllegalStateException("Schema is read-only");
         }
-        if (tableName == null || tableName.equals("restricted_table")) {
-            throw new SecurityException("Permission denied");
-        }
-        if (tables.containsKey(tableName)) {
-            throw new IllegalStateException("Table already exists");
-        }
-        Table table = new Table(tableName);
-        tables.put(tableName, table);
-        return table;
+    }
+
+    public UUID getSchemaId() {
+        return schemaId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     // Pattern: Factory Method
-    public View createView(String viewName, String sql) {
-        View view = new View();
-        views.put(viewName, view);
-        return view;
-    }
-
-    // Pattern: Factory Method
-    public Sequence createSequence(String sequenceName) {
-        Sequence sequence = new Sequence();
-        sequences.put(sequenceName, sequence);
-        return sequence;
-    }
-
-    // Pattern: Factory Method
-    public Trigger createTrigger(String triggerName) {
-        Trigger trigger = new Trigger();
-        triggers.put(triggerName, trigger);
-        return trigger;
-    }
-
-    // Pattern: Factory Method
-    public StoredProcedure createProcedure(String procedureName) {
-        StoredProcedure procedure = new StoredProcedure();
-        procedures.put(procedureName, procedure);
-        return procedure;
-    }
-
-    // Pattern: Factory Method
-    public Function createFunction(String functionName) {
-        Function function = new Function();
-        functions.put(functionName, function);
-        return function;
+    public Table createTable(String tableName) {
+        ensureNotReadOnly();
+        SecurityValidator.validatePermission(tableName);
+        CatalogValidator.validateIdentifier(tableName, "Table");
+        return tableManager.add(tableName);
     }
 
     public void dropTable(String tableName) {
-        tables.remove(tableName);
+        ensureNotReadOnly();
+        CatalogValidator.validateIdentifier(tableName, "Table");
+        tableManager.remove(tableName);
     }
 
     public Table getTable(String tableName) {
-        return tables.get(tableName);
+        return tableManager.get(tableName);
     }
 
     public boolean containsTable(String tableName) {
-        return tables.containsKey(tableName);
+        return tableManager.contains(tableName);
     }
 
     public List<Table> listTables() {
-        return new ArrayList<>(tables.values());
-    }
-
-    public List<View> listViews() {
-        return new ArrayList<>(views.values());
+        return tableManager.listAll();
     }
 
     public void rename(String newName) {
+        CatalogValidator.validateIdentifier(newName, "Schema");
         this.schemaName = newName;
     }
 
@@ -127,5 +96,3 @@ public class Schema implements MetadataElement {
         return schemaName;
     }
 }
-
-

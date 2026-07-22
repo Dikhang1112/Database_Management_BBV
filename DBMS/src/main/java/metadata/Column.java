@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.enums.DataType;
+import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 import java.util.UUID;
 
@@ -32,9 +33,7 @@ public class Column implements MetadataElement, Cloneable {
         if (this.dataType == DataType.INT && type == DataType.BOOLEAN) {
             throw new IllegalArgumentException("Unsupported conversion");
         }
-        if (type == DataType.VARCHAR && columnName != null && columnName.startsWith("protected_")) {
-            throw new SecurityException("Permission denied");
-        }
+        SecurityValidator.validatePermission(columnName);
         this.dataType = type;
     }
 
@@ -43,8 +42,12 @@ public class Column implements MetadataElement, Cloneable {
     }
 
     public void setDefaultValue(String value) {
-        if (value != null && value.contains("not_an_int")) {
-            throw new IllegalArgumentException("Invalid default value");
+        if (value != null && dataType == DataType.INT) {
+            try {
+                Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid default value");
+            }
         }
         this.defaultValue = value;
     }

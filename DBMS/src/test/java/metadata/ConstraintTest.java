@@ -1,24 +1,13 @@
 package metadata;
 
-import metadata.abstracts.Constraint;
 import metadata.enums.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(MockitoExtension.class)
 class ConstraintTest {
-
-    @Mock
-    private Table mockParentTable;
-
-    @Mock
-    private Column mockParentColumn;
 
     @Test
     @DisplayName("TC-15. Validate Primary Key Constraint")
@@ -26,56 +15,101 @@ class ConstraintTest {
         PrimaryKeyConstraint constraint = new PrimaryKeyConstraint("pk_users");
 
         assertThat(constraint.validate()).isTrue();
+
         constraint.disable();
         assertThat(constraint.validate()).isFalse();
     }
 
     @Test
-    @DisplayName("TC-16. Validate Foreign Key Reference (Happy Path)")
+    @DisplayName("TC-15B. Remove Constraint")
+    void removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists() {
+        Table table = new Table("orders");
+        PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");
+        table.addConstraint(pk);
+
+        table.removeConstraint("pk_orders");
+
+        assertThat(table.listConstraints()).doesNotContain(pk);
+    }
+
+    @Test
+    @DisplayName("TC-15C. Remove Constraint - Constraint Not Found")
+    void removeConstraint_ShouldThrowException_WhenConstraintNotFound() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.removeConstraint("missing_pk"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Constraint not found");
+    }
+
+    @Test
+    @DisplayName("TC-15D. Remove Constraint - Table Locked")
+    void removeConstraint_ShouldThrowException_WhenTableIsLocked() {
+        Table table = new Table("orders");
+        PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");
+        table.addConstraint(pk);
+        table.setLocked(true);
+
+        assertThatThrownBy(() -> table.removeConstraint("pk_orders"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Table is locked");
+    }
+
+    @Test
+    @DisplayName("TC-16. Validate Foreign Key Reference")
     void validateReference_ShouldReturnTrue_WhenForeignKeyReferencesValidTableAndColumn() {
-        ForeignKeyConstraint fkConstraint = new ForeignKeyConstraint("fk_child", mockParentTable, mockParentColumn);
+        Table table = new Table("parent_table");
+        Column column = new Column("id", DataType.INT);
+        table.addColumn(column);
+        ForeignKeyConstraint fk = new ForeignKeyConstraint("fk_child", table, column);
 
-        assertThat(fkConstraint.validateReference()).isTrue();
+        assertThat(fk.validateReference()).isTrue();
     }
 
     @Test
-    @DisplayName("TC-16A. Validate Foreign Key - Referenced Table Missing")
-    void validateForeignKey_ShouldReturnFalse_WhenReferencedTableMissing() {
-        ForeignKeyConstraint fkConstraint = new ForeignKeyConstraint("fk_child", null, mockParentColumn);
+    @DisplayName("TC-16A. Validate Foreign Key Reference - Referenced Table Missing")
+    void validateReference_ShouldThrowFalse_WhenReferencedTableMissing() {
+        Column column = new Column("id", DataType.INT);
+        ForeignKeyConstraint fk = new ForeignKeyConstraint("fk_child", null, column);
 
-        assertThat(fkConstraint.validateReference()).isFalse();
+        assertThat(fk.validateReference()).isFalse();
     }
 
     @Test
-    @DisplayName("TC-16B. Validate Foreign Key - Referenced Column Missing")
-    void validateForeignKey_ShouldReturnFalse_WhenReferencedColumnMissing() {
-        when(mockParentColumn.getColumnName()).thenReturn("missing_col");
-        ForeignKeyConstraint fkConstraint = new ForeignKeyConstraint("fk_child", mockParentTable, mockParentColumn);
+    @DisplayName("TC-16B. Validate Foreign Key Reference - Referenced Column Missing")
+    void validateReference_ShouldThrowFalse_WhenReferencedColumnMissing() {
+        Table table = new Table("parent_table");
+        Column missingColumn = new Column("missing_id", DataType.INT);
+        ForeignKeyConstraint fk = new ForeignKeyConstraint("fk_child", table, missingColumn);
 
-        assertThat(fkConstraint.validateReference()).isFalse();
+        assertThat(fk.validateReference()).isFalse();
     }
 
     @Test
-    @DisplayName("TC-16C. Validate Foreign Key - Parent Row Missing")
-    void validateForeignKey_ShouldReturnFalse_WhenParentRowMissing() {
-        ForeignKeyConstraint fkConstraint = new ForeignKeyConstraint("fk_missing_row", mockParentTable, mockParentColumn);
+    @DisplayName("TC-16C. Validate Foreign Key Reference - Parent Row Missing")
+    void validateReference_ShouldThrowFalse_WhenParentRowMissing() {
+        Table table = new Table("parent_table");
+        Column column = new Column("id", DataType.INT);
+        table.addColumn(column);
+        ForeignKeyConstraint fk = new ForeignKeyConstraint("fk_child", table, column);
+        fk.setParentRowExists(false);
 
-        assertThat(fkConstraint.validateReference()).isFalse();
+        assertThat(fk.validateReference()).isFalse();
     }
 
     @Test
-    @DisplayName("TC-17. Evaluate Check Constraint (Happy Path)")
+    @DisplayName("TC-17. Evaluate Check Constraint")
     void evaluate_ShouldReturnTrue_WhenCheckConstraintExpressionIsValid() {
-        CheckConstraint checkConstraint = new CheckConstraint("chk_age", "age >= 18");
+        CheckConstraint check = new CheckConstraint("chk_age", "age >= 18");
 
-        assertThat(checkConstraint.evaluate()).isTrue();
+        assertThat(check.evaluate()).isTrue();
     }
 
     @Test
     @DisplayName("TC-17A. Evaluate Check Constraint - Invalid Expression")
     void evaluate_ShouldReturnFalse_WhenExpressionIsInvalid() {
-        CheckConstraint checkConstraint = new CheckConstraint("chk_invalid", "age >= ");
+        CheckConstraint check = new CheckConstraint("chk_invalid", "age >= ");
 
-        assertThat(checkConstraint.evaluate()).isFalse();
+        assertThat(check.evaluate()).isFalse();
     }
 }

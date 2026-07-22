@@ -12,7 +12,7 @@ public class PrimaryKeyConstraint extends Constraint {
     }
 
     @Override
-    public boolean validate() {
-        return super.validate();
+    protected boolean doValidate() {
+        return true;
     }
 }

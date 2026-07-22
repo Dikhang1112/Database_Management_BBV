@@ -115,24 +115,16 @@ sequenceDiagram
 ### 3.1. Factory Method Pattern
 * **Pattern**: Factory Method Pattern
 * **Class/Interface Applied**: Schema
-* **Method**: `createTable(tableName)`, `createView(viewName, sql)`, `createSequence(sequenceName)`, `createTrigger(triggerName)`, `createProcedure(procedureName)`, `createFunction(functionName)`
+* **Method**: `createTable(tableName)`
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant Schema as Schema
     participant Table as Table
-    participant View as View
-    participant Sequence as Sequence
 
     Schema->>Table: createTable("orders")
     Table-->>Schema: tableInstance
-
-    Schema->>View: createView("v_orders", sql)
-    View-->>Schema: viewInstance
-
-    Schema->>Sequence: createSequence("seq_orders")
-    Sequence-->>Schema: sequenceInstance
 ```
 
 ---
@@ -352,23 +344,4 @@ sequenceDiagram
     Index->>Strategy: rebuildIndex(this)
     Strategy-->>Index: rebuildSuccess
     Index-->>Table: rebuildSuccess
-```
-
----
-
-## 8. View & Trigger Level (Schema Observers)
-
-### 8.1. Observer Pattern (Subscriber)
-* **Pattern**: Observer Pattern (Subscriber)
-* **Class/Interface Applied**: View, Trigger, MetadataChangeListener
-* **Method**: `onMetadataChanged(eventType, targetName)`, `compile()`, `refresh()`
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Table as Table (Subject)
-    participant View as View (Subscriber Observer)
-
-    Table->>View: onMetadataChanged("COLUMN_REMOVED", "email")
-    View->>View: compile()
 ```

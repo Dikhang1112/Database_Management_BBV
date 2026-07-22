@@ -45,7 +45,7 @@ sequenceDiagram
 
     Test->>CatalogManager: createDatabase("")
     CatalogManager->>CatalogManager: validateDatabaseName("")
-    CatalogManager-->>Test: throw InvalidDatabaseNameException
+    CatalogManager-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 #### TC-01C: `createDatabase_ShouldThrowException_WhenPermissionDenied`
@@ -60,6 +60,53 @@ sequenceDiagram
     CatalogManager->>SecurityManager: checkPermission("CREATE_DB")
     SecurityManager-->>CatalogManager: Access Denied
     CatalogManager-->>Test: throw SecurityException
+```
+
+#### TC-01D: `createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-01D: createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: createDatabase("sales@db!")
+    CatalogManager->>CatalogManager: validateNameFormat("sales@db!")
+    CatalogManager-->>Test: throw IllegalArgumentException ("Database name contains invalid characters")
+```
+
+#### TC-01E: `renameDatabase_ShouldUpdateNameInCatalog_WhenValid`
+```mermaid
+sequenceDiagram
+    title TC-01E: renameDatabase_ShouldUpdateNameInCatalog_WhenValid
+    participant Test
+    participant CatalogManager
+    participant Database
+
+    Test->>CatalogManager: renameDatabase("old_db", "new_db")
+    CatalogManager->>Database: rename("new_db")
+    CatalogManager-->>Test: void
+```
+
+#### TC-01F: `renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound`
+```mermaid
+sequenceDiagram
+    title TC-01F: renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: renameDatabase("missing_db", "new_db")
+    CatalogManager-->>Test: throw IllegalArgumentException ("Database not found")
+```
+
+#### TC-01G: `renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists`
+```mermaid
+sequenceDiagram
+    title TC-01G: renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: renameDatabase("db1", "db2")
+    CatalogManager-->>Test: throw IllegalStateException ("Database already exists")
 ```
 
 ---
@@ -223,6 +270,18 @@ sequenceDiagram
     Database-->>Test: throw SecurityException
 ```
 
+#### TC-05D: `createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-05D: createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters
+    participant Test
+    participant Database
+
+    Test->>Database: createSchema("schema#123!")
+    Database->>Database: validateNameFormat("schema#123!")
+    Database-->>Test: throw IllegalArgumentException ("Schema name contains invalid characters")
+```
+
 ---
 
 ### TC-06: `renameDatabase`
@@ -265,6 +324,19 @@ sequenceDiagram
     Test->>Database: rename("")
     Database->>Database: validateName("")
     Database-->>Test: throw InvalidDatabaseNameException
+```
+
+#### TC-06C: `renameSchema_ShouldRenameTargetSchema_WhenExists`
+```mermaid
+sequenceDiagram
+    title TC-06C: renameSchema_ShouldRenameTargetSchema_WhenExists
+    participant Test
+    participant Database
+    participant Schema
+
+    Test->>Database: renameSchema("raw_schema", "prod_schema")
+    Database->>Schema: rename("prod_schema")
+    Database-->>Test: void
 ```
 
 ---
@@ -328,6 +400,18 @@ sequenceDiagram
     Test->>Schema: createTable("users")
     Schema->>Schema: isReadOnly()
     Schema-->>Test: throw SchemaReadOnlyException
+```
+
+#### TC-07D: `createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-07D: createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters
+    participant Test
+    participant Schema
+
+    Test->>Schema: createTable("user@table!")
+    Schema->>Schema: validateNameFormat("user@table!")
+    Schema-->>Test: throw IllegalArgumentException ("Table name contains invalid characters")
 ```
 
 ---
@@ -428,6 +512,30 @@ sequenceDiagram
     Table-->>Test: throw SecurityException
 ```
 
+#### TC-09D: `addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters`
+```mermaid
+sequenceDiagram
+    title TC-09D: addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters
+    participant Test
+    participant Table
+    participant Column
+
+    Test->>Table: addColumn(Column "col#name!")
+    Table->>Table: validateNameFormat("col#name!")
+    Table-->>Test: throw IllegalArgumentException ("Column name contains invalid characters")
+```
+
+#### TC-09E: `createColumn_ShouldAddColumnToTable`
+```mermaid
+sequenceDiagram
+    title TC-09E: createColumn_ShouldAddColumnToTable
+    participant Test
+    participant Table
+
+    Test->>Table: createColumn(Column "user_id")
+    Table-->>Test: void
+```
+
 ---
 
 ### TC-10: `removeColumn`
@@ -466,7 +574,31 @@ sequenceDiagram
 
     Test->>Table: removeColumn("id")
     Table->>Table: isReferencedByConstraint("id")
-    Table-->>Test: throw ColumnInUseException
+    Table-->>Test: throw IllegalStateException ("referenced by constraint")
+```
+
+#### TC-10E: `removeColumn_ShouldThrowException_WhenTableIsLocked`
+```mermaid
+sequenceDiagram
+    title TC-10E: removeColumn_ShouldThrowException_WhenTableIsLocked
+    participant Test
+    participant Table
+
+    Test->>Table: removeColumn("temp_col")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
+```
+
+#### TC-10F: `removeColumn_ShouldThrowException_WhenColumnNameIsInvalid`
+```mermaid
+sequenceDiagram
+    title TC-10F: removeColumn_ShouldThrowException_WhenColumnNameIsInvalid
+    participant Test
+    participant Table
+
+    Test->>Table: removeColumn("")
+    Table->>Table: validateNameFormat("")
+    Table-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -591,7 +723,53 @@ sequenceDiagram
 
     Test->>Table: addIndex(IndexOnMissingColumn)
     Table->>Table: containsColumn("non_existing_col")
-    Table-->>Test: throw ColumnNotFoundException
+    Table-->>Test: throw IllegalArgumentException ("Indexed column not found")
+```
+
+#### TC-13D: `removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists`
+```mermaid
+sequenceDiagram
+    title TC-13D: removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("idx_user_email")
+    Table-->>Test: void
+```
+
+#### TC-13E: `removeIndex_ShouldThrowException_WhenIndexNotFound`
+```mermaid
+sequenceDiagram
+    title TC-13E: removeIndex_ShouldThrowException_WhenIndexNotFound
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("missing_idx")
+    Table-->>Test: throw IllegalArgumentException ("Index not found")
+```
+
+#### TC-13F: `removeIndex_ShouldThrowException_WhenTableIsLocked`
+```mermaid
+sequenceDiagram
+    title TC-13F: removeIndex_ShouldThrowException_WhenTableIsLocked
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("idx_user_email")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
+```
+
+#### TC-13G: `removeIndex_ShouldThrowException_WhenIndexNameIsInvalid`
+```mermaid
+sequenceDiagram
+    title TC-13G: removeIndex_ShouldThrowException_WhenIndexNameIsInvalid
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("")
+    Table->>Table: validateNameFormat("")
+    Table-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -619,7 +797,7 @@ sequenceDiagram
 
     Test->>Index: rebuild()
     Index->>Index: checkIntegrity()
-    Index-->>Test: throw IndexDisabledException
+    Index-->>Test: throw IllegalStateException ("Index is corrupted")
 ```
 
 ---
@@ -642,6 +820,40 @@ sequenceDiagram
     Test->>PrimaryKeyConstraint: disable()
     Test->>PrimaryKeyConstraint: validate()
     PrimaryKeyConstraint-->>Test: false
+```
+
+#### TC-15B: `removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists`
+```mermaid
+sequenceDiagram
+    title TC-15B: removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists
+    participant Test
+    participant Table
+
+    Test->>Table: removeConstraint("pk_orders")
+    Table-->>Test: void
+```
+
+#### TC-15C: `removeConstraint_ShouldThrowException_WhenConstraintNotFound`
+```mermaid
+sequenceDiagram
+    title TC-15C: removeConstraint_ShouldThrowException_WhenConstraintNotFound
+    participant Test
+    participant Table
+
+    Test->>Table: removeConstraint("missing_pk")
+    Table-->>Test: throw IllegalArgumentException ("Constraint not found")
+```
+
+#### TC-15D: `removeConstraint_ShouldThrowException_WhenTableIsLocked`
+```mermaid
+sequenceDiagram
+    title TC-15D: removeConstraint_ShouldThrowException_WhenTableIsLocked
+    participant Test
+    participant Table
+
+    Test->>Table: removeConstraint("pk_orders")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
 ```
 
 ---
@@ -732,4 +944,176 @@ sequenceDiagram
     Test->>CheckConstraint: evaluate()
     CheckConstraint->>CheckConstraint: parseExpression("age >= ")
     CheckConstraint-->>Test: false (Expression invalid)
+```
+
+---
+
+## 8. MetadataModule Unit Tests
+
+### TC-18: `getTableFacade`
+
+#### Happy Path: `getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist`
+```mermaid
+sequenceDiagram
+    title TC-18: getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist
+    participant Test
+    participant MetadataModule
+    participant CatalogManager
+    participant Database
+    participant Schema
+
+    Test->>MetadataModule: getTable("sales_db", "public", "orders")
+    MetadataModule->>CatalogManager: getDatabase("sales_db")
+    CatalogManager-->>MetadataModule: Database ("sales_db")
+    MetadataModule->>Database: getSchema("public")
+    Database-->>MetadataModule: Schema ("public")
+    MetadataModule->>Schema: getTable("orders")
+    Schema-->>MetadataModule: Table ("orders")
+    MetadataModule-->>Test: Table ("orders")
+```
+
+#### TC-18A: `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
+```mermaid
+sequenceDiagram
+    title TC-18A: executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided
+    participant Test
+    participant MetadataModule
+    participant DDLCommand
+
+    Test->>MetadataModule: executeDDL(command)
+    MetadataModule->>DDLCommand: execute()
+    DDLCommand-->>MetadataModule: void
+    MetadataModule-->>Test: void
+```
+
+---
+
+## 9. DDLCommand Unit Tests
+
+### TC-19: `DDLCommandExecution`
+
+#### TC-19A: `execute_ShouldCallCatalogCreateDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19A: execute_ShouldCallCatalogCreateDatabase
+    participant Test
+    participant CreateDatabaseCommand
+    participant CatalogManager
+
+    Test->>CreateDatabaseCommand: execute()
+    CreateDatabaseCommand->>CatalogManager: createDatabase("sales_db")
+    CatalogManager-->>CreateDatabaseCommand: Database ("sales_db")
+    CreateDatabaseCommand-->>Test: void
+```
+
+#### TC-19B: `execute_ShouldCallCatalogDropDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19B: execute_ShouldCallCatalogDropDatabase
+    participant Test
+    participant DropDatabaseCommand
+    participant CatalogManager
+
+    Test->>DropDatabaseCommand: execute()
+    DropDatabaseCommand->>CatalogManager: dropDatabase("temp_db")
+    CatalogManager-->>DropDatabaseCommand: void
+    DropDatabaseCommand-->>Test: void
+```
+
+#### TC-19C: `execute_ShouldCallCatalogRenameDatabase`
+```mermaid
+sequenceDiagram
+    title TC-19C: execute_ShouldCallCatalogRenameDatabase
+    participant Test
+    participant RenameDatabaseCommand
+    participant CatalogManager
+
+    Test->>RenameDatabaseCommand: execute()
+    RenameDatabaseCommand->>CatalogManager: renameDatabase("old_db", "new_db")
+    CatalogManager-->>RenameDatabaseCommand: void
+    RenameDatabaseCommand-->>Test: void
+```
+
+---
+
+## 10. ColumnBuilder Unit Tests
+
+### TC-20: `buildColumn`
+
+#### Happy Path: `build_ShouldConstructColumn_WhenValidPropertiesSet`
+```mermaid
+sequenceDiagram
+    title TC-20: build_ShouldConstructColumn_WhenValidPropertiesSet
+    participant Test
+    participant ColumnBuilder
+    participant Column
+
+    Test->>ColumnBuilder: new ColumnBuilder("email")
+    Test->>ColumnBuilder: setType(VARCHAR).setNullable(false).setDefaultValue("N/A")
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>Column: new Column("email", VARCHAR)
+    Column-->>ColumnBuilder: Column instance
+    ColumnBuilder-->>Test: Column instance
+```
+
+---
+
+## 11. TableMemento Unit Tests
+
+### TC-21: `mementoSnapshotRestore`
+
+#### Happy Path: `createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState`
+```mermaid
+sequenceDiagram
+    title TC-21: createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState
+    participant Test
+    participant Table
+    participant TableMemento
+
+    Test->>Table: createMemento()
+    Table->>TableMemento: new TableMemento(tableName, columnsSnapshot)
+    TableMemento-->>Table: Memento instance
+    Table-->>Test: Memento instance
+    Test->>Table: addColumn("new_col")
+    Test->>Table: restore(memento)
+    Table->>TableMemento: getColumnsSnapshot()
+    TableMemento-->>Table: initialColumns
+    Table-->>Test: void (State restored)
+```
+
+---
+
+## 12. ConstraintValidationChain Unit Tests
+
+### TC-22: `validateChain`
+
+#### Happy Path: `validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid`
+```mermaid
+sequenceDiagram
+    title TC-22: validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid
+    participant Test
+    participant ConstraintValidationChain
+    participant Constraint
+
+    Test->>ConstraintValidationChain: addConstraint(pkConstraint)
+    Test->>ConstraintValidationChain: addConstraint(checkConstraint)
+    Test->>ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>Constraint: validate()
+    Constraint-->>ConstraintValidationChain: true
+    ConstraintValidationChain-->>Test: true
+```
+
+#### TC-22A: `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
+```mermaid
+sequenceDiagram
+    title TC-22A: validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails
+    participant Test
+    participant ConstraintValidationChain
+    participant Constraint
+
+    Test->>ConstraintValidationChain: addConstraint(invalidConstraint)
+    Test->>ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>Constraint: validate()
+    Constraint-->>ConstraintValidationChain: false
+    ConstraintValidationChain-->>Test: false
 ```

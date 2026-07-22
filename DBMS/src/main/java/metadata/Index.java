@@ -2,17 +2,23 @@ package metadata;
 
 import metadata.enums.IndexType;
 import metadata.interfaces.IndexRebuildStrategy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class Index {
     private UUID indexId;
     private String indexName;
     private IndexType indexType;
+    private List<Column> columns;
     private boolean enabled;
+    private boolean corrupted;
     private IndexRebuildStrategy rebuildStrategy;
 
     public Index() {
         this.indexId = UUID.randomUUID();
+        this.columns = new ArrayList<>();
         this.enabled = true;
     }
 
@@ -20,6 +26,34 @@ public class Index {
         this();
         this.indexName = indexName;
         this.indexType = indexType;
+    }
+
+    // =====================================================
+    // Getters
+    // =====================================================
+
+    public UUID getIndexId() {
+        return indexId;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public List<Column> getColumns() {
+        return Collections.unmodifiableList(columns);
+    }
+
+    // =====================================================
+    // State Management
+    // =====================================================
+
+    public void setColumns(List<Column> columns) {
+        this.columns = columns != null ? new ArrayList<>(columns) : new ArrayList<>();
     }
 
     public void enable() {
@@ -30,29 +64,28 @@ public class Index {
         this.enabled = false;
     }
 
+    public void setCorrupted(boolean corrupted) {
+        this.corrupted = corrupted;
+        if (corrupted) {
+            this.enabled = false;
+        }
+    }
+
+    // =====================================================
     // Pattern: Strategy
+    // =====================================================
+
     public void setRebuildStrategy(IndexRebuildStrategy strategy) {
         this.rebuildStrategy = strategy;
     }
 
     public void rebuild() {
-        if (indexName != null && indexName.contains("corrupted")) {
+        if (corrupted) {
             throw new IllegalStateException("Index is corrupted");
         }
         if (rebuildStrategy != null) {
-            rebuildStrategy.
-            
-            (this);
+            rebuildStrategy.rebuildIndex(this);
         }
         this.enabled = true;
     }
-
-    public String getIndexName() {
-        return indexName;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
 }
-

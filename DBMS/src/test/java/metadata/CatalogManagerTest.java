@@ -43,7 +43,7 @@ class CatalogManagerTest {
     void createDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
         assertThatThrownBy(() -> catalogManager.createDatabase(""))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Invalid database name");
+                .hasMessageContaining("Value is empty");
     }
 
     @Test
@@ -52,6 +52,14 @@ class CatalogManagerTest {
         assertThatThrownBy(() -> catalogManager.createDatabase("protected_db"))
                 .isInstanceOf(SecurityException.class)
                 .hasMessageContaining("Permission denied");
+    }
+
+    @Test
+    @DisplayName("TC-01D. Create Database - Special Characters")
+    void createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters() {
+        assertThatThrownBy(() -> catalogManager.createDatabase("sales@db!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Database name contains invalid characters");
     }
 
     @Test

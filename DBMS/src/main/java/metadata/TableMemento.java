@@ -1,9 +1,10 @@
 package metadata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class hỗ trợ Memento Pattern cho Metadata module (Method nobody).
+ * Class hỗ trợ Memento Pattern cho Metadata module.
  * Lưu lại ảnh chụp (Snapshot) cấu trúc của Table để phục vụ cho tính năng Rollback.
  */
 public class TableMemento {
@@ -11,15 +12,17 @@ public class TableMemento {
     private List<Column> columnsSnapshot;
 
     public TableMemento(String tableName, List<Column> columns) {
+        this.tableName = tableName;
+        this.columnsSnapshot = columns != null ? new ArrayList<>(columns) : new ArrayList<>();
     }
 
-    // Pattern: Memento (Method nobody)
+    // Pattern: Memento
     public String getTableName() {
-        return null;
+        return tableName;
     }
 
-    // Pattern: Memento (Method nobody)
+    // Pattern: Memento
     public List<Column> getColumnsSnapshot() {
-        return null;
+        return new ArrayList<>(columnsSnapshot);
     }
 }

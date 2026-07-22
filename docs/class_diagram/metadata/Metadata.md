@@ -40,11 +40,6 @@ classDiagram
     class Schema{
         <<Composite Node / Factory Method>>
         +createTable(String tableName) Table
-        +createView(String viewName, String sql) View
-        +createSequence(String sequenceName) Sequence
-        +createTrigger(String triggerName) Trigger
-        +createProcedure(String procedureName) StoredProcedure
-        +createFunction(String functionName) Function
         +dropTable(String tableName)
         +getTable(String tableName) Table
         +getElementName() String
@@ -89,12 +84,7 @@ classDiagram
         +disable()
     }
 
-    class View{
-        <<Observer Subscriber>>
-        +compile()
-        +refresh()
-        +updateDefinition(String sql)
-    }
+
 
     class Constraint{
         <<Abstract / Template Method>>
@@ -120,29 +110,6 @@ classDiagram
     class CheckConstraint{
         +evaluate() boolean
         +doValidate() boolean
-    }
-
-    class Sequence{
-        +nextValue() long
-        +currentValue() long
-        +reset(long value)
-    }
-
-    class Trigger{
-        <<Observer Subscriber>>
-        +enable()
-        +disable()
-        +compile()
-    }
-
-    class StoredProcedure{
-        +compile()
-        +execute()
-    }
-
-    class Function{
-        +compile()
-        +execute()
     }
 
     %% =====================================================
@@ -212,17 +179,10 @@ classDiagram
     MetadataElement <|.. Column
 
     DDLCommand <|.. CreateTableCommand
-    MetadataChangeListener <|.. View
-    MetadataChangeListener <|.. Trigger
 
     CatalogManager "1" *-- "*" Database
     Database "1" *-- "*" Schema
     Schema "1" *-- "*" Table
-    Schema "1" *-- "*" View
-    Schema "1" *-- "*" Sequence
-    Schema "1" *-- "*" Trigger
-    Schema "1" *-- "*" StoredProcedure
-    Schema "1" *-- "*" Function
 
     Table "1" *-- "*" Column
     Table "1" *-- "*" Index

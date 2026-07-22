@@ -1,4 +1,4 @@
-﻿```mermaid
+```mermaid
 classDiagram
     direction TD
 
@@ -54,7 +54,6 @@ classDiagram
     class Table
     class Column
     class Index
-    class View
     class DataType{
         <<Enumeration>>
     }
@@ -152,13 +151,11 @@ classDiagram
     Metadata *-- Table
     Metadata *-- Column
     Metadata *-- Index
-    Metadata *-- View
     Metadata *-- DataType
 
     CatalogManager *-- Database
     Database *-- Schema
     Schema *-- Table
-    Schema *-- View
     Table *-- Column
     Table *-- Index
     Column --> DataType

@@ -55,6 +55,16 @@ class DatabaseTest {
     }
 
     @Test
+    @DisplayName("TC-05D. Create Schema - Special Characters")
+    void createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters() {
+        Database database = new Database("app_db");
+
+        assertThatThrownBy(() -> database.createSchema("schema#123!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Schema name contains invalid characters");
+    }
+
+    @Test
     @DisplayName("TC-06. Database Status & Rename")
     void setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified() {
         Database database = new Database("old_name");
@@ -69,11 +79,14 @@ class DatabaseTest {
     @Test
     @DisplayName("TC-06A. Rename Database - Duplicate Name")
     void renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName() {
-        Database database = new Database("app_db");
+        CatalogManager cm = CatalogManager.getInstance();
+        cm.clear();
+        cm.createDatabase("existing_db_name");
+        cm.createDatabase("app_db");
 
-        assertThatThrownBy(() -> database.rename("existing_db_name"))
+        assertThatThrownBy(() -> cm.renameDatabase("app_db", "existing_db_name"))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Duplicate database name");
+                .hasMessageContaining("Database already exists");
     }
 
     @Test
@@ -83,6 +96,6 @@ class DatabaseTest {
 
         assertThatThrownBy(() -> database.rename(""))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Invalid database name");
+                .hasMessageContaining("Value is empty");
     }
 }

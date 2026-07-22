@@ -20,7 +20,7 @@ class TableTest {
     private Column mockColumn;
 
     @Test
-    @DisplayName("TC-09. Add & Manage Columns")
+    @DisplayName("TC-09. Add Column")
     void addColumn_ShouldAttachColumnToTable_WhenColumnIsAdded() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");
@@ -67,6 +67,17 @@ class TableTest {
     }
 
     @Test
+    @DisplayName("TC-09D. Add Column - Special Characters")
+    void addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters() {
+        Table table = new Table("orders");
+        when(mockColumn.getColumnName()).thenReturn("col#name!");
+
+        assertThatThrownBy(() -> table.addColumn(mockColumn))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Column name contains invalid characters");
+    }
+
+    @Test
     @DisplayName("TC-10. Remove Column")
     void removeColumn_ShouldDetachColumnFromTable_WhenColumnExists() {
         Table table = new Table("orders");
@@ -93,9 +104,32 @@ class TableTest {
     void removeColumn_ShouldThrowException_WhenReferencedByConstraint() {
         Table table = new Table("orders");
         table.addColumn(new Column("id", DataType.INT));
+        table.addConstraint(new PrimaryKeyConstraint("id"));
 
         assertThatThrownBy(() -> table.removeColumn("id"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("referenced by constraint");
+    }
+
+    @Test
+    @DisplayName("TC-10E. Remove Column - Table Locked")
+    void removeColumn_ShouldThrowException_WhenTableIsLocked() {
+        Table table = new Table("orders");
+        table.addColumn(new Column("temp_col", DataType.VARCHAR));
+        table.setLocked(true);
+
+        assertThatThrownBy(() -> table.removeColumn("temp_col"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Table is locked");
+    }
+
+    @Test
+    @DisplayName("TC-10F. Remove Column - Invalid Name Format")
+    void removeColumn_ShouldThrowException_WhenColumnNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.removeColumn(""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Value is empty");
     }
 }
