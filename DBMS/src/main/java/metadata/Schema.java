@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.helpers.CatalogValidator;
+import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,18 +50,10 @@ public class Schema implements MetadataElement {
         if (readOnly) {
             throw new IllegalStateException("Schema is read-only");
         }
-        if (tableName == null || tableName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        if (tableName.equals("restricted_table")) {
-            throw new SecurityException("Permission denied");
-        }
-        if (!tableName.matches("^[a-zA-Z0-9_]+$")) {
-            throw new IllegalArgumentException("Table name contains invalid characters");
-        }
-        if (tables.containsKey(tableName)) {
-            throw new IllegalStateException("Table already exists");
-        }
+        SecurityValidator.validatePermission(tableName);
+        CatalogValidator.validateIdentifier(tableName, "Table");
+        CatalogValidator.ensureUniqueName(tableName, tables.keySet(), "Table");
+
         Table table = new Table(tableName);
         tables.put(tableName, table);
         return table;

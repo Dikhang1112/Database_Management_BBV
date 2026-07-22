@@ -45,6 +45,9 @@ flowchart LR
     TC01 --> TC01B("Invalid database name")
     TC01 --> TC01C("Permission denied")
     TC01 --> TC01D("Special characters")
+    TC01 --> TC01E("Rename database valid")
+    TC01 --> TC01F("Rename old database missing")
+    TC01 --> TC01G("Rename new database duplicate")
 
     Cat1 --> TC02("TC-02 DropDatabase")
     TC02 --> TC02A("Database not found")
@@ -68,6 +71,7 @@ flowchart LR
     Cat2 --> TC06("TC-06 RenameDatabase")
     TC06 --> TC06A("Duplicate database name")
     TC06 --> TC06B("Invalid name")
+    TC06 --> TC06C("Rename schema in database")
 
     %% =====================================================
     %% Schema
@@ -81,6 +85,7 @@ flowchart LR
 
     Cat3 --> TC08("TC-08 RenameSchema")
     TC08 --> TC08A("Schema not found")
+    TC08 --> TC08B("Create view in schema")
 
     %% =====================================================
     %% Table
@@ -91,10 +96,13 @@ flowchart LR
     TC09 --> TC09B("Table locked")
     TC09 --> TC09C("Permission denied")
     TC09 --> TC09D("Special characters")
+    TC09 --> TC09E("Create column facade")
 
     Cat4 --> TC10("TC-10 RemoveColumn")
     TC10 --> TC10A("Column not found")
     TC10 --> TC10B("Referenced by constraint")
+    TC10 --> TC10C("Drop column facade")
+    TC10 --> TC10D("Rename column")
 
     %% =====================================================
     %% Column
@@ -114,6 +122,7 @@ flowchart LR
     Cat6 --> TC13("TC-13 AddIndex")
     TC13 --> TC13A("Duplicate index")
     TC13 --> TC13B("Invalid indexed column")
+    TC13 --> TC13C("Add and remove index facade")
 
     Cat6 --> TC14("TC-14 RebuildIndex")
     TC14 --> TC14A("Disabled index")
@@ -123,6 +132,7 @@ flowchart LR
     %% =====================================================
 
     Cat7 --> TC15("TC-15 ValidateConstraint")
+    TC15 --> TC15A("Add and remove constraint facade")
 
     Cat7 --> TC16("TC-16 ValidateForeignKey")
     TC16 --> TC16A("Referenced table missing")

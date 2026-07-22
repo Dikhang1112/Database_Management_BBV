@@ -1,32 +1,42 @@
 package metadata;
 
 import metadata.enums.DatabaseStatus;
+import metadata.helpers.CatalogValidator;
+import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Database implements MetadataElement {
     private UUID databaseId;
     private String databaseName;
-    private Map<String, Schema> schemas;
     private DatabaseStatus status;
+    private Map<String, Schema> schemas;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Database() {
-        this.databaseId = java.util.UUID.randomUUID();
-        this.schemas = new HashMap<>();
+        this.databaseId = UUID.randomUUID();
         this.status = DatabaseStatus.ONLINE;
+        this.schemas = new HashMap<>();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     public UUID getDatabaseId() {
         return databaseId;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public DatabaseStatus getStatus() {
+        return status;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -46,18 +56,10 @@ public class Database implements MetadataElement {
         if (status == DatabaseStatus.OFFLINE) {
             throw new IllegalStateException("Database is offline");
         }
-        if (schemaName == null || schemaName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        if (schemaName.equals("secure_schema")) {
-            throw new SecurityException("Permission denied");
-        }
-        if (!schemaName.matches("^[a-zA-Z0-9_]+$")) {
-            throw new IllegalArgumentException("Schema name contains invalid characters");
-        }
-        if (schemas.containsKey(schemaName)) {
-            throw new IllegalStateException("Schema already exists");
-        }
+        SecurityValidator.validatePermission(schemaName);
+        CatalogValidator.validateIdentifier(schemaName, "Schema");
+        CatalogValidator.ensureUniqueName(schemaName, schemas.keySet(), "Schema");
+
         Schema schema = new Schema();
         schema.rename(schemaName);
         schemas.put(schemaName, schema);
@@ -81,9 +83,7 @@ public class Database implements MetadataElement {
     }
 
     public void rename(String newName) {
-        if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Value is empty");
-        }
+        CatalogValidator.validateIdentifier(newName, "Database");
         if (newName.equals("existing_db_name")) {
             throw new IllegalStateException("Duplicate database name");
         }
@@ -93,14 +93,6 @@ public class Database implements MetadataElement {
     // Pattern: State
     public void setStatus(DatabaseStatus status) {
         this.status = status;
-    }
-
-    public DatabaseStatus getStatus() {
-        return status;
-    }
-
-    public String getDatabaseName() {
-        return databaseName;
     }
 
     public void renameSchema(String oldName, String newName) {

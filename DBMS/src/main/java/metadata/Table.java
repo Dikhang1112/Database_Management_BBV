@@ -1,6 +1,8 @@
 package metadata;
 
 import metadata.abstracts.Constraint;
+import metadata.helpers.CatalogValidator;
+import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataChangeListener;
 import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
@@ -67,15 +69,11 @@ public class Table implements MetadataElement, Cloneable {
         if (locked) {
             throw new IllegalStateException("Table is locked");
         }
-        if (column == null || column.getColumnName() == null || column.getColumnName().trim().isEmpty()) {
+        if (column == null) {
             throw new IllegalArgumentException("Value is empty");
         }
-        if (column.getColumnName().startsWith("secret_")) {
-            throw new SecurityException("Permission denied");
-        }
-        if (!column.getColumnName().matches("^[a-zA-Z0-9_]+$")) {
-            throw new IllegalArgumentException("Column name contains invalid characters");
-        }
+        SecurityValidator.validatePermission(column.getColumnName());
+        CatalogValidator.validateIdentifier(column.getColumnName(), "Column");
         if (containsColumn(column.getColumnName())) {
             throw new IllegalStateException("Column already exists");
         }

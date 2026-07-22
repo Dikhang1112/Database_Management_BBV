@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.helpers.CatalogValidator;
+import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,18 +49,10 @@ public class CatalogManager implements MetadataElement {
     }
 
     public Database createDatabase(String databaseName) {
-        if (databaseName == null || databaseName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        if (!databaseName.matches("^[a-zA-Z0-9_]+$")) {
-            throw new IllegalArgumentException("Database name contains invalid characters");
-        }
-        if (databaseName.equals("protected_db")) {
-            throw new SecurityException("Permission denied");
-        }
-        if (databases.containsKey(databaseName)) {
-            throw new IllegalStateException("Database already exists");
-        }
+        CatalogValidator.validateIdentifier(databaseName, "Database");
+        SecurityValidator.validatePermission(databaseName, "CREATE");
+        CatalogValidator.ensureUniqueName(databaseName, databases.keySet(), "Database");
+
         Database db = new Database();
         db.rename(databaseName);
         databases.put(databaseName, db);
@@ -66,12 +60,9 @@ public class CatalogManager implements MetadataElement {
     }
 
     public void dropDatabase(String databaseName) {
-        if (!databases.containsKey(databaseName)) {
-            throw new IllegalArgumentException("Database not found");
-        }
-        if (databaseName.equals("prod_db")) {
-            throw new SecurityException("Permission denied");
-        }
+        CatalogValidator.ensureExists(databaseName, databases.keySet(), "Database");
+        SecurityValidator.validatePermission(databaseName);
+
         Database db = databases.get(databaseName);
         if (db != null && !db.listSchemas().isEmpty()) {
             throw new IllegalStateException("Database is not empty");
@@ -80,9 +71,10 @@ public class CatalogManager implements MetadataElement {
     }
 
     public void renameDatabase(String oldName, String newName) {
-        if (!databases.containsKey(oldName)) {
-            throw new IllegalArgumentException("Database not found");
-        }
+        CatalogValidator.ensureExists(oldName, databases.keySet(), "Database");
+        CatalogValidator.validateIdentifier(newName, "Database");
+        CatalogValidator.ensureUniqueName(newName, databases.keySet(), "Database");
+
         Database db = databases.remove(oldName);
         db.rename(newName);
         databases.put(newName, db);

@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SchemaTest {
 
     @Test
-    @DisplayName("TC-07. Create & Manage Tables")
+    @DisplayName("TC-07. Create Table")
     void createTable_ShouldRegisterTableInSchema_WhenValidTableNameIsProvided() {
         Schema schema = new Schema("public");
 

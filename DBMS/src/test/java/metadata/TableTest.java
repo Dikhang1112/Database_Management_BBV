@@ -20,7 +20,7 @@ class TableTest {
     private Column mockColumn;
 
     @Test
-    @DisplayName("TC-09. Add & Manage Columns")
+    @DisplayName("TC-09. Add Column")
     void addColumn_ShouldAttachColumnToTable_WhenColumnIsAdded() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");

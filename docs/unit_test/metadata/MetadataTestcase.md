@@ -63,6 +63,35 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `IllegalArgumentException`.
 
+### TC-01E. Rename Database (Happy Path)
+- **Test method:** `renameDatabase_ShouldUpdateNameInCatalog_WhenValid`
+- **Sequence diagram:** `TC-01E`
+- **Input:** Old database: `"old_db"`, New database: `"new_db"`
+- **Steps:**
+  - Call `catalogManager.createDatabase("old_db")`.
+  - Call `catalogManager.renameDatabase("old_db", "new_db")`.
+- **Expected output:**
+  - `containsDatabase("old_db")` returns `false`.
+  - `containsDatabase("new_db")` returns `true`.
+
+### TC-01F. Rename Database - Old Database Missing
+- **Test method:** `renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound`
+- **Sequence diagram:** `TC-01F`
+- **Input:** Missing database: `"missing_db"`
+- **Steps:**
+  - Call `catalogManager.renameDatabase("missing_db", "new_db")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database not found").
+
+### TC-01G. Rename Database - Duplicate New Name
+- **Test method:** `renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists`
+- **Sequence diagram:** `TC-01G`
+- **Input:** Existing databases: `"db1"` and `"db2"`
+- **Steps:**
+  - Call `catalogManager.renameDatabase("db1", "db2")`.
+- **Expected output:**
+  - Throws `IllegalStateException` ("Database already exists").
+
 ---
 
 ### TC-02. Drop Database (Happy Path)
@@ -217,6 +246,17 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Value is empty").
 
+### TC-06C. Rename Schema in Database
+- **Test method:** `renameSchema_ShouldRenameTargetSchema_WhenExists`
+- **Sequence diagram:** `TC-06C`
+- **Input:** Schema `"raw_schema"` inside database `"app_db"`, rename to `"prod_schema"`
+- **Steps:**
+  - Call `database.createSchema("raw_schema")`.
+  - Call `database.renameSchema("raw_schema", "prod_schema")`.
+- **Expected output:**
+  - `containsSchema("raw_schema")` returns `false`.
+  - `containsSchema("prod_schema")` returns `true`.
+
 ---
 
 ## 3. SchemaTest
@@ -288,13 +328,21 @@ Each test scenario follows this standard format:
 ### TC-08A. Rename Schema - Not Found
 - **Test method:** `renameSchema_ShouldThrowException_WhenSchemaNotFound`
 - **Sequence diagram:** `TC-08A`
-- **Input:** Non-existing schema name: `"missing_schema"`
+- **Input:** Missing schema name `"missing_schema"`
 - **Steps:**
   - Call `database.renameSchema("missing_schema", "new_name")`.
 - **Expected output:**
-  - Throws `SchemaNotFoundException`.
+  - Throws `IllegalArgumentException` ("Schema not found").
 
----
+### TC-08B. Create View in Schema
+- **Test method:** `createView_ShouldAddViewToSchema`
+- **Sequence diagram:** `TC-08B`
+- **Input:** View name `"v_active_users"`, SQL `"SELECT * FROM users WHERE active = true"`
+- **Steps:**
+  - Call `schema.createView("v_active_users", sql)`.
+- **Expected output:**
+  - Returns non-null `View` instance.
+  - `listViews()` contains the created view.
 
 ## 4. TableTest
 
@@ -348,6 +396,15 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `IllegalArgumentException`.
 
+### TC-09E. Create Column Facade
+- **Test method:** `createColumn_ShouldAddColumnToTable`
+- **Sequence diagram:** `TC-09E`
+- **Input:** Column with name `"user_id"`
+- **Steps:**
+  - Call `table.createColumn(column)`.
+- **Expected output:**
+  - `containsColumn("user_id")` returns `true`.
+
 ---
 
 ### TC-10. Remove Column (Happy Path)
@@ -377,6 +434,27 @@ Each test scenario follows this standard format:
   - Call `table.removeColumn("id")`.
 - **Expected output:**
   - Throws `ColumnInUseException`.
+
+### TC-10C. Drop Column Facade
+- **Test method:** `dropColumn_ShouldRemoveColumnFromTable`
+- **Sequence diagram:** `TC-10C`
+- **Input:** Column `"temp_col"`
+- **Steps:**
+  - Add `"temp_col"` to table.
+  - Call `table.dropColumn("temp_col")`.
+- **Expected output:**
+  - `containsColumn("temp_col")` returns `false`.
+
+### TC-10D. Rename Column
+- **Test method:** `renameColumn_ShouldUpdateColumnName_WhenExists`
+- **Sequence diagram:** `TC-10D`
+- **Input:** Old column name `"old_col"`, new name `"new_col"`
+- **Steps:**
+  - Add `"old_col"` to table.
+  - Call `table.renameColumn("old_col", "new_col")`.
+- **Expected output:**
+  - `containsColumn("old_col")` returns `false`.
+  - `containsColumn("new_col")` returns `true`.
 
 ---
 
@@ -467,6 +545,16 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `ColumnNotFoundException`.
 
+### TC-13C. Add and Remove Index Facade
+- **Test method:** `addAndRemoveIndex_ShouldManageIndexesInTable`
+- **Sequence diagram:** `TC-13C`
+- **Input:** `Index` instance
+- **Steps:**
+  - Call `table.addIndex(index)`.
+  - Call `table.removeIndex("idx_order_date")`.
+- **Expected output:**
+  - `listIndexes()` correctly updates.
+
 ---
 
 ### TC-14. Rebuild Index (Happy Path)
@@ -503,6 +591,16 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - `validate()` returns `true` when enabled.
   - `validate()` returns `false` when disabled.
+
+### TC-15A. Add and Remove Constraint Facade
+- **Test method:** `addAndRemoveConstraint_ShouldManageConstraintsInTable`
+- **Sequence diagram:** `TC-15A`
+- **Input:** `Constraint` instance
+- **Steps:**
+  - Call `table.addConstraint(constraint)`.
+  - Call `table.removeConstraint("pk_order")`.
+- **Expected output:**
+  - `listConstraints()` correctly updates.
 
 ---
 

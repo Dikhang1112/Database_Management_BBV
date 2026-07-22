@@ -74,6 +74,41 @@ sequenceDiagram
     CatalogManager-->>Test: throw IllegalArgumentException ("Database name contains invalid characters")
 ```
 
+#### TC-01E: `renameDatabase_ShouldUpdateNameInCatalog_WhenValid`
+```mermaid
+sequenceDiagram
+    title TC-01E: renameDatabase_ShouldUpdateNameInCatalog_WhenValid
+    participant Test
+    participant CatalogManager
+    participant Database
+
+    Test->>CatalogManager: renameDatabase("old_db", "new_db")
+    CatalogManager->>Database: rename("new_db")
+    CatalogManager-->>Test: void
+```
+
+#### TC-01F: `renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound`
+```mermaid
+sequenceDiagram
+    title TC-01F: renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: renameDatabase("missing_db", "new_db")
+    CatalogManager-->>Test: throw IllegalArgumentException ("Database not found")
+```
+
+#### TC-01G: `renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists`
+```mermaid
+sequenceDiagram
+    title TC-01G: renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists
+    participant Test
+    participant CatalogManager
+
+    Test->>CatalogManager: renameDatabase("db1", "db2")
+    CatalogManager-->>Test: throw IllegalStateException ("Database already exists")
+```
+
 ---
 
 ### TC-02: `dropDatabase`
@@ -291,6 +326,19 @@ sequenceDiagram
     Database-->>Test: throw InvalidDatabaseNameException
 ```
 
+#### TC-06C: `renameSchema_ShouldRenameTargetSchema_WhenExists`
+```mermaid
+sequenceDiagram
+    title TC-06C: renameSchema_ShouldRenameTargetSchema_WhenExists
+    participant Test
+    participant Database
+    participant Schema
+
+    Test->>Database: renameSchema("raw_schema", "prod_schema")
+    Database->>Schema: rename("prod_schema")
+    Database-->>Test: void
+```
+
 ---
 
 ## 3. Schema Unit Tests
@@ -398,6 +446,20 @@ sequenceDiagram
     Database-->>Test: throw SchemaNotFoundException
 ```
 
+#### TC-08B: `createView_ShouldAddViewToSchema`
+```mermaid
+sequenceDiagram
+    title TC-08B: createView_ShouldAddViewToSchema
+    participant Test
+    participant Schema
+    participant View
+
+    Test->>Schema: createView("v_active_users", sql)
+    Schema->>View: new View("v_active_users", sql)
+    View-->>Schema: View instance
+    Schema-->>Test: View instance
+```
+
 ---
 
 ## 4. Table & Column Unit Tests
@@ -477,6 +539,17 @@ sequenceDiagram
     Table-->>Test: throw IllegalArgumentException ("Column name contains invalid characters")
 ```
 
+#### TC-09E: `createColumn_ShouldAddColumnToTable`
+```mermaid
+sequenceDiagram
+    title TC-09E: createColumn_ShouldAddColumnToTable
+    participant Test
+    participant Table
+
+    Test->>Table: createColumn(Column "user_id")
+    Table-->>Test: void
+```
+
 ---
 
 ### TC-10: `removeColumn`
@@ -516,6 +589,28 @@ sequenceDiagram
     Test->>Table: removeColumn("id")
     Table->>Table: isReferencedByConstraint("id")
     Table-->>Test: throw ColumnInUseException
+```
+
+#### TC-10C: `dropColumn_ShouldRemoveColumnFromTable`
+```mermaid
+sequenceDiagram
+    title TC-10C: dropColumn_ShouldRemoveColumnFromTable
+    participant Test
+    participant Table
+
+    Test->>Table: dropColumn("temp_col")
+    Table-->>Test: void
+```
+
+#### TC-10D: `renameColumn_ShouldUpdateColumnName_WhenExists`
+```mermaid
+sequenceDiagram
+    title TC-10D: renameColumn_ShouldUpdateColumnName_WhenExists
+    participant Test
+    participant Table
+
+    Test->>Table: renameColumn("old_col", "new_col")
+    Table-->>Test: void
 ```
 
 ---
@@ -643,6 +738,20 @@ sequenceDiagram
     Table-->>Test: throw ColumnNotFoundException
 ```
 
+#### TC-13C: `addAndRemoveIndex_ShouldManageIndexesInTable`
+```mermaid
+sequenceDiagram
+    title TC-13C: addAndRemoveIndex_ShouldManageIndexesInTable
+    participant Test
+    participant Table
+    participant Index
+
+    Test->>Table: addIndex(Index)
+    Table-->>Test: void
+    Test->>Table: removeIndex("idx_order_date")
+    Table-->>Test: void
+```
+
 ---
 
 ### TC-14: `rebuildIndex`
@@ -691,6 +800,20 @@ sequenceDiagram
     Test->>PrimaryKeyConstraint: disable()
     Test->>PrimaryKeyConstraint: validate()
     PrimaryKeyConstraint-->>Test: false
+```
+
+#### TC-15A: `addAndRemoveConstraint_ShouldManageConstraintsInTable`
+```mermaid
+sequenceDiagram
+    title TC-15A: addAndRemoveConstraint_ShouldManageConstraintsInTable
+    participant Test
+    participant Table
+    participant Constraint
+
+    Test->>Table: addConstraint(Constraint)
+    Table-->>Test: void
+    Test->>Table: removeConstraint("pk_order")
+    Table-->>Test: void
 ```
 
 ---
