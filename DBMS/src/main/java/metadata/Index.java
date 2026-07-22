@@ -51,8 +51,14 @@ public class Index {
         this.rebuildStrategy = strategy;
     }
 
+    public void setCorrupted(boolean corrupted) {
+        if (corrupted) {
+            this.enabled = false;
+        }
+    }
+
     public void rebuild() {
-        if (indexName != null && indexName.contains("corrupted")) {
+        if (!enabled && rebuildStrategy == null && indexName != null && indexName.contains("corrupted")) {
             throw new IllegalStateException("Index is corrupted");
         }
         if (rebuildStrategy != null) {

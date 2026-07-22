@@ -15,9 +15,11 @@ public class CreateDatabaseCommand implements DDLCommand {
 
     @Override
     public void execute() {
+        CatalogManager.getInstance().createDatabase(databaseName);
     }
 
     @Override
     public void undo() {
+        CatalogManager.getInstance().dropDatabase(databaseName);
     }
 }

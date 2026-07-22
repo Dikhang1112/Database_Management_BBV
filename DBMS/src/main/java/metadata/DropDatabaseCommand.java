@@ -9,15 +9,13 @@ public class DropDatabaseCommand implements DDLCommand {
         this.databaseName = databaseName;
     }
 
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
     @Override
     public void execute() {
+        CatalogManager.getInstance().dropDatabase(databaseName);
     }
 
     @Override
     public void undo() {
+        CatalogManager.getInstance().createDatabase(databaseName);
     }
 }

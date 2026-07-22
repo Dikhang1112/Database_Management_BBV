@@ -19,10 +19,14 @@ public class CheckConstraint extends Constraint {
     }
 
     public boolean evaluate() {
-        if (expression == null || expression.isEmpty() || expression.endsWith(">= ") || expression.contains("invalid")) {
+        if (expression == null || expression.trim().isEmpty()) {
             return false;
         }
-        return true;
+        String trimmed = expression.trim();
+        // Kiểm tra biểu thức điều kiện chứa toán tử so sánh hợp lệ và không kết thúc dở dang
+        boolean hasOperator = trimmed.contains(">=") || trimmed.contains("<=") || trimmed.contains("=") || trimmed.contains(">") || trimmed.contains("<");
+        boolean incomplete = trimmed.endsWith(">=") || trimmed.endsWith("<=") || trimmed.endsWith("=") || trimmed.endsWith(">") || trimmed.endsWith("<");
+        return hasOperator && !incomplete;
     }
 
     @Override

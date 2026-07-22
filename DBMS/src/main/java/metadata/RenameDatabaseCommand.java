@@ -11,19 +11,13 @@ public class RenameDatabaseCommand implements DDLCommand {
         this.newName = newName;
     }
 
-    public String getOldName() {
-        return oldName;
-    }
-
-    public String getNewName() {
-        return newName;
-    }
-
     @Override
     public void execute() {
+        CatalogManager.getInstance().renameDatabase(oldName, newName);
     }
 
     @Override
     public void undo() {
+        CatalogManager.getInstance().renameDatabase(newName, oldName);
     }
 }

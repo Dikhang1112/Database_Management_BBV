@@ -433,28 +433,25 @@ Each test scenario follows this standard format:
 - **Steps:**
   - Call `table.removeColumn("id")`.
 - **Expected output:**
-  - Throws `ColumnInUseException`.
+  - Throws `IllegalStateException` ("referenced by constraint").
 
-### TC-10C. Drop Column Facade
-- **Test method:** `dropColumn_ShouldRemoveColumnFromTable`
-- **Sequence diagram:** `TC-10C`
-- **Input:** Column `"temp_col"`
+### TC-10E. Remove Column - Table Locked
+- **Test method:** `removeColumn_ShouldThrowException_WhenTableIsLocked`
+- **Sequence diagram:** `TC-10E`
+- **Input:** Table with `locked = true`, Column `"temp_col"`
 - **Steps:**
-  - Add `"temp_col"` to table.
-  - Call `table.dropColumn("temp_col")`.
+  - Call `table.removeColumn("temp_col")`.
 - **Expected output:**
-  - `containsColumn("temp_col")` returns `false`.
+  - Throws `IllegalStateException` ("Table is locked").
 
-### TC-10D. Rename Column
-- **Test method:** `renameColumn_ShouldUpdateColumnName_WhenExists`
-- **Sequence diagram:** `TC-10D`
-- **Input:** Old column name `"old_col"`, new name `"new_col"`
+### TC-10F. Remove Column - Invalid Name Format
+- **Test method:** `removeColumn_ShouldThrowException_WhenColumnNameIsInvalid`
+- **Sequence diagram:** `TC-10F`
+- **Input:** Invalid column name: `""` or `null`
 - **Steps:**
-  - Add `"old_col"` to table.
-  - Call `table.renameColumn("old_col", "new_col")`.
+  - Call `table.removeColumn("")`.
 - **Expected output:**
-  - `containsColumn("old_col")` returns `false`.
-  - `containsColumn("new_col")` returns `true`.
+  - Throws `IllegalArgumentException` ("Value is empty").
 
 ---
 
@@ -543,17 +540,43 @@ Each test scenario follows this standard format:
 - **Steps:**
   - Call `table.addIndex(index)`.
 - **Expected output:**
-  - Throws `ColumnNotFoundException`.
+  - Throws `IllegalArgumentException` ("Indexed column not found").
 
-### TC-13C. Add and Remove Index Facade
-- **Test method:** `addAndRemoveIndex_ShouldManageIndexesInTable`
-- **Sequence diagram:** `TC-13C`
-- **Input:** `Index` instance
+### TC-13D. Remove Index (Happy Path)
+- **Test method:** `removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists`
+- **Sequence diagram:** `TC-13D`
+- **Input:** Existing index `"idx_user_email"`
 - **Steps:**
-  - Call `table.addIndex(index)`.
-  - Call `table.removeIndex("idx_order_date")`.
+  - Call `table.removeIndex("idx_user_email")`.
 - **Expected output:**
-  - `listIndexes()` correctly updates.
+  - `listIndexes()` no longer contains the index.
+
+### TC-13E. Remove Index - Index Not Found
+- **Test method:** `removeIndex_ShouldThrowException_WhenIndexNotFound`
+- **Sequence diagram:** `TC-13E`
+- **Input:** Non-existing index `"missing_idx"`
+- **Steps:**
+  - Call `table.removeIndex("missing_idx")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Index not found").
+
+### TC-13F. Remove Index - Table Locked
+- **Test method:** `removeIndex_ShouldThrowException_WhenTableIsLocked`
+- **Sequence diagram:** `TC-13F`
+- **Input:** Table with `locked = true`, Index `"idx_user_email"`
+- **Steps:**
+  - Call `table.removeIndex("idx_user_email")`.
+- **Expected output:**
+  - Throws `IllegalStateException` ("Table is locked").
+
+### TC-13G. Remove Index - Invalid Name Format
+- **Test method:** `removeIndex_ShouldThrowException_WhenIndexNameIsInvalid`
+- **Sequence diagram:** `TC-13G`
+- **Input:** Invalid index name: `""` or `null`
+- **Steps:**
+  - Call `table.removeIndex("")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Value is empty").
 
 ---
 
@@ -570,11 +593,11 @@ Each test scenario follows this standard format:
 ### TC-14A. Rebuild Index - Disabled & Corrupted
 - **Test method:** `rebuildIndex_ShouldThrowException_WhenIndexIsDisabledAndCorrupted`
 - **Sequence diagram:** `TC-14A`
-- **Input:** Corrupted index file/data
+- **Input:** Corrupted index file/data (`setCorrupted(true)`)
 - **Steps:**
   - Call `index.rebuild()`.
 - **Expected output:**
-  - Throws `IndexDisabledException`.
+  - Throws `IllegalStateException` ("Index is corrupted").
 
 ---
 
@@ -592,15 +615,32 @@ Each test scenario follows this standard format:
   - `validate()` returns `true` when enabled.
   - `validate()` returns `false` when disabled.
 
-### TC-15A. Add and Remove Constraint Facade
-- **Test method:** `addAndRemoveConstraint_ShouldManageConstraintsInTable`
-- **Sequence diagram:** `TC-15A`
-- **Input:** `Constraint` instance
+### TC-15B. Remove Constraint (Happy Path)
+- **Test method:** `removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists`
+- **Sequence diagram:** `TC-15B`
+- **Input:** Constraint `"pk_orders"` attached to table
 - **Steps:**
-  - Call `table.addConstraint(constraint)`.
-  - Call `table.removeConstraint("pk_order")`.
+  - Call `table.removeConstraint("pk_orders")`.
 - **Expected output:**
-  - `listConstraints()` correctly updates.
+  - `listConstraints()` no longer contains the constraint.
+
+### TC-15C. Remove Constraint - Constraint Not Found
+- **Test method:** `removeConstraint_ShouldThrowException_WhenConstraintNotFound`
+- **Sequence diagram:** `TC-15C`
+- **Input:** Non-existing constraint `"missing_pk"`
+- **Steps:**
+  - Call `table.removeConstraint("missing_pk")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Constraint not found").
+
+### TC-15D. Remove Constraint - Table Locked
+- **Test method:** `removeConstraint_ShouldThrowException_WhenTableIsLocked`
+- **Sequence diagram:** `TC-15D`
+- **Input:** Table with `locked = true`, Constraint `"pk_orders"`
+- **Steps:**
+  - Call `table.removeConstraint("pk_orders")`.
+- **Expected output:**
+  - Throws `IllegalStateException` ("Table is locked").
 
 ---
 

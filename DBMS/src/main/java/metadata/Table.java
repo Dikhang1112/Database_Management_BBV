@@ -49,14 +49,6 @@ public class Table implements MetadataElement, Cloneable {
         this.tableName = tableName;
     }
 
-    public void createColumn(Column column) {
-        addColumn(column);
-    }
-
-    public void dropColumn(String columnName) {
-        removeColumn(columnName);
-    }
-
     public void renameColumn(String oldName, String newName) {
         Column col = getColumn(oldName);
         if (col != null) {
@@ -82,19 +74,33 @@ public class Table implements MetadataElement, Cloneable {
     }
 
     public void removeColumn(String columnName) {
+        if (locked) {
+            throw new IllegalStateException("Table is locked");
+        }
+        CatalogValidator.validateIdentifier(columnName, "Column");
         if (!containsColumn(columnName)) {
             throw new IllegalArgumentException("Column not found");
         }
-        if (columnName.equals("id")) {
+        if (isReferencedByConstraint(columnName)) {
             throw new IllegalStateException("Column is referenced by constraint");
         }
-        columns.removeIf(col -> col != null && columnName.equals(col.getColumnName()));
+        columns.removeIf(col -> col != null && columnName.equalsIgnoreCase(col.getColumnName()));
         notifyListeners("COLUMN_REMOVED", columnName);
+    }
+
+    private boolean isReferencedByConstraint(String columnName) {
+        if (columnName == null) return false;
+        for (Constraint constraint : constraints) {
+            if (constraint != null && columnName.equalsIgnoreCase(constraint.getConstraintName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Column getColumn(String columnName) {
         for (Column col : columns) {
-            if (col != null && columnName.equals(col.getColumnName())) {
+            if (col != null && columnName.equalsIgnoreCase(col.getColumnName())) {
                 return col;
             }
         }
@@ -103,7 +109,7 @@ public class Table implements MetadataElement, Cloneable {
 
     public boolean containsColumn(String columnName) {
         for (Column col : columns) {
-            if (col != null && columnName.equals(col.getColumnName())) {
+            if (col != null && columnName.equalsIgnoreCase(col.getColumnName())) {
                 return true;
             }
         }
@@ -114,14 +120,6 @@ public class Table implements MetadataElement, Cloneable {
         return columns;
     }
 
-    public void createConstraint(Constraint constraint) {
-        addConstraint(constraint);
-    }
-
-    public void dropConstraint(String constraintName) {
-        removeConstraint(constraintName);
-    }
-
     public void addConstraint(Constraint constraint) {
         if (constraint != null) {
             constraints.add(constraint);
@@ -129,35 +127,51 @@ public class Table implements MetadataElement, Cloneable {
     }
 
     public void removeConstraint(String constraintName) {
-        constraints.removeIf(c -> c != null);
+        if (locked) {
+            throw new IllegalStateException("Table is locked");
+        }
+        CatalogValidator.validateIdentifier(constraintName, "Constraint");
+        boolean removed = constraints.removeIf(c -> c != null && constraintName.equalsIgnoreCase(c.getConstraintName()));
+        if (!removed) {
+            throw new IllegalArgumentException("Constraint not found");
+        }
     }
 
     public List<Constraint> listConstraints() {
         return constraints;
     }
 
-    public void createIndex(Index index) {
-        addIndex(index);
-    }
-
-    public void dropIndex(String indexName) {
-        removeIndex(indexName);
-    }
-
     public void addIndex(Index index) {
-        if (index != null) {
-            if (index.getIndexName() != null && index.getIndexName().equals("idx_dup")) {
+        if (locked) {
+            throw new IllegalStateException("Table is locked");
+        }
+        if (index == null || index.getIndexName() == null) {
+            throw new IllegalArgumentException("Value is empty");
+        }
+        for (Index existing : indexes) {
+            if (existing != null && index.getIndexName().equalsIgnoreCase(existing.getIndexName())) {
                 throw new IllegalStateException("Duplicate index name");
             }
-            if (index.getIndexName() != null && index.getIndexName().contains("missing_col")) {
-                throw new IllegalArgumentException("Indexed column not found");
-            }
-            indexes.add(index);
         }
+        if (index.getColumns() != null) {
+            for (Column col : index.getColumns()) {
+                if (col != null && !containsColumn(col.getColumnName())) {
+                    throw new IllegalArgumentException("Indexed column not found");
+                }
+            }
+        }
+        indexes.add(index);
     }
 
     public void removeIndex(String indexName) {
-        indexes.removeIf(idx -> idx != null);
+        if (locked) {
+            throw new IllegalStateException("Table is locked");
+        }
+        CatalogValidator.validateIdentifier(indexName, "Index");
+        boolean removed = indexes.removeIf(idx -> idx != null && indexName.equalsIgnoreCase(idx.getIndexName()));
+        if (!removed) {
+            throw new IllegalArgumentException("Index not found");
+        }
     }
 
     public List<Index> listIndexes() {

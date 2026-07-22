@@ -101,8 +101,8 @@ flowchart LR
     Cat4 --> TC10("TC-10 RemoveColumn")
     TC10 --> TC10A("Column not found")
     TC10 --> TC10B("Referenced by constraint")
-    TC10 --> TC10C("Drop column facade")
-    TC10 --> TC10D("Rename column")
+    TC10 --> TC10E("Table locked when remove column")
+    TC10 --> TC10F("Invalid column name when remove column")
 
     %% =====================================================
     %% Column
@@ -122,7 +122,10 @@ flowchart LR
     Cat6 --> TC13("TC-13 AddIndex")
     TC13 --> TC13A("Duplicate index")
     TC13 --> TC13B("Invalid indexed column")
-    TC13 --> TC13C("Add and remove index facade")
+    TC13 --> TC13D("Remove index")
+    TC13 --> TC13E("Index not found when remove index")
+    TC13 --> TC13F("Table locked when remove index")
+    TC13 --> TC13G("Invalid index name format")
 
     Cat6 --> TC14("TC-14 RebuildIndex")
     TC14 --> TC14A("Disabled index")
@@ -132,7 +135,9 @@ flowchart LR
     %% =====================================================
 
     Cat7 --> TC15("TC-15 ValidateConstraint")
-    TC15 --> TC15A("Add and remove constraint facade")
+    TC15 --> TC15B("Remove constraint")
+    TC15 --> TC15C("Constraint not found when remove constraint")
+    TC15 --> TC15D("Table locked when remove constraint")
 
     Cat7 --> TC16("TC-16 ValidateForeignKey")
     TC16 --> TC16A("Referenced table missing")

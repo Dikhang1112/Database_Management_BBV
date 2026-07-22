@@ -5,6 +5,7 @@ import metadata.abstracts.Constraint;
 public class ForeignKeyConstraint extends Constraint {
     private Table referencedTable;
     private Column referencedColumn;
+    private boolean parentRowExists = true;
 
     public ForeignKeyConstraint() {
         super();
@@ -20,17 +21,18 @@ public class ForeignKeyConstraint extends Constraint {
         this.referencedColumn = referencedColumn;
     }
 
+    public void setParentRowExists(boolean parentRowExists) {
+        this.parentRowExists = parentRowExists;
+    }
+
     public boolean validateReference() {
-        if (referencedTable == null) {
+        if (referencedTable == null || referencedColumn == null || referencedColumn.getColumnName() == null) {
             return false;
         }
-        if (referencedColumn == null || (referencedColumn.getColumnName() != null && referencedColumn.getColumnName().contains("missing"))) {
+        if (!referencedTable.containsColumn(referencedColumn.getColumnName())) {
             return false;
         }
-        if (getConstraintName() != null && getConstraintName().contains("missing_row")) {
-            return false;
-        }
-        return true;
+        return parentRowExists;
     }
 
     @Override

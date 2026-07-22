@@ -588,29 +588,31 @@ sequenceDiagram
 
     Test->>Table: removeColumn("id")
     Table->>Table: isReferencedByConstraint("id")
-    Table-->>Test: throw ColumnInUseException
+    Table-->>Test: throw IllegalStateException ("referenced by constraint")
 ```
 
-#### TC-10C: `dropColumn_ShouldRemoveColumnFromTable`
+#### TC-10E: `removeColumn_ShouldThrowException_WhenTableIsLocked`
 ```mermaid
 sequenceDiagram
-    title TC-10C: dropColumn_ShouldRemoveColumnFromTable
+    title TC-10E: removeColumn_ShouldThrowException_WhenTableIsLocked
     participant Test
     participant Table
 
-    Test->>Table: dropColumn("temp_col")
-    Table-->>Test: void
+    Test->>Table: removeColumn("temp_col")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
 ```
 
-#### TC-10D: `renameColumn_ShouldUpdateColumnName_WhenExists`
+#### TC-10F: `removeColumn_ShouldThrowException_WhenColumnNameIsInvalid`
 ```mermaid
 sequenceDiagram
-    title TC-10D: renameColumn_ShouldUpdateColumnName_WhenExists
+    title TC-10F: removeColumn_ShouldThrowException_WhenColumnNameIsInvalid
     participant Test
     participant Table
 
-    Test->>Table: renameColumn("old_col", "new_col")
-    Table-->>Test: void
+    Test->>Table: removeColumn("")
+    Table->>Table: validateNameFormat("")
+    Table-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -735,21 +737,53 @@ sequenceDiagram
 
     Test->>Table: addIndex(IndexOnMissingColumn)
     Table->>Table: containsColumn("non_existing_col")
-    Table-->>Test: throw ColumnNotFoundException
+    Table-->>Test: throw IllegalArgumentException ("Indexed column not found")
 ```
 
-#### TC-13C: `addAndRemoveIndex_ShouldManageIndexesInTable`
+#### TC-13D: `removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists`
 ```mermaid
 sequenceDiagram
-    title TC-13C: addAndRemoveIndex_ShouldManageIndexesInTable
+    title TC-13D: removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists
     participant Test
     participant Table
-    participant Index
 
-    Test->>Table: addIndex(Index)
+    Test->>Table: removeIndex("idx_user_email")
     Table-->>Test: void
-    Test->>Table: removeIndex("idx_order_date")
-    Table-->>Test: void
+```
+
+#### TC-13E: `removeIndex_ShouldThrowException_WhenIndexNotFound`
+```mermaid
+sequenceDiagram
+    title TC-13E: removeIndex_ShouldThrowException_WhenIndexNotFound
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("missing_idx")
+    Table-->>Test: throw IllegalArgumentException ("Index not found")
+```
+
+#### TC-13F: `removeIndex_ShouldThrowException_WhenTableIsLocked`
+```mermaid
+sequenceDiagram
+    title TC-13F: removeIndex_ShouldThrowException_WhenTableIsLocked
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("idx_user_email")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
+```
+
+#### TC-13G: `removeIndex_ShouldThrowException_WhenIndexNameIsInvalid`
+```mermaid
+sequenceDiagram
+    title TC-13G: removeIndex_ShouldThrowException_WhenIndexNameIsInvalid
+    participant Test
+    participant Table
+
+    Test->>Table: removeIndex("")
+    Table->>Table: validateNameFormat("")
+    Table-->>Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -777,7 +811,7 @@ sequenceDiagram
 
     Test->>Index: rebuild()
     Index->>Index: checkIntegrity()
-    Index-->>Test: throw IndexDisabledException
+    Index-->>Test: throw IllegalStateException ("Index is corrupted")
 ```
 
 ---
@@ -802,18 +836,38 @@ sequenceDiagram
     PrimaryKeyConstraint-->>Test: false
 ```
 
-#### TC-15A: `addAndRemoveConstraint_ShouldManageConstraintsInTable`
+#### TC-15B: `removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists`
 ```mermaid
 sequenceDiagram
-    title TC-15A: addAndRemoveConstraint_ShouldManageConstraintsInTable
+    title TC-15B: removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists
     participant Test
     participant Table
-    participant Constraint
 
-    Test->>Table: addConstraint(Constraint)
+    Test->>Table: removeConstraint("pk_orders")
     Table-->>Test: void
-    Test->>Table: removeConstraint("pk_order")
-    Table-->>Test: void
+```
+
+#### TC-15C: `removeConstraint_ShouldThrowException_WhenConstraintNotFound`
+```mermaid
+sequenceDiagram
+    title TC-15C: removeConstraint_ShouldThrowException_WhenConstraintNotFound
+    participant Test
+    participant Table
+
+    Test->>Table: removeConstraint("missing_pk")
+    Table-->>Test: throw IllegalArgumentException ("Constraint not found")
+```
+
+#### TC-15D: `removeConstraint_ShouldThrowException_WhenTableIsLocked`
+```mermaid
+sequenceDiagram
+    title TC-15D: removeConstraint_ShouldThrowException_WhenTableIsLocked
+    participant Test
+    participant Table
+
+    Test->>Table: removeConstraint("pk_orders")
+    Table->>Table: isLocked()
+    Table-->>Test: throw IllegalStateException ("Table is locked")
 ```
 
 ---
