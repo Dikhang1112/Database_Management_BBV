@@ -181,6 +181,7 @@ public class Table implements MetadataElement, Cloneable {
         }
     }
 
+
     // =====================================================
     // Pattern: Prototype
     // =====================================================

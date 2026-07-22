@@ -13,9 +13,7 @@ public class DatabaseManager {
     public Database add(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
         SecurityValidator.validatePermission(databaseName, "CREATE");
-        if (contains(databaseName)) {
-            throw new IllegalStateException("Database already exists");
-        }
+        CatalogValidator.ensureUniqueName(databaseName, databases.keySet(), "DATABASE");
         Database db = new Database(databaseName);
         databases.put(databaseName.toLowerCase(), db);
         return db;

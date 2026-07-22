@@ -13,9 +13,7 @@ public class SchemaManager {
     public Schema add(String schemaName) {
         SecurityValidator.validatePermission(schemaName);
         CatalogValidator.validateIdentifier(schemaName, "Schema");
-        if (contains(schemaName)) {
-            throw new IllegalStateException("Schema already exists");
-        }
+        CatalogValidator.ensureUniqueName(schemaName, schemas.keySet(), "Schema");
         Schema schema = new Schema(schemaName);
         schemas.put(schemaName.toLowerCase(), schema);
         return schema;
@@ -23,9 +21,7 @@ public class SchemaManager {
 
     public void remove(String schemaName) {
         CatalogValidator.validateIdentifier(schemaName, "Schema");
-        if (!contains(schemaName)) {
-            throw new IllegalArgumentException("Schema not found");
-        }
+        CatalogValidator.ensureExists(schemaName, schemas.keySet(), "Schema");
         schemas.remove(schemaName.toLowerCase());
     }
 
@@ -42,12 +38,8 @@ public class SchemaManager {
     public void rename(String oldName, String newName) {
         CatalogValidator.validateIdentifier(oldName, "Schema");
         CatalogValidator.validateIdentifier(newName, "Schema");
-        if (!contains(oldName)) {
-            throw new IllegalArgumentException("Schema not found");
-        }
-        if (contains(newName) && !oldName.equalsIgnoreCase(newName)) {
-            throw new IllegalStateException("Schema already exists");
-        }
+        CatalogValidator.ensureExists(oldName, schemas.keySet(), "Schema");
+        CatalogValidator.ensureUniqueName(newName, schemas.keySet(), "Schema");
         Schema schema = schemas.remove(oldName.toLowerCase());
         schema.rename(newName);
         schemas.put(newName.toLowerCase(), schema);

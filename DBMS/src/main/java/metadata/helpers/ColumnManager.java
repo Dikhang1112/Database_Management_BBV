@@ -23,21 +23,15 @@ public class ColumnManager {
 
     public void remove(String columnName) {
         CatalogValidator.validateIdentifier(columnName, "Column");
-        if (!contains(columnName)) {
-            throw new IllegalArgumentException("Column not found");
-        }
+        CatalogValidator.ensureExists(columnName, columns.keySet(), "Column");
         columns.remove(columnName.toLowerCase());
     }
 
     public void rename(String oldName, String newName) {
         CatalogValidator.validateIdentifier(oldName, "Column");
         CatalogValidator.validateIdentifier(newName, "Column");
-        if (!contains(oldName)) {
-            throw new IllegalArgumentException("Column not found");
-        }
-        if (contains(newName) && !oldName.equalsIgnoreCase(newName)) {
-            throw new IllegalStateException("Column already exists");
-        }
+        CatalogValidator.ensureExists(oldName, columns.keySet(), "Column");
+        CatalogValidator.ensureUniqueName(newName, columns.keySet(), "Column");
         Column col = columns.remove(oldName.toLowerCase());
         col.rename(newName);
         columns.put(newName.toLowerCase(), col);
