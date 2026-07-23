@@ -132,4 +132,34 @@ class TableTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Value is empty");
     }
+
+    @Test
+    @DisplayName("TC-10G. Get Column - Invalid Name")
+    void getColumn_ShouldThrowException_WhenColumnNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getColumn("invalid#col"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Column name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-10H. Get Index - Invalid Name")
+    void getIndex_ShouldThrowException_WhenIndexNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getIndex("invalid#idx"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Index name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-10I. Get Constraint - Invalid Name")
+    void getConstraint_ShouldThrowException_WhenConstraintNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getConstraint("invalid#const"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Constraint name contains invalid characters");
+    }
 }

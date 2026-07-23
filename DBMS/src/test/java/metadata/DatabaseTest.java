@@ -98,4 +98,14 @@ class DatabaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Value is empty");
     }
+
+    @Test
+    @DisplayName("TC-06C. Get Schema - Invalid Name")
+    void getSchema_ShouldThrowException_WhenSchemaNameIsInvalid() {
+        Database database = new Database("app_db");
+
+        assertThatThrownBy(() -> database.getSchema("invalid#schema"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Schema name contains invalid characters");
+    }
 }

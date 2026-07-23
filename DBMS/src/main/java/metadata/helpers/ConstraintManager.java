@@ -31,7 +31,7 @@ public class ConstraintManager {
     }
 
     public Constraint get(String constraintName) {
-        if (constraintName == null) return null;
+        CatalogValidator.validateIdentifier(constraintName, "Constraint");
         return constraints.get(constraintName.toLowerCase());
     }
 

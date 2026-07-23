@@ -26,7 +26,7 @@ public class SchemaManager {
     }
 
     public Schema get(String schemaName) {
-        if (schemaName == null) return null;
+        CatalogValidator.validateIdentifier(schemaName, "Schema");
         return schemas.get(schemaName.toLowerCase());
     }
 

@@ -31,7 +31,7 @@ public class IndexManager {
     }
 
     public Index get(String indexName) {
-        if (indexName == null) return null;
+        CatalogValidator.validateIdentifier(indexName, "Index");
         return indexes.get(indexName.toLowerCase());
     }
 

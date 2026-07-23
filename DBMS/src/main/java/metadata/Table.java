@@ -81,6 +81,7 @@ public class Table implements MetadataElement, Cloneable {
     }
 
     public Column getColumn(String columnName) {
+        CatalogValidator.validateIdentifier(columnName, "Column");
         return columnManager.get(columnName);
     }
 
@@ -103,6 +104,11 @@ public class Table implements MetadataElement, Cloneable {
     public void removeConstraint(String constraintName) {
         ensureNotLocked();
         constraintManager.remove(constraintName);
+    }
+
+    public Constraint getConstraint(String constraintName) {
+        CatalogValidator.validateIdentifier(constraintName, "Constraint");
+        return constraintManager.get(constraintName);
     }
 
     public List<Constraint> listConstraints() {
@@ -128,6 +134,11 @@ public class Table implements MetadataElement, Cloneable {
     public void removeIndex(String indexName) {
         ensureNotLocked();
         indexManager.remove(indexName);
+    }
+
+    public Index getIndex(String indexName) {
+        CatalogValidator.validateIdentifier(indexName, "Index");
+        return indexManager.get(indexName);
     }
 
     public List<Index> listIndexes() {

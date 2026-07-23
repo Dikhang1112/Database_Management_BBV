@@ -9,7 +9,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 
 | STT | Module | Number of Test Classes | Total Testcases | Status |
 |:---:|:---|:---:|:---:|:---:|
-| 1 | Metadata | 12 | 78 | Done |
+| 1 | Metadata | 12 | 88 | Done |
 | 2 | Query Processor | 12 | 43 | Doing |
 | 3 | Database Core Server | 5 | 35 | Planned |
 | 4 | Execution Engine | 9 | 55 | Planned |
@@ -19,7 +19,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 | 8 | Performance & Scalability | 3 | 18 | Planned |
 | 9 | Monitoring | 2 | 12 | Planned |
 | 10 | Automation | 2 | 10 | Planned |
-| **Total** | **10 Modules** | **63 Classes** | **363 Testcases** | |
+| **Total** | **10 Modules** | **63 Classes** | **373 Testcases** | |
 
 ---
 

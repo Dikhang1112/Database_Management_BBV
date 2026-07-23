@@ -30,7 +30,7 @@ public class TableManager {
     }
 
     public Table get(String tableName) {
-        if (tableName == null) return null;
+        CatalogValidator.validateIdentifier(tableName, "Table");
         return tables.get(tableName.toLowerCase());
     }
 

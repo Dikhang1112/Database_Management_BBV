@@ -46,6 +46,7 @@ public class CatalogManager implements MetadataElement {
     }
 
     public Database getDatabase(String databaseName) {
+        CatalogValidator.validateIdentifier(databaseName, "Database");
         return databaseManager.get(databaseName);
     }
 

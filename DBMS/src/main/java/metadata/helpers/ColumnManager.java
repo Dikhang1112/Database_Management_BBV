@@ -49,7 +49,7 @@ public class ColumnManager {
     }
 
     public Column get(String columnName) {
-        if (columnName == null) return null;
+        CatalogValidator.validateIdentifier(columnName, "Column");
         return columns.get(columnName.toLowerCase());
     }
 

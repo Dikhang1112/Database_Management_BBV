@@ -147,6 +147,15 @@ Each test scenario follows this standard format:
   - `listDatabases()` returns list containing `"db1"` and `"db2"`.
   - `getDatabase("db1")` returns matching instance.
 
+### TC-03A. Get Database - Invalid Name
+- **Test method:** `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
+- **Sequence diagram:** `TC-03A`
+- **Input:** Invalid database name: `"invalid@db!"`
+- **Steps:**
+  - Call `catalogManager.getDatabase("invalid@db!")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
+
 ---
 
 ### TC-04. Clear Catalog
@@ -257,6 +266,15 @@ Each test scenario follows this standard format:
   - `containsSchema("raw_schema")` returns `false`.
   - `containsSchema("prod_schema")` returns `true`.
 
+### TC-06D. Get Schema - Invalid Name
+- **Test method:** `getSchema_ShouldThrowException_WhenSchemaNameIsInvalid`
+- **Sequence diagram:** `TC-06D`
+- **Input:** Invalid schema name: `"invalid#schema"`
+- **Steps:**
+  - Call `database.getSchema("invalid#schema")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Schema name contains invalid characters").
+
 ---
 
 ## 3. SchemaTest
@@ -333,6 +351,15 @@ Each test scenario follows this standard format:
   - Call `database.renameSchema("missing_schema", "new_name")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Schema not found").
+
+### TC-08B. Get Table - Invalid Name
+- **Test method:** `getTable_ShouldThrowException_WhenTableNameIsInvalid`
+- **Sequence diagram:** `TC-08B`
+- **Input:** Invalid table name: `"invalid@table!"`
+- **Steps:**
+  - Call `schema.getTable("invalid@table!")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Table name contains invalid characters").
 
 ---
 
@@ -444,6 +471,33 @@ Each test scenario follows this standard format:
   - Call `table.removeColumn("")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Value is empty").
+
+### TC-10G. Get Column - Invalid Name
+- **Test method:** `getColumn_ShouldThrowException_WhenColumnNameIsInvalid`
+- **Sequence diagram:** `TC-10G`
+- **Input:** Invalid column name: `"invalid#col"`
+- **Steps:**
+  - Call `table.getColumn("invalid#col")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Column name contains invalid characters").
+
+### TC-10H. Get Index - Invalid Name
+- **Test method:** `getIndex_ShouldThrowException_WhenIndexNameIsInvalid`
+- **Sequence diagram:** `TC-10H`
+- **Input:** Invalid index name: `"invalid#idx"`
+- **Steps:**
+  - Call `table.getIndex("invalid#idx")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Index name contains invalid characters").
+
+### TC-10I. Get Constraint - Invalid Name
+- **Test method:** `getConstraint_ShouldThrowException_WhenConstraintNameIsInvalid`
+- **Sequence diagram:** `TC-10I`
+- **Input:** Invalid constraint name: `"invalid#const"`
+- **Steps:**
+  - Call `table.getConstraint("invalid#const")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Constraint name contains invalid characters").
 
 ---
 
@@ -713,6 +767,43 @@ Each test scenario follows this standard format:
   - Call `metadataModule.executeDDL(command)`.
 - **Expected output:**
   - `command.execute()` is invoked once.
+
+### TC-18B. Get Database Facade (Happy Path)
+- **Test method:** `getDatabase_ShouldReturnDatabase_WhenExists`
+- **Sequence diagram:** `TC-18B`
+- **Input:** Database name: `"app_db"`
+- **Steps:**
+  - Create database `"app_db"`.
+  - Call `metadataModule.getDatabase("app_db")`.
+- **Expected output:**
+  - Returns matching `Database` instance.
+
+### TC-18C. Get Database Facade - Invalid Name
+- **Test method:** `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
+- **Sequence diagram:** `TC-18C`
+- **Input:** Invalid database name: `"invalid#db"`
+- **Steps:**
+  - Call `metadataModule.getDatabase("invalid#db")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
+
+### TC-18D. Get Table Facade - Invalid Identifier
+- **Test method:** `getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid`
+- **Sequence diagram:** `TC-18D`
+- **Input:** Invalid database name: `"invalid#db"`, Schema: `"public"`, Table: `"users"`
+- **Steps:**
+  - Call `metadataModule.getTable("invalid#db", "public", "users")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
+
+### TC-18E. Get Table Facade - Not Found
+- **Test method:** `getTable_ShouldReturnNull_WhenDatabaseDoesNotExist`
+- **Sequence diagram:** `TC-18E`
+- **Input:** Non-existing database: `"missing_db"`, Schema: `"public"`, Table: `"users"`
+- **Steps:**
+  - Call `metadataModule.getTable("missing_db", "public", "users")`.
+- **Expected output:**
+  - Returns `null`.
 
 ---
 

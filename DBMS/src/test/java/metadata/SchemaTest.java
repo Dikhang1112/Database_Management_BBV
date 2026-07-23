@@ -86,4 +86,14 @@ class SchemaTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Schema not found");
     }
+
+    @Test
+    @DisplayName("TC-08B. Get Table - Invalid Name")
+    void getTable_ShouldThrowException_WhenTableNameIsInvalid() {
+        Schema schema = new Schema("public");
+
+        assertThatThrownBy(() -> schema.getTable("invalid@table!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Table name contains invalid characters");
+    }
 }

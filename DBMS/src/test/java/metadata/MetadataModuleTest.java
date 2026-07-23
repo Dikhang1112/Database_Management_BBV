@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,10 +42,37 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18A. Execute DDL Facade")
-    void executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided() {
-        metadataModule.executeDDL(mockCommand);
+    @DisplayName("TC-18B. Get Database Facade - Happy Path")
+    void getDatabase_ShouldReturnDatabase_WhenExists() {
+        CatalogManager cm = metadataModule.getCatalogManager();
+        Database db = cm.createDatabase("app_db");
 
-        verify(mockCommand).execute();
+        Database result = metadataModule.getDatabase("app_db");
+
+        assertThat(result).isEqualTo(db);
+    }
+
+    @Test
+    @DisplayName("TC-18C. Get Database Facade - Invalid Name")
+    void getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
+        assertThatThrownBy(() -> metadataModule.getDatabase("invalid#db"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Database name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-18D. Get Table Facade - Invalid Identifier")
+    void getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid() {
+        assertThatThrownBy(() -> metadataModule.getTable("invalid#db", "public", "users"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Database name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-18E. Get Table Facade - Not Found")
+    void getTable_ShouldReturnNull_WhenDatabaseDoesNotExist() {
+        Table result = metadataModule.getTable("missing_db", "public", "users");
+
+        assertThat(result).isNull();
     }
 }

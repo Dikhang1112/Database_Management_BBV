@@ -114,6 +114,14 @@ class CatalogManagerTest {
     }
 
     @Test
+    @DisplayName("TC-03A. Get Database - Invalid Name")
+    void getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
+        assertThatThrownBy(() -> catalogManager.getDatabase("invalid@db!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Database name contains invalid characters");
+    }
+
+    @Test
     @DisplayName("TC-04. Clear Catalog")
     void clear_ShouldRemoveAllDatabases_WhenCatalogIsCleared() {
         catalogManager.createDatabase("db1");

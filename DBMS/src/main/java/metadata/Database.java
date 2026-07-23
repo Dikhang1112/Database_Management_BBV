@@ -50,6 +50,7 @@ public class Database implements MetadataElement {
     }
 
     public Schema getSchema(String schemaName) {
+        CatalogValidator.validateIdentifier(schemaName, "Schema");
         return schemaManager.get(schemaName);
     }
 

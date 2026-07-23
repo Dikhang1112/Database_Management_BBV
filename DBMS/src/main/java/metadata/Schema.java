@@ -42,6 +42,7 @@ public class Schema implements MetadataElement {
     }
 
     public Table getTable(String tableName) {
+        CatalogValidator.validateIdentifier(tableName, "Table");
         return tableManager.get(tableName);
     }
 
