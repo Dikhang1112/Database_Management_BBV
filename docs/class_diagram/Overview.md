@@ -48,14 +48,55 @@ classDiagram
 %% =========================================================
 %% METADATA MODULE INNER COMPONENTS
 %% =========================================================
-    class CatalogManager
-    class Database
-    class Schema
-    class Table
-    class Column
-    class Index
-    class DataType{
+    class CatalogManager {
+        <<Singleton / Composite Node>>
+    }
+    class Database {
+        <<Composite Node / State Context>>
+    }
+    class DatabaseStatus {
         <<Enumeration>>
+    }
+    class Schema {
+        <<Composite Node / Factory Method>>
+    }
+    class Table {
+        <<Composite Node / Prototype / Memento / Subject>>
+    }
+    class Column {
+        <<Composite Leaf / Prototype>>
+    }
+    class DataType {
+        <<Enumeration>>
+    }
+    class Index {
+        <<Strategy Context>>
+    }
+    class Constraint {
+        <<Abstract / Template Method>>
+    }
+    class PrimaryKeyConstraint
+    class ForeignKeyConstraint
+    class UniqueConstraint
+    class CheckConstraint
+
+    class MetadataElement {
+        <<Interface - Composite>>
+    }
+    class DDLCommand {
+        <<Interface - Command>>
+    }
+    class TableMemento {
+        <<Memento>>
+    }
+    class ColumnBuilder {
+        <<Builder>>
+    }
+    class ConstraintFactory {
+        <<Factory Method>>
+    }
+    class ConstraintValidationChain {
+        <<Chain of Responsibility>>
     }
 
 %% =========================================================
@@ -151,14 +192,33 @@ classDiagram
     Metadata *-- Table
     Metadata *-- Column
     Metadata *-- Index
-    Metadata *-- DataType
+    Metadata *-- Constraint
+    Metadata *-- DDLCommand
 
-    CatalogManager *-- Database
-    Database *-- Schema
-    Schema *-- Table
-    Table *-- Column
-    Table *-- Index
+    MetadataElement <|.. CatalogManager
+    MetadataElement <|.. Database
+    MetadataElement <|.. Schema
+    MetadataElement <|.. Table
+    MetadataElement <|.. Column
+
+    CatalogManager "1" *-- "*" Database
+    Database "1" *-- "*" Schema
+    Database --> DatabaseStatus
+    Schema "1" *-- "*" Table
+    Table "1" *-- "*" Column
+    Table "1" *-- "*" Index
+    Table "1" *-- "*" Constraint
     Column --> DataType
+
+    Constraint <|-- PrimaryKeyConstraint
+    Constraint <|-- ForeignKeyConstraint
+    Constraint <|-- UniqueConstraint
+    Constraint <|-- CheckConstraint
+
+    Table ..> TableMemento : Memento
+    ColumnBuilder ..> Column : Builder
+    Schema ..> ConstraintFactory : Factory Method
+    ConstraintValidationChain --> Constraint : Chain
 
 %% Database Core Server Composition
     DatabaseCoreServer *-- DatabaseServer
@@ -222,10 +282,11 @@ classDiagram
 %% CROSS MODULE DEPENDENCIES
 %% =========================================================
 
+%% Core Flows
     DatabaseServer --> SessionManager
     SessionManager --> QueryProcessor
 
-%% Query Processor interacts with Metadata Module instead of loose inner objects
+%% Query Processor interacts with Metadata Module
     QueryProcessor ..> Metadata : "Validates Schemas & Tables via Catalog"
     QueryOptimizer --> StatisticsManager
 
