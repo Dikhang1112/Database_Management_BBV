@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ConstraintValidationChainTest {
 
     @Test
-    @DisplayName("TC-22. Validate Chain (Pass)")
+    @DisplayName("TC-21. Validate Chain (Pass)")
     void validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid() {
         ConstraintValidationChain chain = new ConstraintValidationChain();
         PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");
@@ -21,7 +21,7 @@ class ConstraintValidationChainTest {
     }
 
     @Test
-    @DisplayName("TC-22A. Validate Chain (Fail Fast)")
+    @DisplayName("TC-21A. Validate Chain (Fail Fast)")
     void validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails() {
         ConstraintValidationChain chain = new ConstraintValidationChain();
         PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");

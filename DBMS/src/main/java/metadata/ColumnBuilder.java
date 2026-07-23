@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.enums.DataType;
+import metadata.helpers.CatalogValidator;
 
 /**
  * Class hỗ trợ Builder Pattern cho Metadata module.
@@ -36,6 +37,10 @@ public class ColumnBuilder {
 
     // Pattern: Builder
     public Column build() {
+        CatalogValidator.validateIdentifier(columnName, "Column");
+        if (dataType == null) {
+            throw new IllegalArgumentException("Data type cannot be null");
+        }
         Column column = new Column(columnName, dataType);
         column.setNullable(nullable);
         if (defaultValue != null) {

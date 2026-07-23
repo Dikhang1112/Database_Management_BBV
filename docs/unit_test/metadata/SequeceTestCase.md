@@ -1055,62 +1055,14 @@ sequenceDiagram
 
 ---
 
-## 9. DDLCommand Unit Tests
+## 9. ColumnBuilder Unit Tests
 
-### TC-19: `DDLCommandExecution`
-
-#### TC-19A: `execute_ShouldCallCatalogCreateDatabase`
-```mermaid
-sequenceDiagram
-    title TC-19A: execute_ShouldCallCatalogCreateDatabase
-    participant Test
-    participant CreateDatabaseCommand
-    participant CatalogManager
-
-    Test->>CreateDatabaseCommand: execute()
-    CreateDatabaseCommand->>CatalogManager: createDatabase("sales_db")
-    CatalogManager-->>CreateDatabaseCommand: Database ("sales_db")
-    CreateDatabaseCommand-->>Test: void
-```
-
-#### TC-19B: `execute_ShouldCallCatalogDropDatabase`
-```mermaid
-sequenceDiagram
-    title TC-19B: execute_ShouldCallCatalogDropDatabase
-    participant Test
-    participant DropDatabaseCommand
-    participant CatalogManager
-
-    Test->>DropDatabaseCommand: execute()
-    DropDatabaseCommand->>CatalogManager: dropDatabase("temp_db")
-    CatalogManager-->>DropDatabaseCommand: void
-    DropDatabaseCommand-->>Test: void
-```
-
-#### TC-19C: `execute_ShouldCallCatalogRenameDatabase`
-```mermaid
-sequenceDiagram
-    title TC-19C: execute_ShouldCallCatalogRenameDatabase
-    participant Test
-    participant RenameDatabaseCommand
-    participant CatalogManager
-
-    Test->>RenameDatabaseCommand: execute()
-    RenameDatabaseCommand->>CatalogManager: renameDatabase("old_db", "new_db")
-    CatalogManager-->>RenameDatabaseCommand: void
-    RenameDatabaseCommand-->>Test: void
-```
-
----
-
-## 10. ColumnBuilder Unit Tests
-
-### TC-20: `buildColumn`
+### TC-19: `buildColumn`
 
 #### Happy Path: `build_ShouldConstructColumn_WhenValidPropertiesSet`
 ```mermaid
 sequenceDiagram
-    title TC-20: build_ShouldConstructColumn_WhenValidPropertiesSet
+    title TC-19: build_ShouldConstructColumn_WhenValidPropertiesSet
     participant Test
     participant ColumnBuilder
     participant Column
@@ -1123,16 +1075,85 @@ sequenceDiagram
     ColumnBuilder-->>Test: Column instance
 ```
 
+#### TC-19A: `build_ShouldApplyDefaults_WhenOptionalPropertiesOmitted`
+```mermaid
+sequenceDiagram
+    title TC-19A: build_ShouldApplyDefaults_WhenOptionalPropertiesOmitted
+    participant Test
+    participant ColumnBuilder
+    participant Column
+
+    Test->>ColumnBuilder: new ColumnBuilder("id")
+    Test->>ColumnBuilder: setType(INT)
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>Column: new Column("id", INT)
+    Column-->>ColumnBuilder: Column instance
+    ColumnBuilder-->>Test: Column instance
+```
+
+#### TC-19B: `build_ShouldThrowException_WhenColumnNameIsNullOrEmpty`
+```mermaid
+sequenceDiagram
+    title TC-19B: build_ShouldThrowException_WhenColumnNameIsNullOrEmpty
+    participant Test
+    participant ColumnBuilder
+    participant CatalogValidator
+
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>CatalogValidator: validateIdentifier(null, "Column")
+    CatalogValidator-->>ColumnBuilder: throw IllegalArgumentException ("Value is empty")
+    ColumnBuilder-->>Test: throw IllegalArgumentException
+```
+
+#### TC-19C: `build_ShouldThrowException_WhenColumnNameContainsInvalidCharacters`
+```mermaid
+sequenceDiagram
+    title TC-19C: build_ShouldThrowException_WhenColumnNameContainsInvalidCharacters
+    participant Test
+    participant ColumnBuilder
+    participant CatalogValidator
+
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>CatalogValidator: validateIdentifier("invalid#col", "Column")
+    CatalogValidator-->>ColumnBuilder: throw IllegalArgumentException ("Column name contains invalid characters")
+    ColumnBuilder-->>Test: throw IllegalArgumentException
+```
+
+#### TC-19D: `build_ShouldThrowException_WhenDataTypeIsNull`
+```mermaid
+sequenceDiagram
+    title TC-19D: build_ShouldThrowException_WhenDataTypeIsNull
+    participant Test
+    participant ColumnBuilder
+
+    Test->>ColumnBuilder: build()
+    ColumnBuilder-->>Test: throw IllegalArgumentException ("Data type cannot be null")
+```
+
+#### TC-19E: `build_ShouldThrowException_WhenDefaultValueIsInvalidForType`
+```mermaid
+sequenceDiagram
+    title TC-19E: build_ShouldThrowException_WhenDefaultValueIsInvalidForType
+    participant Test
+    participant ColumnBuilder
+    participant Column
+
+    Test->>ColumnBuilder: build()
+    ColumnBuilder->>Column: setDefaultValue("not_an_int")
+    Column-->>ColumnBuilder: throw IllegalArgumentException ("Invalid default value")
+    ColumnBuilder-->>Test: throw IllegalArgumentException
+```
+
 ---
 
-## 11. TableMemento Unit Tests
+## 10. TableMemento Unit Tests
 
-### TC-21: `mementoSnapshotRestore`
+### TC-20: `mementoSnapshotRestore`
 
 #### Happy Path: `createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState`
 ```mermaid
 sequenceDiagram
-    title TC-21: createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState
+    title TC-20: createMemento_ShouldCaptureSnapshot_And_restore_ShouldRevertState
     participant Test
     participant Table
     participant TableMemento
@@ -1148,16 +1169,78 @@ sequenceDiagram
     Table-->>Test: void (State restored)
 ```
 
+#### TC-20A: `restore_ShouldDoNothing_WhenMementoIsNull`
+```mermaid
+sequenceDiagram
+    title TC-20A: restore_ShouldDoNothing_WhenMementoIsNull
+    participant Test
+    participant Table
+
+    Test->>Table: restore(null)
+    Table-->>Test: void (State unchanged)
+```
+
+#### TC-20B: `restore_ShouldRevertTableNameAndColumns_WhenRenamedAndColumnsRemoved`
+```mermaid
+sequenceDiagram
+    title TC-20B: restore_ShouldRevertTableNameAndColumns_WhenRenamedAndColumnsRemoved
+    participant Test
+    participant Table
+    participant TableMemento
+
+    Test->>Table: createMemento()
+    Table-->>Test: Memento ("old_users")
+    Test->>Table: rename("new_users")
+    Test->>Table: removeColumn("id")
+    Test->>Table: restore(memento)
+    Table->>TableMemento: getTableName()
+    TableMemento-->>Table: "old_users"
+    Table->>TableMemento: getColumnsSnapshot()
+    TableMemento-->>Table: ["id"]
+    Table-->>Test: void (Restored old_users and id column)
+```
+
+#### TC-20C: `createMemento_ShouldMaintainIndependentSnapshot_WhenTableIsModified`
+```mermaid
+sequenceDiagram
+    title TC-20C: createMemento_ShouldMaintainIndependentSnapshot_WhenTableIsModified
+    participant Test
+    participant Table
+    participant TableMemento
+
+    Test->>Table: createMemento()
+    Table->>TableMemento: new TableMemento(tableName, columns)
+    TableMemento-->>Test: Memento instance
+    Test->>Table: addColumn("total")
+    Test->>TableMemento: getColumnsSnapshot()
+    TableMemento-->>Test: List of 1 Column (Independent)
+```
+
+#### TC-20D: `restore_ShouldRevertToEmptyColumns_WhenSnapshotWasEmpty`
+```mermaid
+sequenceDiagram
+    title TC-20D: restore_ShouldRevertToEmptyColumns_WhenSnapshotWasEmpty
+    participant Test
+    participant Table
+    participant TableMemento
+
+    Test->>Table: createMemento()
+    Table-->>Test: Memento (Empty columns)
+    Test->>Table: addColumn("col1")
+    Test->>Table: restore(memento)
+    Table-->>Test: void (Columns cleared to 0)
+```
+
 ---
 
-## 12. ConstraintValidationChain Unit Tests
+## 11. ConstraintValidationChain Unit Tests
 
-### TC-22: `validateChain`
+### TC-21: `validateChain`
 
 #### Happy Path: `validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid`
 ```mermaid
 sequenceDiagram
-    title TC-22: validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid
+    title TC-21: validateAll_ShouldReturnTrue_WhenAllConstraintsInChainAreValid
     participant Test
     participant ConstraintValidationChain
     participant Constraint
@@ -1170,10 +1253,10 @@ sequenceDiagram
     ConstraintValidationChain-->>Test: true
 ```
 
-#### TC-22A: `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
+#### TC-21A: `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
 ```mermaid
 sequenceDiagram
-    title TC-22A: validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails
+    title TC-21A: validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails
     participant Test
     participant ConstraintValidationChain
     participant Constraint

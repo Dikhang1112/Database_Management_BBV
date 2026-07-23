@@ -74,10 +74,9 @@ flowchart LR
     Cat6(["6. ColumnTest"])
     Cat7(["7. IndexTest"])
     Cat8(["8. ConstraintTest"])
-    Cat9(["9. DDLCommandTest"])
-    Cat10(["10. ColumnBuilderTest"])
-    Cat11(["11. TableMementoTest"])
-    Cat12(["12. ConstraintValidationChainTest"])
+    Cat9(["9. ColumnBuilderTest"])
+    Cat10(["10. TableMementoTest"])
+    Cat11(["11. ConstraintValidationChainTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -90,7 +89,6 @@ flowchart LR
     Root --> Cat9
     Root --> Cat10
     Root --> Cat11
-    Root --> Cat12
 
     %% =====================================================
     %% 1. MetadataModule (Facade Entry Point)
@@ -221,42 +219,32 @@ flowchart LR
     TC18 --> TC18A("TC-18A Expression invalid")
 
     %% =====================================================
-    %% 9. DDLCommand
+    %% 9. ColumnBuilder
     %% =====================================================
 
-    Cat9 --> TC19("TC-19 DDLCommandExecution")
-    TC19 --> TC19A("TC-19A CreateDatabaseCommand")
-    TC19 --> TC19B("TC-19B DropDatabaseCommand")
-    TC19 --> TC19C("TC-19C RenameDatabaseCommand")
-    TC19 --> TC19D("TC-19D CreateSchemaCommand")
-    TC19 --> TC19E("TC-19E DropSchemaCommand")
-    TC19 --> TC19F("TC-19F RenameSchemaCommand")
-    TC19 --> TC19G("TC-19G CreateTableCommand")
-    TC19 --> TC19H("TC-19H DropTableCommand")
-    TC19 --> TC19I("TC-19I RenameTableCommand")
-    TC19 --> TC19J("TC-19J CreateColumnCommand")
-    TC19 --> TC19K("TC-19K DropColumnCommand")
-    TC19 --> TC19L("TC-19L RenameColumnCommand")
+    Cat9 --> TC19("TC-19 BuildColumn")
+    TC19 --> TC19A("TC-19A BuildColumnDefaults")
+    TC19 --> TC19B("TC-19B Null or empty name")
+    TC19 --> TC19C("TC-19C Invalid name characters")
+    TC19 --> TC19D("TC-19D Null data type")
+    TC19 --> TC19E("TC-19E Invalid default value")
 
     %% =====================================================
-    %% 10. ColumnBuilder
+    %% 10. TableMemento
     %% =====================================================
 
-    Cat10 --> TC20("TC-20 BuildColumn")
-    TC20 --> TC20A("TC-20A BuildColumnDefaults")
+    Cat10 --> TC20("TC-20 MementoSnapshotRestore")
+    TC20 --> TC20A("TC-20A Restore null memento")
+    TC20 --> TC20B("TC-20B Restore table name and columns")
+    TC20 --> TC20C("TC-20C Memento snapshot immutability")
+    TC20 --> TC20D("TC-20D Restore to empty columns")
 
     %% =====================================================
-    %% 11. TableMemento
+    %% 11. ConstraintValidationChain
     %% =====================================================
 
-    Cat11 --> TC21("TC-21 MementoSnapshotRestore")
-
-    %% =====================================================
-    %% 12. ConstraintValidationChain
-    %% =====================================================
-
-    Cat12 --> TC22("TC-22 ValidateChainPass")
-    TC22 --> TC22A("TC-22A ValidateChainFail")
+    Cat11 --> TC21("TC-21 ValidateChainPass")
+    TC21 --> TC21A("TC-21A ValidateChainFail")
 ```
 
 ---
