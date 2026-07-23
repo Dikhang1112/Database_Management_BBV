@@ -6,10 +6,6 @@ public class DropColumnCommand implements DDLCommand {
     private Table table;
     private String columnName;
 
-    public DropColumnCommand(String columnName) {
-        this.columnName = columnName;
-    }
-
     public DropColumnCommand(Table table, String columnName) {
         this.table = table;
         this.columnName = columnName;

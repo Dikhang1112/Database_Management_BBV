@@ -5,10 +5,6 @@ import metadata.abstracts.Constraint;
 public class CheckConstraint extends Constraint {
     private String expression;
 
-    public CheckConstraint() {
-        super();
-    }
-
     public CheckConstraint(String constraintName) {
         super(constraintName);
     }

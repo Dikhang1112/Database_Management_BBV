@@ -1,24 +1,16 @@
 package metadata.abstracts;
 
-import java.util.UUID;
-
 /**
  * Abstract class Constraint thuộc package metadata.abstracts.
  * Triển khai Template Method Pattern cho quy trình thẩm định validate().
  */
 public abstract class Constraint {
-    private UUID constraintId;
     private String constraintName;
     private boolean enabled;
 
-    public Constraint() {
-        this.constraintId = UUID.randomUUID();
-        this.enabled = true;
-    }
-
     public Constraint(String constraintName) {
-        this();
         this.constraintName = constraintName;
+        this.enabled = true;
     }
 
     // Pattern: Template Method

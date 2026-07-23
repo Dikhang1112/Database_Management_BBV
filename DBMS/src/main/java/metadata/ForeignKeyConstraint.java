@@ -7,10 +7,6 @@ public class ForeignKeyConstraint extends Constraint {
     private Column referencedColumn;
     private boolean parentRowExists = true;
 
-    public ForeignKeyConstraint() {
-        super();
-    }
-
     public ForeignKeyConstraint(String constraintName) {
         super(constraintName);
     }

@@ -18,12 +18,6 @@ public class ConstraintValidationChain {
         }
     }
 
-    public void removeConstraint(Constraint constraint) {
-        if (constraint != null) {
-            constraintChain.remove(constraint);
-        }
-    }
-
     // Pattern: Chain of Responsibility (Fail Fast)
     public boolean validateAll() {
         for (Constraint constraint : constraintChain) {

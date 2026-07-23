@@ -9,31 +9,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConstraintManager {
     private final Map<String, Constraint> constraints = new ConcurrentHashMap<>();
-    private final ColumnManager columnManager;
 
     public ConstraintManager(ColumnManager columnManager) {
-        this.columnManager = columnManager;
     }
 
     public void add(Constraint constraint) {
-        if (constraint == null) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        String name = constraint.getConstraintName();
-        if (name != null) {
-            CatalogValidator.validateIdentifier(name, "Constraint");
-            if (contains(name)) {
+        String nameConstraint = constraint.getConstraintName();
+        if (nameConstraint != null) {
+            CatalogValidator.validateIdentifier(nameConstraint, "Constraint");
+            if (contains(nameConstraint)) {
                 throw new IllegalStateException("Constraint already exists");
             }
-            constraints.put(name.toLowerCase(), constraint);
+            constraints.put(nameConstraint.toLowerCase(), constraint);
         }
     }
 
     public void remove(String constraintName) {
         CatalogValidator.validateIdentifier(constraintName, "Constraint");
-        if (!contains(constraintName)) {
-            throw new IllegalArgumentException("Constraint not found");
-        }
+        CatalogValidator.ensureExists(constraintName, constraints.keySet(), "Constraint");
         constraints.remove(constraintName.toLowerCase());
     }
 

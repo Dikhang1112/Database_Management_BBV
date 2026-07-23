@@ -4,22 +4,14 @@ import metadata.helpers.CatalogValidator;
 import metadata.helpers.DatabaseManager;
 import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class CatalogManager implements MetadataElement {
     private static volatile CatalogManager instance;
-    private final UUID catalogId;
     private final DatabaseManager databaseManager;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public CatalogManager() {
-        this.catalogId = UUID.randomUUID();
         this.databaseManager = new DatabaseManager();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     // Pattern: Singleton
@@ -34,21 +26,10 @@ public class CatalogManager implements MetadataElement {
         return instance;
     }
 
-    public UUID getCatalogId() {
-        return catalogId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
     public Database createDatabase(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
         SecurityValidator.validatePermission(databaseName, "CREATE");
+
         return databaseManager.add(databaseName);
     }
 

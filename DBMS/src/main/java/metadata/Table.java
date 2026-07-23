@@ -8,30 +8,22 @@ import metadata.helpers.IndexManager;
 import metadata.helpers.TableEventPublisher;
 import metadata.interfaces.MetadataChangeListener;
 import metadata.interfaces.MetadataElement;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class Table implements MetadataElement, Cloneable {
-    private final UUID tableId;
     private String tableName;
     private final ColumnManager columnManager;
     private final ConstraintManager constraintManager;
     private final IndexManager indexManager;
     private final TableEventPublisher eventPublisher;
     private boolean locked;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public Table() {
-        this.tableId = UUID.randomUUID();
         this.columnManager = new ColumnManager();
         this.constraintManager = new ConstraintManager(this.columnManager);
         this.indexManager = new IndexManager();
         this.eventPublisher = new TableEventPublisher();
         this.locked = false;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Table(String tableName) {
@@ -43,18 +35,6 @@ public class Table implements MetadataElement, Cloneable {
         if (locked) {
             throw new IllegalStateException("Table is locked");
         }
-    }
-
-    public UUID getTableId() {
-        return tableId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public String getTableName() {
@@ -180,6 +160,7 @@ public class Table implements MetadataElement, Cloneable {
             columnManager.restoreColumns(memento.getColumnsSnapshot());
         }
     }
+
 
     // =====================================================
     // Pattern: Prototype

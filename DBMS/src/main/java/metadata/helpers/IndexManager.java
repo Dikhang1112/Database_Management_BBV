@@ -14,12 +14,12 @@ public class IndexManager {
         if (index == null || index.getIndexName() == null) {
             throw new IllegalArgumentException("Value is empty");
         }
-        String name = index.getIndexName();
-        CatalogValidator.validateIdentifier(name, "Index");
-        if (contains(name)) {
+        String nameIndex = index.getIndexName();
+        CatalogValidator.validateIdentifier(nameIndex, "Index");
+        if (contains(nameIndex)) {
             throw new IllegalStateException("Duplicate index name");
         }
-        indexes.put(name.toLowerCase(), index);
+        indexes.put(nameIndex.toLowerCase(), index);
     }
 
     public void remove(String indexName) {

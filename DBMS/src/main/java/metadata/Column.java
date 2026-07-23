@@ -3,20 +3,15 @@ package metadata;
 import metadata.enums.DataType;
 import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
-import java.util.UUID;
 
 public class Column implements MetadataElement, Cloneable {
-    private UUID columnId;
     private String columnName;
     private DataType dataType;
     private boolean nullable;
-    private boolean primaryKey;
     private String defaultValue;
 
     public Column() {
-        this.columnId = UUID.randomUUID();
         this.nullable = true;
-        this.primaryKey = false;
     }
 
     public Column(String columnName, DataType dataType) {
@@ -73,7 +68,6 @@ public class Column implements MetadataElement, Cloneable {
     public Column clone() {
         try {
             Column cloned = (Column) super.clone();
-            cloned.columnId = UUID.randomUUID();
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Clone failed", e);
