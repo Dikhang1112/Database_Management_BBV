@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class DatabaseTest {
 
     @Test
-    @DisplayName("TC-05. Create & Drop Schema")
+    @DisplayName("TC-06. Create & Drop Schema")
     void createSchema_ShouldManageSchemasInDatabase_WhenSchemaIsAddedAndDropped() {
         Database database = new Database("app_db");
 
@@ -23,7 +23,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-05A. Create Schema - Already Exists")
+    @DisplayName("TC-06A. Create Schema - Already Exists")
     void createSchema_ShouldThrowException_WhenSchemaAlreadyExists() {
         Database database = new Database("app_db");
         database.createSchema("public");
@@ -34,7 +34,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-05B. Create Schema - Database Offline")
+    @DisplayName("TC-06B. Create Schema - Database Offline")
     void createSchema_ShouldThrowException_WhenDatabaseIsOffline() {
         Database database = new Database("app_db");
         database.setStatus(DatabaseStatus.OFFLINE);
@@ -45,7 +45,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-05C. Create Schema - Permission Denied")
+    @DisplayName("TC-06C. Create Schema - Permission Denied")
     void createSchema_ShouldThrowException_WhenPermissionDenied() {
         Database database = new Database("app_db");
 
@@ -55,7 +55,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-05D. Create Schema - Special Characters")
+    @DisplayName("TC-06D. Create Schema - Special Characters")
     void createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters() {
         Database database = new Database("app_db");
 
@@ -65,7 +65,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-06. Database Status & Rename")
+    @DisplayName("TC-07. Database Status & Rename")
     void setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified() {
         Database database = new Database("old_name");
 
@@ -77,7 +77,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-06A. Rename Database - Duplicate Name")
+    @DisplayName("TC-07A. Rename Database - Duplicate Name")
     void renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName() {
         CatalogManager cm = CatalogManager.getInstance();
         cm.clear();
@@ -90,7 +90,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-06B. Rename Database - Invalid Name")
+    @DisplayName("TC-07B. Rename Database - Invalid Name")
     void renameDatabase_ShouldThrowException_WhenNameIsInvalid() {
         Database database = new Database("app_db");
 
@@ -100,7 +100,7 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-06C. Get Schema - Invalid Name")
+    @DisplayName("TC-07C. Get Schema - Invalid Name")
     void getSchema_ShouldThrowException_WhenSchemaNameIsInvalid() {
         Database database = new Database("app_db");
 

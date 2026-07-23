@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ConstraintTest {
 
     @Test
-    @DisplayName("TC-15. Validate Primary Key Constraint")
+    @DisplayName("TC-16. Validate Primary Key Constraint")
     void validate_ShouldReturnConstraintStatus_WhenPrimaryKeyIsChecked() {
         PrimaryKeyConstraint constraint = new PrimaryKeyConstraint("pk_users");
 
@@ -21,7 +21,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-15B. Remove Constraint")
+    @DisplayName("TC-16A. Remove Constraint")
     void removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists() {
         Table table = new Table("orders");
         PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");
@@ -33,7 +33,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-15C. Remove Constraint - Constraint Not Found")
+    @DisplayName("TC-16B. Remove Constraint - Constraint Not Found")
     void removeConstraint_ShouldThrowException_WhenConstraintNotFound() {
         Table table = new Table("orders");
 
@@ -43,7 +43,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-15D. Remove Constraint - Table Locked")
+    @DisplayName("TC-16C. Remove Constraint - Table Locked")
     void removeConstraint_ShouldThrowException_WhenTableIsLocked() {
         Table table = new Table("orders");
         PrimaryKeyConstraint pk = new PrimaryKeyConstraint("pk_orders");
@@ -56,7 +56,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-16. Validate Foreign Key Reference")
+    @DisplayName("TC-17. Validate Foreign Key Reference")
     void validateReference_ShouldReturnTrue_WhenForeignKeyReferencesValidTableAndColumn() {
         Table table = new Table("parent_table");
         Column column = new Column("id", DataType.INT);
@@ -67,7 +67,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-16A. Validate Foreign Key Reference - Referenced Table Missing")
+    @DisplayName("TC-17A. Validate Foreign Key Reference - Referenced Table Missing")
     void validateReference_ShouldThrowFalse_WhenReferencedTableMissing() {
         Column column = new Column("id", DataType.INT);
         ForeignKeyConstraint fk = new ForeignKeyConstraint("fk_child", null, column);
@@ -76,7 +76,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-16B. Validate Foreign Key Reference - Referenced Column Missing")
+    @DisplayName("TC-17B. Validate Foreign Key Reference - Referenced Column Missing")
     void validateReference_ShouldThrowFalse_WhenReferencedColumnMissing() {
         Table table = new Table("parent_table");
         Column missingColumn = new Column("missing_id", DataType.INT);
@@ -86,7 +86,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-16C. Validate Foreign Key Reference - Parent Row Missing")
+    @DisplayName("TC-17C. Validate Foreign Key Reference - Parent Row Missing")
     void validateReference_ShouldThrowFalse_WhenParentRowMissing() {
         Table table = new Table("parent_table");
         Column column = new Column("id", DataType.INT);
@@ -98,7 +98,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-17. Evaluate Check Constraint")
+    @DisplayName("TC-18. Evaluate Check Constraint")
     void evaluate_ShouldReturnTrue_WhenCheckConstraintExpressionIsValid() {
         CheckConstraint check = new CheckConstraint("chk_age", "age >= 18");
 
@@ -106,7 +106,7 @@ class ConstraintTest {
     }
 
     @Test
-    @DisplayName("TC-17A. Evaluate Check Constraint - Invalid Expression")
+    @DisplayName("TC-18A. Evaluate Check Constraint - Invalid Expression")
     void evaluate_ShouldReturnFalse_WhenExpressionIsInvalid() {
         CheckConstraint check = new CheckConstraint("chk_invalid", "age >= ");
 

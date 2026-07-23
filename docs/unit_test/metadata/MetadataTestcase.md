@@ -1,6 +1,6 @@
 # Metadata Subsystem Unit Test Scenarios
 
-This document defines all unit test scenarios for `Metadata` subsystem (`CatalogManager`, `Database`, `Schema`, `Table`, `Column`, `Index`, and `Constraint` classes), covering both positive (happy path) and negative (edge cases and exceptions) scenarios as specified in [MindmapTest.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/MindmapTest.md) and [SequeceTestCase.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/SequeceTestCase.md).
+This document defines all unit test scenarios for `Metadata` subsystem (`MetadataModule`, `CatalogManager`, `Database`, `Schema`, `Table`, `Column`, `Index`, and `Constraint` classes), covering both positive (happy path) and negative (edge cases and exceptions) scenarios as specified in [MindmapTest.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/MindmapTest.md) and [SequeceTestCase.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/SequeceTestCase.md).
 
 Each test scenario follows this standard format:
 - **Test method:** JUnit method name.
@@ -11,11 +11,79 @@ Each test scenario follows this standard format:
 
 ---
 
-## 1. CatalogManagerTest
+## 1. MetadataModuleTest
 
-### TC-01. Create Database (Happy Path)
-- **Test method:** `createDatabase_ShouldAddDatabaseToCatalog_WhenValidNameIsProvided`
+### TC-01. Get Table Facade (Happy Path)
+- **Test method:** `getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist`
 - **Sequence diagram:** `TC-01`
+- **Input:** Database: `"sales_db"`, Schema: `"public"`, Table: `"orders"`
+- **Steps:**
+  - Call `metadataModule.getTable("sales_db", "public", "orders")`.
+- **Expected output:**
+  - Returns target `Table` instance.
+
+### TC-01A. Execute DDL Facade (Happy Path)
+- **Test method:** `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
+- **Sequence diagram:** `TC-01A`
+- **Input:** `DDLCommand` mock object
+- **Steps:**
+  - Call `metadataModule.executeDDL(command)`.
+- **Expected output:**
+  - `command.execute()` is invoked once.
+
+### TC-01B. Get Database Facade (Happy Path)
+- **Test method:** `getDatabase_ShouldReturnDatabase_WhenExists`
+- **Sequence diagram:** `TC-01B`
+- **Input:** Database name: `"app_db"`
+- **Steps:**
+  - Create database `"app_db"`.
+  - Call `metadataModule.getDatabase("app_db")`.
+- **Expected output:**
+  - Returns matching `Database` instance.
+
+### TC-01C. Get Database Facade - Invalid Name
+- **Test method:** `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
+- **Sequence diagram:** `TC-01C`
+- **Input:** Invalid database name: `"invalid#db"`
+- **Steps:**
+  - Call `metadataModule.getDatabase("invalid#db")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
+
+### TC-01D. Get Table Facade - Invalid Identifier
+- **Test method:** `getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid`
+- **Sequence diagram:** `TC-01D`
+- **Input:** Invalid database name: `"invalid#db"`, Schema: `"public"`, Table: `"users"`
+- **Steps:**
+  - Call `metadataModule.getTable("invalid#db", "public", "users")`.
+- **Expected output:**
+  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
+
+### TC-01E. Get Table Facade - Not Found
+- **Test method:** `getTable_ShouldReturnNull_WhenDatabaseDoesNotExist`
+- **Sequence diagram:** `TC-01E`
+- **Input:** Non-existing database: `"missing_db"`, Schema: `"public"`, Table: `"users"`
+- **Steps:**
+  - Call `metadataModule.getTable("missing_db", "public", "users")`.
+- **Expected output:**
+  - Returns `null`.
+
+### TC-01F. Execute DDL Facade - Null Command
+- **Test method:** `executeDDL_ShouldDoNothing_WhenCommandIsNull`
+- **Sequence diagram:** `TC-01F`
+- **Input:** `null` command
+- **Steps:**
+  - Call `metadataModule.executeDDL(null)`.
+- **Expected output:**
+  - Completes normally without exception.
+
+---
+
+## 2. CatalogManagerTest
+
+### TC-02. Create Database (Happy Path)
+- **Test method:** `createDatabase_ShouldAddDatabaseToCatalog_WhenValidNameIsProvided`
+- **Sequence diagram:** `TC-02`
 - **Input:** Database name: `"sales_db"`
 - **Steps:**
   - Call `catalogManager.createDatabase("sales_db")`.
@@ -26,9 +94,9 @@ Each test scenario follows this standard format:
   - `containsDatabase("sales_db")` returns `true`.
   - Returned database has name `"sales_db"`.
 
-### TC-01A. Create Database - Already Exists
+### TC-02A. Create Database - Already Exists
 - **Test method:** `createDatabase_ShouldThrowException_WhenDatabaseAlreadyExists`
-- **Sequence diagram:** `TC-01A`
+- **Sequence diagram:** `TC-02A`
 - **Input:** Database name: `"sales_db"` (already registered)
 - **Steps:**
   - Create database `"sales_db"`.
@@ -36,36 +104,36 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `DatabaseAlreadyExistsException`.
 
-### TC-01B. Create Database - Invalid Name
+### TC-02B. Create Database - Invalid Name
 - **Test method:** `createDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
-- **Sequence diagram:** `TC-01B`
+- **Sequence diagram:** `TC-02B`
 - **Input:** Invalid database name: `""` or `null`
 - **Steps:**
   - Call `catalogManager.createDatabase("")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Value is empty").
 
-### TC-01C. Create Database - Permission Denied
+### TC-02C. Create Database - Permission Denied
 - **Test method:** `createDatabase_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-01C`
+- **Sequence diagram:** `TC-02C`
 - **Input:** Database name: `"protected_db"`, User without `CREATE_DB` permission
 - **Steps:**
   - Call `catalogManager.createDatabase("protected_db")`.
 - **Expected output:**
   - Throws `SecurityException`.
 
-### TC-01D. Create Database - Special Characters
+### TC-02D. Create Database - Special Characters
 - **Test method:** `createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters`
-- **Sequence diagram:** `TC-01D`
+- **Sequence diagram:** `TC-02D`
 - **Input:** Database name: `"sales@db!"`
 - **Steps:**
   - Call `catalogManager.createDatabase("sales@db!")`.
 - **Expected output:**
   - Throws `IllegalArgumentException`.
 
-### TC-01E. Rename Database (Happy Path)
+### TC-02E. Rename Database (Happy Path)
 - **Test method:** `renameDatabase_ShouldUpdateNameInCatalog_WhenValid`
-- **Sequence diagram:** `TC-01E`
+- **Sequence diagram:** `TC-02E`
 - **Input:** Old database: `"old_db"`, New database: `"new_db"`
 - **Steps:**
   - Call `catalogManager.createDatabase("old_db")`.
@@ -74,18 +142,18 @@ Each test scenario follows this standard format:
   - `containsDatabase("old_db")` returns `false`.
   - `containsDatabase("new_db")` returns `true`.
 
-### TC-01F. Rename Database - Old Database Missing
+### TC-02F. Rename Database - Old Database Missing
 - **Test method:** `renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound`
-- **Sequence diagram:** `TC-01F`
+- **Sequence diagram:** `TC-02F`
 - **Input:** Missing database: `"missing_db"`
 - **Steps:**
   - Call `catalogManager.renameDatabase("missing_db", "new_db")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Database not found").
 
-### TC-01G. Rename Database - Duplicate New Name
+### TC-02G. Rename Database - Duplicate New Name
 - **Test method:** `renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists`
-- **Sequence diagram:** `TC-01G`
+- **Sequence diagram:** `TC-02G`
 - **Input:** Existing databases: `"db1"` and `"db2"`
 - **Steps:**
   - Call `catalogManager.renameDatabase("db1", "db2")`.
@@ -94,9 +162,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-02. Drop Database (Happy Path)
+### TC-03. Drop Database (Happy Path)
 - **Test method:** `dropDatabase_ShouldRemoveDatabaseFromCatalog_WhenDatabaseExists`
-- **Sequence diagram:** `TC-02`
+- **Sequence diagram:** `TC-03`
 - **Input:** Database name: `"temp_db"`
 - **Steps:**
   - Create database `"temp_db"`.
@@ -105,18 +173,18 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - `containsDatabase("temp_db")` returns `false`.
 
-### TC-02A. Drop Database - Not Found
+### TC-03A. Drop Database - Not Found
 - **Test method:** `dropDatabase_ShouldThrowException_WhenDatabaseNotFound`
-- **Sequence diagram:** `TC-02A`
+- **Sequence diagram:** `TC-03A`
 - **Input:** Non-existing database name: `"missing_db"`
 - **Steps:**
   - Call `catalogManager.dropDatabase("missing_db")`.
 - **Expected output:**
   - Throws `DatabaseNotFoundException`.
 
-### TC-02B. Drop Database - Database Not Empty
+### TC-03B. Drop Database - Database Not Empty
 - **Test method:** `dropDatabase_ShouldThrowException_WhenDatabaseIsNotEmpty`
-- **Sequence diagram:** `TC-02B`
+- **Sequence diagram:** `TC-03B`
 - **Input:** Database name: `"db_with_schemas"` containing schemas
 - **Steps:**
   - Create database `"db_with_schemas"` and add schema `"public"`.
@@ -124,9 +192,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `DatabaseNotEmptyException`.
 
-### TC-02C. Drop Database - Permission Denied
+### TC-03C. Drop Database - Permission Denied
 - **Test method:** `dropDatabase_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-02C`
+- **Sequence diagram:** `TC-03C`
 - **Input:** Database name: `"prod_db"`, User without `DROP_DB` permission
 - **Steps:**
   - Call `catalogManager.dropDatabase("prod_db")`.
@@ -135,9 +203,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-03. List Databases
+### TC-04. List Databases
 - **Test method:** `listDatabases_ShouldReturnAllRegisteredDatabases_WhenDatabasesAreCreated`
-- **Sequence diagram:** `TC-03`
+- **Sequence diagram:** `TC-04`
 - **Input:** Database names: `"db1"`, `"db2"`
 - **Steps:**
   - Create `"db1"` and `"db2"`.
@@ -147,9 +215,9 @@ Each test scenario follows this standard format:
   - `listDatabases()` returns list containing `"db1"` and `"db2"`.
   - `getDatabase("db1")` returns matching instance.
 
-### TC-03A. Get Database - Invalid Name
+### TC-04A. Get Database - Invalid Name
 - **Test method:** `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
-- **Sequence diagram:** `TC-03A`
+- **Sequence diagram:** `TC-04A`
 - **Input:** Invalid database name: `"invalid@db!"`
 - **Steps:**
   - Call `catalogManager.getDatabase("invalid@db!")`.
@@ -158,9 +226,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-04. Clear Catalog
+### TC-05. Clear Catalog
 - **Test method:** `clear_ShouldRemoveAllDatabases_WhenCatalogIsCleared`
-- **Sequence diagram:** `TC-04`
+- **Sequence diagram:** `TC-05`
 - **Input:** Database names: `"db1"`
 - **Steps:**
   - Create `"db1"`.
@@ -171,11 +239,11 @@ Each test scenario follows this standard format:
 
 ---
 
-## 2. DatabaseTest
+## 3. DatabaseTest
 
-### TC-05. Create & Manage Schemas (Happy Path)
+### TC-06. Create & Manage Schemas (Happy Path)
 - **Test method:** `createSchema_ShouldManageSchemasInDatabase_WhenSchemaIsAddedAndDropped`
-- **Sequence diagram:** `TC-05`
+- **Sequence diagram:** `TC-06`
 - **Input:** Database: `new Database("app_db")`, Schema name: `"public"`
 - **Steps:**
   - Call `database.createSchema("public")`.
@@ -186,9 +254,9 @@ Each test scenario follows this standard format:
   - `containsSchema("public")` returns `true` after creation.
   - `containsSchema("public")` returns `false` after drop.
 
-### TC-05A. Create Schema - Already Exists
+### TC-06A. Create Schema - Already Exists
 - **Test method:** `createSchema_ShouldThrowException_WhenSchemaAlreadyExists`
-- **Sequence diagram:** `TC-05A`
+- **Sequence diagram:** `TC-06A`
 - **Input:** Schema name: `"public"` (already existing)
 - **Steps:**
   - Create schema `"public"`.
@@ -196,9 +264,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `SchemaAlreadyExistsException`.
 
-### TC-05B. Create Schema - Database Offline
+### TC-06B. Create Schema - Database Offline
 - **Test method:** `createSchema_ShouldThrowException_WhenDatabaseIsOffline`
-- **Sequence diagram:** `TC-05B`
+- **Sequence diagram:** `TC-06B`
 - **Input:** Database with status `DatabaseStatus.OFFLINE`
 - **Steps:**
   - Set `database.setStatus(DatabaseStatus.OFFLINE)`.
@@ -206,18 +274,18 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `DatabaseOfflineException`.
 
-### TC-05C. Create Schema - Permission Denied
+### TC-06C. Create Schema - Permission Denied
 - **Test method:** `createSchema_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-05C`
+- **Sequence diagram:** `TC-06C`
 - **Input:** Schema name: `"secure_schema"`, User without permission
 - **Steps:**
   - Call `database.createSchema("secure_schema")`.
 - **Expected output:**
   - Throws `SecurityException`.
 
-### TC-05D. Create Schema - Special Characters
+### TC-06D. Create Schema - Special Characters
 - **Test method:** `createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters`
-- **Sequence diagram:** `TC-05D`
+- **Sequence diagram:** `TC-06D`
 - **Input:** Schema name: `"schema#123!"`
 - **Steps:**
   - Call `database.createSchema("schema#123!")`.
@@ -226,9 +294,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-06. Database Status & Rename (Happy Path)
+### TC-07. Database Status & Rename (Happy Path)
 - **Test method:** `setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified`
-- **Sequence diagram:** `TC-06`
+- **Sequence diagram:** `TC-07`
 - **Input:** Database: `new Database("old_name")`, New name: `"new_name"`, Status: `DatabaseStatus.READ_ONLY`
 - **Steps:**
   - Call `database.rename("new_name")`.
@@ -237,27 +305,27 @@ Each test scenario follows this standard format:
   - Name is updated to `"new_name"`.
   - Status is updated to `READ_ONLY`.
 
-### TC-06A. Rename Database - Duplicate Name
+### TC-07A. Rename Database - Duplicate Name
 - **Test method:** `renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName`
-- **Sequence diagram:** `TC-06A`
+- **Sequence diagram:** `TC-07A`
 - **Input:** Existing database name: `"existing_db_name"`
 - **Steps:**
   - Call `database.rename("existing_db_name")`.
 - **Expected output:**
   - Throws `DuplicateDatabaseNameException`.
 
-### TC-06B. Rename Database - Invalid Name
+### TC-07B. Rename Database - Invalid Name
 - **Test method:** `renameDatabase_ShouldThrowException_WhenNameIsInvalid`
-- **Sequence diagram:** `TC-06B`
+- **Sequence diagram:** `TC-07B`
 - **Input:** Invalid name: `""`
 - **Steps:**
   - Call `database.rename("")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Value is empty").
 
-### TC-06C. Rename Schema in Database
+### TC-07C. Rename Schema in Database
 - **Test method:** `renameSchema_ShouldRenameTargetSchema_WhenExists`
-- **Sequence diagram:** `TC-06C`
+- **Sequence diagram:** `TC-07C`
 - **Input:** Schema `"raw_schema"` inside database `"app_db"`, rename to `"prod_schema"`
 - **Steps:**
   - Call `database.createSchema("raw_schema")`.
@@ -266,9 +334,9 @@ Each test scenario follows this standard format:
   - `containsSchema("raw_schema")` returns `false`.
   - `containsSchema("prod_schema")` returns `true`.
 
-### TC-06D. Get Schema - Invalid Name
+### TC-07D. Get Schema - Invalid Name
 - **Test method:** `getSchema_ShouldThrowException_WhenSchemaNameIsInvalid`
-- **Sequence diagram:** `TC-06D`
+- **Sequence diagram:** `TC-07D`
 - **Input:** Invalid schema name: `"invalid#schema"`
 - **Steps:**
   - Call `database.getSchema("invalid#schema")`.
@@ -277,11 +345,11 @@ Each test scenario follows this standard format:
 
 ---
 
-## 3. SchemaTest
+## 4. SchemaTest
 
-### TC-07. Create Table (Happy Path)
+### TC-08. Create Table (Happy Path)
 - **Test method:** `createTable_ShouldRegisterTableInSchema_WhenValidTableNameIsProvided`
-- **Sequence diagram:** `TC-07`
+- **Sequence diagram:** `TC-08`
 - **Input:** Schema: `new Schema("public")`, Table name: `"users"`
 - **Steps:**
   - Call `schema.createTable("users")`.
@@ -291,9 +359,9 @@ Each test scenario follows this standard format:
   - `containsTable("users")` returns `true`.
   - `getTable("users")` returns non-null `Table` instance.
 
-### TC-07A. Create Table - Already Exists
+### TC-08A. Create Table - Already Exists
 - **Test method:** `createTable_ShouldThrowException_WhenTableAlreadyExists`
-- **Sequence diagram:** `TC-07A`
+- **Sequence diagram:** `TC-08A`
 - **Input:** Table name: `"users"` (already existing)
 - **Steps:**
   - Call `schema.createTable("users")`.
@@ -301,18 +369,18 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `TableAlreadyExistsException`.
 
-### TC-07B. Create Table - Permission Denied
+### TC-08B. Create Table - Permission Denied
 - **Test method:** `createTable_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-07B`
+- **Sequence diagram:** `TC-08B`
 - **Input:** Table name: `"users"`, User without `CREATE_TABLE` permission
 - **Steps:**
   - Call `schema.createTable("users")`.
 - **Expected output:**
   - Throws `SecurityException`.
 
-### TC-07C. Create Table - Schema Read Only
+### TC-08C. Create Table - Schema Read Only
 - **Test method:** `createTable_ShouldThrowException_WhenSchemaIsReadOnly`
-- **Sequence diagram:** `TC-07C`
+- **Sequence diagram:** `TC-08C`
 - **Input:** Schema with `readOnly = true`
 - **Steps:**
   - Set `schema.setReadOnly(true)`.
@@ -320,9 +388,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `SchemaReadOnlyException`.
 
-### TC-07D. Create Table - Special Characters
+### TC-08D. Create Table - Special Characters
 - **Test method:** `createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters`
-- **Sequence diagram:** `TC-07D`
+- **Sequence diagram:** `TC-08D`
 - **Input:** Table name: `"user@table!"`
 - **Steps:**
   - Call `schema.createTable("user@table!")`.
@@ -331,9 +399,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-08. Rename Schema & List Tables (Happy Path)
+### TC-09. Rename Schema & List Tables (Happy Path)
 - **Test method:** `rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed`
-- **Sequence diagram:** `TC-08`
+- **Sequence diagram:** `TC-09`
 - **Input:** Schema: `new Schema("raw_schema")`, Tables: `"t1"`, `"t2"`, New name: `"prod_schema"`
 - **Steps:**
   - Create tables `"t1"` and `"t2"`.
@@ -343,18 +411,18 @@ Each test scenario follows this standard format:
   - `listTables()` returns list of size 2.
   - Schema name updated to `"prod_schema"`.
 
-### TC-08A. Rename Schema - Not Found
+### TC-09A. Rename Schema - Not Found
 - **Test method:** `renameSchema_ShouldThrowException_WhenSchemaNotFound`
-- **Sequence diagram:** `TC-08A`
+- **Sequence diagram:** `TC-09A`
 - **Input:** Missing schema name `"missing_schema"`
 - **Steps:**
   - Call `database.renameSchema("missing_schema", "new_name")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Schema not found").
 
-### TC-08B. Get Table - Invalid Name
+### TC-09B. Get Table - Invalid Name
 - **Test method:** `getTable_ShouldThrowException_WhenTableNameIsInvalid`
-- **Sequence diagram:** `TC-08B`
+- **Sequence diagram:** `TC-09B`
 - **Input:** Invalid table name: `"invalid@table!"`
 - **Steps:**
   - Call `schema.getTable("invalid@table!")`.
@@ -363,11 +431,11 @@ Each test scenario follows this standard format:
 
 ---
 
-## 4. TableTest
+## 5. TableTest
 
-### TC-09. Add Column (Happy Path)
+### TC-10. Add Column (Happy Path)
 - **Test method:** `addColumn_ShouldAttachColumnToTable_WhenColumnIsAdded`
-- **Sequence diagram:** `TC-09`
+- **Sequence diagram:** `TC-10`
 - **Input:** Table: `new Table("orders")`, Column: `new Column("order_id", DataType.BIGINT)`
 - **Steps:**
   - Call `table.addColumn(column)`.
@@ -377,9 +445,9 @@ Each test scenario follows this standard format:
   - `listColumns()` contains added column.
   - `containsColumn("order_id")` returns `true`.
 
-### TC-09A. Add Column - Column Already Exists
+### TC-10A. Add Column - Column Already Exists
 - **Test method:** `addColumn_ShouldThrowException_WhenColumnAlreadyExists`
-- **Sequence diagram:** `TC-09A`
+- **Sequence diagram:** `TC-10A`
 - **Input:** Column `"order_id"` (already in table)
 - **Steps:**
   - Add column `"order_id"`.
@@ -387,9 +455,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `ColumnAlreadyExistsException`.
 
-### TC-09B. Add Column - Table Locked
+### TC-10B. Add Column - Table Locked
 - **Test method:** `addColumn_ShouldThrowException_WhenTableIsLocked`
-- **Sequence diagram:** `TC-09B`
+- **Sequence diagram:** `TC-10B`
 - **Input:** Locked table
 - **Steps:**
   - Set `table.setLocked(true)`.
@@ -397,27 +465,27 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `TableLockedException`.
 
-### TC-09C. Add Column - Permission Denied
+### TC-10C. Add Column - Permission Denied
 - **Test method:** `addColumn_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-09C`
+- **Sequence diagram:** `TC-10C`
 - **Input:** User without `ALTER_TABLE` permission
 - **Steps:**
   - Call `table.addColumn(column)`.
 - **Expected output:**
   - Throws `SecurityException`.
 
-### TC-09D. Add Column - Special Characters
+### TC-10D. Add Column - Special Characters
 - **Test method:** `addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters`
-- **Sequence diagram:** `TC-09D`
+- **Sequence diagram:** `TC-10D`
 - **Input:** Column with name `"col#name!"`
 - **Steps:**
   - Call `table.addColumn(column)`.
 - **Expected output:**
   - Throws `IllegalArgumentException`.
 
-### TC-09E. Create Column Facade
+### TC-10E. Create Column Facade
 - **Test method:** `createColumn_ShouldAddColumnToTable`
-- **Sequence diagram:** `TC-09E`
+- **Sequence diagram:** `TC-10E`
 - **Input:** Column with name `"user_id"`
 - **Steps:**
   - Call `table.createColumn(column)`.
@@ -426,9 +494,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-10. Remove Column (Happy Path)
+### TC-11. Remove Column (Happy Path)
 - **Test method:** `removeColumn_ShouldDetachColumnFromTable_WhenColumnExists`
-- **Sequence diagram:** `TC-10`
+- **Sequence diagram:** `TC-11`
 - **Input:** Table with column `"temp_col"`
 - **Steps:**
   - Call `table.removeColumn("temp_col")`.
@@ -436,63 +504,63 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - `containsColumn("temp_col")` returns `false`.
 
-### TC-10A. Remove Column - Column Not Found
+### TC-11A. Remove Column - Column Not Found
 - **Test method:** `removeColumn_ShouldThrowException_WhenColumnNotFound`
-- **Sequence diagram:** `TC-10A`
+- **Sequence diagram:** `TC-11A`
 - **Input:** Non-existing column name: `"missing_col"`
 - **Steps:**
   - Call `table.removeColumn("missing_col")`.
 - **Expected output:**
   - Throws `ColumnNotFoundException`.
 
-### TC-10B. Remove Column - Referenced by Constraint
+### TC-11B. Remove Column - Referenced by Constraint
 - **Test method:** `removeColumn_ShouldThrowException_WhenReferencedByConstraint`
-- **Sequence diagram:** `TC-10B`
+- **Sequence diagram:** `TC-11B`
 - **Input:** Column `"id"` referenced by Primary Key or Foreign Key constraint
 - **Steps:**
   - Call `table.removeColumn("id")`.
 - **Expected output:**
   - Throws `IllegalStateException` ("referenced by constraint").
 
-### TC-10E. Remove Column - Table Locked
+### TC-11C. Remove Column - Table Locked
 - **Test method:** `removeColumn_ShouldThrowException_WhenTableIsLocked`
-- **Sequence diagram:** `TC-10E`
+- **Sequence diagram:** `TC-11C`
 - **Input:** Table with `locked = true`, Column `"temp_col"`
 - **Steps:**
   - Call `table.removeColumn("temp_col")`.
 - **Expected output:**
   - Throws `IllegalStateException` ("Table is locked").
 
-### TC-10F. Remove Column - Invalid Name Format
+### TC-11D. Remove Column - Invalid Name Format
 - **Test method:** `removeColumn_ShouldThrowException_WhenColumnNameIsInvalid`
-- **Sequence diagram:** `TC-10F`
+- **Sequence diagram:** `TC-11D`
 - **Input:** Invalid column name: `""` or `null`
 - **Steps:**
   - Call `table.removeColumn("")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Value is empty").
 
-### TC-10G. Get Column - Invalid Name
+### TC-11E. Get Column - Invalid Name
 - **Test method:** `getColumn_ShouldThrowException_WhenColumnNameIsInvalid`
-- **Sequence diagram:** `TC-10G`
+- **Sequence diagram:** `TC-11E`
 - **Input:** Invalid column name: `"invalid#col"`
 - **Steps:**
   - Call `table.getColumn("invalid#col")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Column name contains invalid characters").
 
-### TC-10H. Get Index - Invalid Name
+### TC-11F. Get Index - Invalid Name
 - **Test method:** `getIndex_ShouldThrowException_WhenIndexNameIsInvalid`
-- **Sequence diagram:** `TC-10H`
+- **Sequence diagram:** `TC-11F`
 - **Input:** Invalid index name: `"invalid#idx"`
 - **Steps:**
   - Call `table.getIndex("invalid#idx")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Index name contains invalid characters").
 
-### TC-10I. Get Constraint - Invalid Name
+### TC-11G. Get Constraint - Invalid Name
 - **Test method:** `getConstraint_ShouldThrowException_WhenConstraintNameIsInvalid`
-- **Sequence diagram:** `TC-10I`
+- **Sequence diagram:** `TC-11G`
 - **Input:** Invalid constraint name: `"invalid#const"`
 - **Steps:**
   - Call `table.getConstraint("invalid#const")`.
@@ -501,29 +569,29 @@ Each test scenario follows this standard format:
 
 ---
 
-## 5. ColumnTest
+## 6. ColumnTest
 
-### TC-11. Change Data Type (Happy Path)
+### TC-12. Change Data Type (Happy Path)
 - **Test method:** `changeDataType_ShouldUpdateColumnDataType_WhenValid`
-- **Sequence diagram:** `TC-11`
+- **Sequence diagram:** `TC-12`
 - **Input:** Column: `new Column("age", DataType.INT)`, New type: `DataType.BIGINT`
 - **Steps:**
   - Call `column.changeDataType(DataType.BIGINT)`.
 - **Expected output:**
   - Column data type updated to `BIGINT`.
 
-### TC-11A. Change Data Type - Unsupported Conversion
+### TC-12A. Change Data Type - Unsupported Conversion
 - **Test method:** `changeDataType_ShouldThrowException_WhenUnsupportedConversion`
-- **Sequence diagram:** `TC-11A`
+- **Sequence diagram:** `TC-12A`
 - **Input:** Column with type `INT`, Incompatible target type: `DataType.BOOLEAN`
 - **Steps:**
   - Call `column.changeDataType(DataType.BOOLEAN)`.
 - **Expected output:**
   - Throws `DataTypeConversionException`.
 
-### TC-11B. Change Data Type - Permission Denied
+### TC-12B. Change Data Type - Permission Denied
 - **Test method:** `changeDataType_ShouldThrowException_WhenPermissionDenied`
-- **Sequence diagram:** `TC-11B`
+- **Sequence diagram:** `TC-12B`
 - **Input:** User without `ALTER_COLUMN` permission
 - **Steps:**
   - Call `column.changeDataType(DataType.VARCHAR)`.
@@ -532,9 +600,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-12. Set Default Value & Properties (Happy Path)
+### TC-13. Set Default Value & Properties (Happy Path)
 - **Test method:** `changeDataType_And_setDefaultValue_ShouldUpdateColumnProperties_WhenModified`
-- **Sequence diagram:** `TC-12`
+- **Sequence diagram:** `TC-13`
 - **Input:** Column: `new Column("age", DataType.INT)`
 - **Steps:**
   - Call `column.setNullable(false)`.
@@ -544,9 +612,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Column properties updated without errors.
 
-### TC-12A. Set Default Value - Invalid Default Value
+### TC-13A. Set Default Value - Invalid Default Value
 - **Test method:** `setDefaultValue_ShouldThrowException_WhenDefaultValueIsInvalid`
-- **Sequence diagram:** `TC-12A`
+- **Sequence diagram:** `TC-13A`
 - **Input:** Column type `INT`, Invalid value string: `"abc_not_an_int"`
 - **Steps:**
   - Call `column.setDefaultValue("abc_not_an_int")`.
@@ -555,11 +623,11 @@ Each test scenario follows this standard format:
 
 ---
 
-## 6. IndexTest
+## 7. IndexTest
 
-### TC-13. Add Index (Happy Path)
+### TC-14. Add Index (Happy Path)
 - **Test method:** `addIndex_ShouldAttachIndexToTable_WhenIndexIsAddedAndRebuilt`
-- **Sequence diagram:** `TC-13`
+- **Sequence diagram:** `TC-14`
 - **Input:** Table: `new Table("users")`, Index: `new Index("idx_user_email", IndexType.BTREE)`
 - **Steps:**
   - Call `table.addIndex(index)`.
@@ -569,9 +637,9 @@ Each test scenario follows this standard format:
   - Index attached to table.
   - `rebuild()` reenables index.
 
-### TC-13A. Add Index - Duplicate Index Name
+### TC-14A. Add Index - Duplicate Index Name
 - **Test method:** `addIndex_ShouldThrowException_WhenDuplicateIndexName`
-- **Sequence diagram:** `TC-13A`
+- **Sequence diagram:** `TC-14A`
 - **Input:** Index `"idx_user_email"` (already existing on table)
 - **Steps:**
   - Add index `"idx_user_email"`.
@@ -579,45 +647,45 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `DuplicateIndexException`.
 
-### TC-13B. Add Index - Column Not Found
+### TC-14B. Add Index - Column Not Found
 - **Test method:** `addIndex_ShouldThrowException_WhenIndexedColumnNotFound`
-- **Sequence diagram:** `TC-13B`
+- **Sequence diagram:** `TC-14B`
 - **Input:** Index targeting non-existing column `"non_existing_col"`
 - **Steps:**
   - Call `table.addIndex(index)`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Indexed column not found").
 
-### TC-13D. Remove Index (Happy Path)
+### TC-14C. Remove Index (Happy Path)
 - **Test method:** `removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists`
-- **Sequence diagram:** `TC-13D`
+- **Sequence diagram:** `TC-14C`
 - **Input:** Existing index `"idx_user_email"`
 - **Steps:**
   - Call `table.removeIndex("idx_user_email")`.
 - **Expected output:**
   - `listIndexes()` no longer contains the index.
 
-### TC-13E. Remove Index - Index Not Found
+### TC-14D. Remove Index - Index Not Found
 - **Test method:** `removeIndex_ShouldThrowException_WhenIndexNotFound`
-- **Sequence diagram:** `TC-13E`
+- **Sequence diagram:** `TC-14D`
 - **Input:** Non-existing index `"missing_idx"`
 - **Steps:**
   - Call `table.removeIndex("missing_idx")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Index not found").
 
-### TC-13F. Remove Index - Table Locked
+### TC-14E. Remove Index - Table Locked
 - **Test method:** `removeIndex_ShouldThrowException_WhenTableIsLocked`
-- **Sequence diagram:** `TC-13F`
+- **Sequence diagram:** `TC-14E`
 - **Input:** Table with `locked = true`, Index `"idx_user_email"`
 - **Steps:**
   - Call `table.removeIndex("idx_user_email")`.
 - **Expected output:**
   - Throws `IllegalStateException` ("Table is locked").
 
-### TC-13G. Remove Index - Invalid Name Format
+### TC-14F. Remove Index - Invalid Name Format
 - **Test method:** `removeIndex_ShouldThrowException_WhenIndexNameIsInvalid`
-- **Sequence diagram:** `TC-13G`
+- **Sequence diagram:** `TC-14F`
 - **Input:** Invalid index name: `""` or `null`
 - **Steps:**
   - Call `table.removeIndex("")`.
@@ -626,9 +694,9 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-14. Rebuild Index (Happy Path)
+### TC-15. Rebuild Index (Happy Path)
 - **Test method:** `rebuildIndex_ShouldReenableIndex_WhenRebuilt`
-- **Sequence diagram:** `TC-14`
+- **Sequence diagram:** `TC-15`
 - **Input:** Disabled Index instance
 - **Steps:**
   - Call `index.disable()`.
@@ -636,9 +704,9 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Index status is enabled (`true`).
 
-### TC-14A. Rebuild Index - Disabled & Corrupted
+### TC-15A. Rebuild Index - Disabled & Corrupted
 - **Test method:** `rebuildIndex_ShouldThrowException_WhenIndexIsDisabledAndCorrupted`
-- **Sequence diagram:** `TC-14A`
+- **Sequence diagram:** `TC-15A`
 - **Input:** Corrupted index file/data (`setCorrupted(true)`)
 - **Steps:**
   - Call `index.rebuild()`.
@@ -647,11 +715,11 @@ Each test scenario follows this standard format:
 
 ---
 
-## 7. ConstraintTest
+## 8. ConstraintTest
 
-### TC-15. Validate Primary Key Constraint
+### TC-16. Validate Primary Key Constraint
 - **Test method:** `validate_ShouldReturnConstraintStatus_WhenPrimaryKeyIsChecked`
-- **Sequence diagram:** `TC-15`
+- **Sequence diagram:** `TC-16`
 - **Input:** Constraint: `new PrimaryKeyConstraint("pk_users")`
 - **Steps:**
   - Call `constraint.validate()`.
@@ -661,27 +729,27 @@ Each test scenario follows this standard format:
   - `validate()` returns `true` when enabled.
   - `validate()` returns `false` when disabled.
 
-### TC-15B. Remove Constraint (Happy Path)
+### TC-16A. Remove Constraint (Happy Path)
 - **Test method:** `removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists`
-- **Sequence diagram:** `TC-15B`
+- **Sequence diagram:** `TC-16A`
 - **Input:** Constraint `"pk_orders"` attached to table
 - **Steps:**
   - Call `table.removeConstraint("pk_orders")`.
 - **Expected output:**
   - `listConstraints()` no longer contains the constraint.
 
-### TC-15C. Remove Constraint - Constraint Not Found
+### TC-16B. Remove Constraint - Constraint Not Found
 - **Test method:** `removeConstraint_ShouldThrowException_WhenConstraintNotFound`
-- **Sequence diagram:** `TC-15C`
+- **Sequence diagram:** `TC-16B`
 - **Input:** Non-existing constraint `"missing_pk"`
 - **Steps:**
   - Call `table.removeConstraint("missing_pk")`.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Constraint not found").
 
-### TC-15D. Remove Constraint - Table Locked
+### TC-16C. Remove Constraint - Table Locked
 - **Test method:** `removeConstraint_ShouldThrowException_WhenTableIsLocked`
-- **Sequence diagram:** `TC-15D`
+- **Sequence diagram:** `TC-16C`
 - **Input:** Table with `locked = true`, Constraint `"pk_orders"`
 - **Steps:**
   - Call `table.removeConstraint("pk_orders")`.
@@ -690,36 +758,36 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-16. Validate Foreign Key Reference (Happy Path)
+### TC-17. Validate Foreign Key Reference (Happy Path)
 - **Test method:** `validateReference_ShouldReturnTrue_WhenForeignKeyReferencesValidTableAndColumn`
-- **Sequence diagram:** `TC-16`
+- **Sequence diagram:** `TC-17`
 - **Input:** Table: `new Table("parent_table")`, Column: `new Column("id", DataType.INT)`, FK: `new ForeignKeyConstraint("fk_child", table, column)`
 - **Steps:**
   - Call `fkConstraint.validateReference()`.
 - **Expected output:**
   - `validateReference()` returns `true`.
 
-### TC-16A. Validate Foreign Key - Referenced Table Missing
+### TC-17A. Validate Foreign Key - Referenced Table Missing
 - **Test method:** `validateForeignKey_ShouldReturnFalse_WhenReferencedTableMissing`
-- **Sequence diagram:** `TC-16A`
+- **Sequence diagram:** `TC-17A`
 - **Input:** FK referencing deleted or non-existing parent table
 - **Steps:**
   - Call `fkConstraint.validateReference()`.
 - **Expected output:**
   - `validateReference()` returns `false`.
 
-### TC-16B. Validate Foreign Key - Referenced Column Missing
+### TC-17B. Validate Foreign Key - Referenced Column Missing
 - **Test method:** `validateForeignKey_ShouldReturnFalse_WhenReferencedColumnMissing`
-- **Sequence diagram:** `TC-16B`
+- **Sequence diagram:** `TC-17B`
 - **Input:** FK referencing deleted column on parent table
 - **Steps:**
   - Call `fkConstraint.validateReference()`.
 - **Expected output:**
   - `validateReference()` returns `false`.
 
-### TC-16C. Validate Foreign Key - Parent Row Missing
+### TC-17C. Validate Foreign Key - Parent Row Missing
 - **Test method:** `validateForeignKey_ShouldReturnFalse_WhenParentRowMissing`
-- **Sequence diagram:** `TC-16C`
+- **Sequence diagram:** `TC-17C`
 - **Input:** FK pointing to non-existent parent primary key value
 - **Steps:**
   - Call `fkConstraint.validateReference()`.
@@ -728,82 +796,23 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-17. Evaluate Check Constraint (Happy Path)
+### TC-18. Evaluate Check Constraint (Happy Path)
 - **Test method:** `evaluate_ShouldReturnTrue_WhenCheckConstraintExpressionIsValid`
-- **Sequence diagram:** `TC-17`
+- **Sequence diagram:** `TC-18`
 - **Input:** Check Constraint: `new CheckConstraint("chk_age", "age >= 18")`
 - **Steps:**
   - Call `checkConstraint.evaluate()`.
 - **Expected output:**
   - `evaluate()` returns `true`.
 
-### TC-17A. Evaluate Check Constraint - Invalid Expression
+### TC-18A. Evaluate Check Constraint - Invalid Expression
 - **Test method:** `evaluate_ShouldReturnFalse_WhenExpressionIsInvalid`
-- **Sequence diagram:** `TC-17A`
+- **Sequence diagram:** `TC-18A`
 - **Input:** Invalid syntax expression: `"age >= "`
 - **Steps:**
   - Call `checkConstraint.evaluate()`.
 - **Expected output:**
   - `evaluate()` returns `false`.
-
----
-
-## 8. MetadataModuleTest
-
-### TC-18. Get Table Facade (Happy Path)
-- **Test method:** `getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist`
-- **Sequence diagram:** `TC-18`
-- **Input:** Database: `"sales_db"`, Schema: `"public"`, Table: `"orders"`
-- **Steps:**
-  - Call `metadataModule.getTable("sales_db", "public", "orders")`.
-- **Expected output:**
-  - Returns target `Table` instance.
-
-### TC-18A. Execute DDL Facade
-- **Test method:** `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
-- **Sequence diagram:** `TC-18A`
-- **Input:** `DDLCommand` mock object
-- **Steps:**
-  - Call `metadataModule.executeDDL(command)`.
-- **Expected output:**
-  - `command.execute()` is invoked once.
-
-### TC-18B. Get Database Facade (Happy Path)
-- **Test method:** `getDatabase_ShouldReturnDatabase_WhenExists`
-- **Sequence diagram:** `TC-18B`
-- **Input:** Database name: `"app_db"`
-- **Steps:**
-  - Create database `"app_db"`.
-  - Call `metadataModule.getDatabase("app_db")`.
-- **Expected output:**
-  - Returns matching `Database` instance.
-
-### TC-18C. Get Database Facade - Invalid Name
-- **Test method:** `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
-- **Sequence diagram:** `TC-18C`
-- **Input:** Invalid database name: `"invalid#db"`
-- **Steps:**
-  - Call `metadataModule.getDatabase("invalid#db")`.
-- **Expected output:**
-  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
-
-### TC-18D. Get Table Facade - Invalid Identifier
-- **Test method:** `getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid`
-- **Sequence diagram:** `TC-18D`
-- **Input:** Invalid database name: `"invalid#db"`, Schema: `"public"`, Table: `"users"`
-- **Steps:**
-  - Call `metadataModule.getTable("invalid#db", "public", "users")`.
-- **Expected output:**
-  - Throws `IllegalArgumentException` ("Database name contains invalid characters").
-
-### TC-18E. Get Table Facade - Not Found
-- **Test method:** `getTable_ShouldReturnNull_WhenDatabaseDoesNotExist`
-- **Sequence diagram:** `TC-18E`
-- **Input:** Non-existing database: `"missing_db"`, Schema: `"public"`, Table: `"users"`
-- **Steps:**
-  - Call `metadataModule.getTable("missing_db", "public", "users")`.
-- **Expected output:**
-  - Returns `null`.
 
 ---
 

@@ -29,7 +29,7 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18. Get Table Facade")
+    @DisplayName("TC-01. Get Table Facade - Happy Path")
     void getTable_ShouldReturnTable_WhenDatabaseSchemaAndTableExist() {
         CatalogManager cm = metadataModule.getCatalogManager();
         Database db = cm.createDatabase("app_db");
@@ -42,7 +42,15 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18B. Get Database Facade - Happy Path")
+    @DisplayName("TC-01A. Execute DDL Facade - Happy Path")
+    void executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided() {
+        metadataModule.executeDDL(mockCommand);
+
+        verify(mockCommand).execute();
+    }
+
+    @Test
+    @DisplayName("TC-01B. Get Database Facade - Happy Path")
     void getDatabase_ShouldReturnDatabase_WhenExists() {
         CatalogManager cm = metadataModule.getCatalogManager();
         Database db = cm.createDatabase("app_db");
@@ -53,7 +61,7 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18C. Get Database Facade - Invalid Name")
+    @DisplayName("TC-01C. Get Database Facade - Invalid Name")
     void getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
         assertThatThrownBy(() -> metadataModule.getDatabase("invalid#db"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -61,7 +69,7 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18D. Get Table Facade - Invalid Identifier")
+    @DisplayName("TC-01D. Get Table Facade - Invalid Identifier")
     void getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid() {
         assertThatThrownBy(() -> metadataModule.getTable("invalid#db", "public", "users"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -69,10 +77,17 @@ class MetadataModuleTest {
     }
 
     @Test
-    @DisplayName("TC-18E. Get Table Facade - Not Found")
+    @DisplayName("TC-01E. Get Table Facade - Not Found")
     void getTable_ShouldReturnNull_WhenDatabaseDoesNotExist() {
         Table result = metadataModule.getTable("missing_db", "public", "users");
 
         assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("TC-01F. Execute DDL Facade - Null Command")
+    void executeDDL_ShouldDoNothing_WhenCommandIsNull() {
+        metadataModule.executeDDL(null);
+        // Should complete without throwing NullPointerException
     }
 }
