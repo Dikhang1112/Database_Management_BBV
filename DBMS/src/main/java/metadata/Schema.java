@@ -4,24 +4,16 @@ import metadata.helpers.CatalogValidator;
 import metadata.helpers.SecurityValidator;
 import metadata.helpers.TableManager;
 import metadata.interfaces.MetadataElement;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class Schema implements MetadataElement {
-    private final UUID schemaId;
     private String schemaName;
     private final TableManager tableManager;
     private boolean readOnly;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public Schema() {
-        this.schemaId = UUID.randomUUID();
         this.tableManager = new TableManager();
         this.readOnly = false;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Schema(String schemaName) {
@@ -33,18 +25,6 @@ public class Schema implements MetadataElement {
         if (readOnly) {
             throw new IllegalStateException("Schema is read-only");
         }
-    }
-
-    public UUID getSchemaId() {
-        return schemaId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     // Pattern: Factory Method

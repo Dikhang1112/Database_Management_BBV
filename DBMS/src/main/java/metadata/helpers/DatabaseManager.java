@@ -13,7 +13,7 @@ public class DatabaseManager {
     public Database add(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
         SecurityValidator.validatePermission(databaseName, "CREATE");
-        CatalogValidator.ensureUniqueName(databaseName, databases.keySet(), "DATABASE");
+        CatalogValidator.ensureUniqueName(databaseName, databases.keySet(), "Database");
         Database db = new Database(databaseName);
         databases.put(databaseName.toLowerCase(), db);
         return db;

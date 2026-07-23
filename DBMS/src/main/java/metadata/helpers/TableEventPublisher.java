@@ -26,8 +26,4 @@ public class TableEventPublisher {
             }
         }
     }
-
-    public List<MetadataChangeListener> getListeners() {
-        return listeners;
-    }
 }

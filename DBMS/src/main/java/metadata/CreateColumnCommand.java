@@ -6,10 +6,6 @@ public class CreateColumnCommand implements DDLCommand {
     private Table table;
     private Column column;
 
-    public CreateColumnCommand(Column column) {
-        this.column = column;
-    }
-
     public CreateColumnCommand(Table table, Column column) {
         this.table = table;
         this.column = column;

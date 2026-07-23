@@ -6,10 +6,6 @@ public class CreateTableCommand implements DDLCommand {
     private Schema schema;
     private String tableName;
 
-    public CreateTableCommand(String tableName) {
-        this.tableName = tableName;
-    }
-
     public CreateTableCommand(Schema schema, String tableName) {
         this.schema = schema;
         this.tableName = tableName;

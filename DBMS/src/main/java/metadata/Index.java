@@ -5,10 +5,8 @@ import metadata.interfaces.IndexRebuildStrategy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class Index {
-    private UUID indexId;
     private String indexName;
     private IndexType indexType;
     private List<Column> columns;
@@ -17,7 +15,6 @@ public class Index {
     private IndexRebuildStrategy rebuildStrategy;
 
     public Index() {
-        this.indexId = UUID.randomUUID();
         this.columns = new ArrayList<>();
         this.enabled = true;
     }
@@ -31,10 +28,6 @@ public class Index {
     // =====================================================
     // Getters
     // =====================================================
-
-    public UUID getIndexId() {
-        return indexId;
-    }
 
     public String getIndexName() {
         return indexName;

@@ -9,10 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConstraintManager {
     private final Map<String, Constraint> constraints = new ConcurrentHashMap<>();
-    private final ColumnManager columnManager;
 
     public ConstraintManager(ColumnManager columnManager) {
-        this.columnManager = columnManager;
     }
 
     public void add(Constraint constraint) {

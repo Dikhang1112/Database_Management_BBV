@@ -7,11 +7,6 @@ public class RenameTableCommand implements DDLCommand {
     private String oldName;
     private String newName;
 
-    public RenameTableCommand(String oldName, String newName) {
-        this.oldName = oldName;
-        this.newName = newName;
-    }
-
     public RenameTableCommand(Table table, String newName) {
         this.table = table;
         if (table != null) {

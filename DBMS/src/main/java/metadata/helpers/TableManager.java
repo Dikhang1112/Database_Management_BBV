@@ -21,19 +21,6 @@ public class TableManager {
         return table;
     }
 
-    public void add(Table table) {
-        if (table == null) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        String name = table.getTableName();
-        SecurityValidator.validatePermission(name);
-        CatalogValidator.validateIdentifier(name, "Table");
-        if (contains(name)) {
-            throw new IllegalStateException("Table already exists");
-        }
-        tables.put(name.toLowerCase(), table);
-    }
-
     public void remove(String tableName) {
         CatalogValidator.validateIdentifier(tableName, "Table");
         if (!contains(tableName)) {

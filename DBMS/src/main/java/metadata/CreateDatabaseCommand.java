@@ -9,10 +9,6 @@ public class CreateDatabaseCommand implements DDLCommand {
         this.databaseName = databaseName;
     }
 
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
     @Override
     public void execute() {
         CatalogManager.getInstance().createDatabase(databaseName);

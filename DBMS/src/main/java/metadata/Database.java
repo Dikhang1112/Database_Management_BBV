@@ -5,24 +5,16 @@ import metadata.helpers.CatalogValidator;
 import metadata.helpers.SchemaManager;
 import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class Database implements MetadataElement {
-    private final UUID databaseId;
     private String databaseName;
     private DatabaseStatus status;
     private final SchemaManager schemaManager;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public Database() {
-        this.databaseId = UUID.randomUUID();
         this.status = DatabaseStatus.ONLINE;
         this.schemaManager = new SchemaManager();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Database(String databaseName) {
@@ -36,24 +28,12 @@ public class Database implements MetadataElement {
         }
     }
 
-    public UUID getDatabaseId() {
-        return databaseId;
-    }
-
     public String getDatabaseName() {
         return databaseName;
     }
 
     public DatabaseStatus getStatus() {
         return status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public Schema createSchema(String schemaName) {

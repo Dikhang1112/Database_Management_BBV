@@ -16,11 +16,6 @@ public class ColumnBuilder {
         this.columnName = columnName;
     }
 
-    public ColumnBuilder setName(String name) {
-        this.columnName = name;
-        return this;
-    }
-
     // Pattern: Builder
     public ColumnBuilder setType(DataType dataType) {
         this.dataType = dataType;
