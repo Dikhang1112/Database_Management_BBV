@@ -41,17 +41,6 @@ public class DatabaseManager {
         return databases.containsKey(databaseName.toLowerCase());
     }
 
-    public void rename(String oldName, String newName) {
-        CatalogValidator.ensureExists(oldName, databases.keySet(), "Database");
-        CatalogValidator.validateIdentifier(newName, "Database");
-        if (contains(newName) && !oldName.equalsIgnoreCase(newName)) {
-            throw new IllegalStateException("Database already exists");
-        }
-        Database db = databases.remove(oldName.toLowerCase());
-        db.rename(newName);
-        databases.put(newName.toLowerCase(), db);
-    }
-
     public List<Database> listAll() {
         return Collections.unmodifiableList(new ArrayList<>(databases.values()));
     }

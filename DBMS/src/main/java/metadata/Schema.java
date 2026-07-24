@@ -54,13 +54,6 @@ public class Schema implements MetadataElement {
         return tableManager.listAll();
     }
 
-    public void rename(String newName) {
-        ensureNotReadOnly();
-        SecurityValidator.validatePermission(newName);
-        CatalogValidator.validateIdentifier(newName, "Schema");
-        this.schemaName = newName;
-    }
-
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }

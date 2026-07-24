@@ -50,14 +50,6 @@ public class Table implements MetadataElement, Cloneable {
         this.locked = locked;
     }
 
-    public void rename(String newName) {
-        ensureNotLocked();
-        SecurityValidator.validatePermission(newName);
-        CatalogValidator.validateIdentifier(newName, "Table");
-        this.tableName = newName;
-        eventPublisher.notifyListeners("TABLE_RENAMED", newName);
-    }
-
     // =====================================================
     // Column Operations (Delegated to ColumnManager)
     // =====================================================
@@ -75,12 +67,6 @@ public class Table implements MetadataElement, Cloneable {
         }
         columnManager.remove(columnName);
         eventPublisher.notifyListeners("COLUMN_REMOVED", columnName);
-    }
-
-    public void renameColumn(String oldName, String newName) {
-        ensureNotLocked();
-        columnManager.rename(oldName, newName);
-        eventPublisher.notifyListeners("COLUMN_RENAMED", newName);
     }
 
     public Column getColumn(String columnName) {

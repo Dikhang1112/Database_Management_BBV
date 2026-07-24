@@ -39,12 +39,6 @@ public class CatalogManager implements MetadataElement {
         databaseManager.remove(databaseName);
     }
 
-    public void renameDatabase(String oldName, String newName) {
-        CatalogValidator.validateIdentifier(oldName, "Database");
-        CatalogValidator.validateIdentifier(newName, "Database");
-        databaseManager.rename(oldName, newName);
-    }
-
     public Database getDatabase(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
         return databaseManager.get(databaseName);

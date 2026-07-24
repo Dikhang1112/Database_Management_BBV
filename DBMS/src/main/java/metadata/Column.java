@@ -21,12 +21,6 @@ public class Column implements MetadataElement, Cloneable {
         this.dataType = dataType;
     }
 
-    public void rename(String newName) {
-        SecurityValidator.validatePermission(newName);
-        CatalogValidator.validateIdentifier(newName, "Column");
-        this.columnName = newName;
-    }
-
     public void changeDataType(DataType type) {
         if (this.dataType == DataType.INT && type == DataType.BOOLEAN) {
             throw new IllegalArgumentException("Unsupported conversion");

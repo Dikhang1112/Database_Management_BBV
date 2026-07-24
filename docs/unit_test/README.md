@@ -9,7 +9,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 
 | STT | Module | Number of Test Classes | Total Testcases | Status |
 |:---:|:---|:---:|:---:|:---:|
-| 1 | Metadata | 12 | 88 | Done |
+| 1 | Metadata | 12 | 77 | Done |
 | 2 | Query Processor | 12 | 43 | Doing |
 | 3 | Database Core Server | 5 | 35 | Planned |
 | 4 | Execution Engine | 9 | 55 | Planned |
@@ -19,7 +19,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 | 8 | Performance & Scalability | 3 | 18 | Planned |
 | 9 | Monitoring | 2 | 12 | Planned |
 | 10 | Automation | 2 | 10 | Planned |
-| **Total** | **10 Modules** | **63 Classes** | **373 Testcases** | |
+| **Total** | **10 Modules** | **63 Classes** | **362 Testcases** | |
 
 ---
 
@@ -135,11 +135,7 @@ flowchart LR
     TC06 --> TC06C("TC-06C Permission denied")
     TC06 --> TC06D("TC-06D Special characters")
 
-    Cat3 --> TC07("TC-07 RenameDatabase")
-    TC07 --> TC07A("TC-07A Duplicate database name")
-    TC07 --> TC07B("TC-07B Invalid name")
-    TC07 --> TC07C("TC-07C Rename schema in database")
-    TC07 --> TC07D("TC-07D Get Schema invalid name")
+    Cat3 --> TC07("TC-07 DatabaseStatus")
 
     %% =====================================================
     %% 4. Schema (Schema Level)
@@ -151,8 +147,7 @@ flowchart LR
     TC08 --> TC08C("TC-08C Schema read-only")
     TC08 --> TC08D("TC-08D Special characters")
 
-    Cat4 --> TC09("TC-09 RenameSchema")
-    TC09 --> TC09A("TC-09A Schema not found")
+    Cat4 --> TC09("TC-09 ListTables")
     TC09 --> TC09B("TC-09B Get Table invalid name")
 
     %% =====================================================
@@ -185,6 +180,8 @@ flowchart LR
 
     Cat6 --> TC13("TC-13 SetDefaultValue")
     TC13 --> TC13A("TC-13A Invalid default value")
+    TC13 --> TC13B("TC-13B Rename column permission denied")
+    TC13 --> TC13C("TC-13C Rename column special characters")
 
     %% =====================================================
     %% 7. Index (Index Level)

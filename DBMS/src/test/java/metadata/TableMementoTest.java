@@ -40,18 +40,17 @@ class TableMementoTest {
     }
 
     @Test
-    @DisplayName("TC-20B. Restore Table Name and Columns")
-    void restore_ShouldRevertTableNameAndColumns_WhenRenamedAndColumnsRemoved() {
-        Table table = new Table("old_users");
+    @DisplayName("TC-20B. Restore Columns after Removal")
+    void restore_ShouldRevertColumns_WhenColumnsRemoved() {
+        Table table = new Table("users");
         table.addColumn(new Column("id", DataType.INT));
         TableMemento memento = table.createMemento();
 
-        table.rename("new_users");
         table.removeColumn("id");
 
         table.restore(memento);
 
-        assertThat(table.getTableName()).isEqualTo("old_users");
+        assertThat(table.getTableName()).isEqualTo("users");
         assertThat(table.containsColumn("id")).isTrue();
     }
 

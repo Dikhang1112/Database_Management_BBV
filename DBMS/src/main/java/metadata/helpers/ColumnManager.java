@@ -24,16 +24,6 @@ public class ColumnManager {
         columns.remove(columnName.toLowerCase());
     }
 
-    public void rename(String oldName, String newName) {
-        CatalogValidator.validateIdentifier(oldName, "Column");
-        CatalogValidator.validateIdentifier(newName, "Column");
-        CatalogValidator.ensureExists(oldName, columns.keySet(), "Column");
-        CatalogValidator.ensureUniqueName(newName, columns.keySet(), "Column");
-        Column col = columns.remove(oldName.toLowerCase());
-        col.rename(newName);
-        columns.put(newName.toLowerCase(), col);
-    }
-
     public void restoreColumns(List<Column> columnList) {
         columns.clear();
         if (columnList != null) {

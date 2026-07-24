@@ -62,18 +62,6 @@ public class Database implements MetadataElement {
         return schemaManager.listAll();
     }
 
-    public void renameSchema(String oldName, String newName) {
-        ensureNotLocked();
-        schemaManager.rename(oldName, newName);
-    }
-
-    public void rename(String newName) {
-        ensureNotLocked();
-        SecurityValidator.validatePermission(newName);
-        CatalogValidator.validateIdentifier(newName, "Database");
-        this.databaseName = newName;
-    }
-
     // Pattern: State
     public void setStatus(DatabaseStatus status) {
         this.status = status;

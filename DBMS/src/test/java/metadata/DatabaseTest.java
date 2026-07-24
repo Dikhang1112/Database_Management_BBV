@@ -65,38 +65,13 @@ class DatabaseTest {
     }
 
     @Test
-    @DisplayName("TC-07. Database Status & Rename")
-    void setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified() {
-        Database database = new Database("old_name");
-
-        database.rename("new_name");
-        database.setStatus(DatabaseStatus.READ_ONLY);
-
-        assertThat(database.getDatabaseName()).isEqualTo("new_name");
-        assertThat(database.getStatus()).isEqualTo(DatabaseStatus.READ_ONLY);
-    }
-
-    @Test
-    @DisplayName("TC-07A. Rename Database - Duplicate Name")
-    void renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName() {
-        CatalogManager cm = CatalogManager.getInstance();
-        cm.clear();
-        cm.createDatabase("existing_db_name");
-        cm.createDatabase("app_db");
-
-        assertThatThrownBy(() -> cm.renameDatabase("app_db", "existing_db_name"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Database already exists");
-    }
-
-    @Test
-    @DisplayName("TC-07B. Rename Database - Invalid Name")
-    void renameDatabase_ShouldThrowException_WhenNameIsInvalid() {
+    @DisplayName("TC-07. Database Status Management")
+    void setStatus_ShouldUpdateDatabaseStatus_WhenModified() {
         Database database = new Database("app_db");
 
-        assertThatThrownBy(() -> database.rename(""))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Value is empty");
+        database.setStatus(DatabaseStatus.READ_ONLY);
+
+        assertThat(database.getStatus()).isEqualTo(DatabaseStatus.READ_ONLY);
     }
 
     @Test

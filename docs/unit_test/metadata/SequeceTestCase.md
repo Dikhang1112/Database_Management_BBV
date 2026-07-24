@@ -391,58 +391,17 @@ sequenceDiagram
 
 ---
 
-### TC-07: `renameDatabase`
+### TC-07: `setStatus`
 
-#### Happy Path: `setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified`
+#### Happy Path: `setStatus_ShouldUpdateDatabaseStatus_WhenModified`
 ```mermaid
 sequenceDiagram
-    title TC-07: setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified
+    title TC-07: setStatus_ShouldUpdateDatabaseStatus_WhenModified
     participant Test
     participant Database
 
-    Test->>Database: new Database("old_name")
-    Test->>Database: rename("new_name")
-    Database-->>Test: void
+    Test->>Database: new Database("app_db")
     Test->>Database: setStatus(DatabaseStatus.READ_ONLY)
-    Database-->>Test: void
-```
-
-#### TC-07A: `renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName`
-```mermaid
-sequenceDiagram
-    title TC-07A: renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName
-    participant Test
-    participant Database
-    participant CatalogManager
-
-    Test->>Database: rename("existing_db_name")
-    Database->>CatalogManager: containsDatabase("existing_db_name")
-    CatalogManager-->>Database: true
-    Database-->>Test: throw DuplicateDatabaseNameException
-```
-
-#### TC-07B: `renameDatabase_ShouldThrowException_WhenNameIsInvalid`
-```mermaid
-sequenceDiagram
-    title TC-07B: renameDatabase_ShouldThrowException_WhenNameIsInvalid
-    participant Test
-    participant Database
-
-    Test->>Database: rename("")
-    Database->>Database: validateName("")
-    Database-->>Test: throw InvalidDatabaseNameException
-```
-
-#### TC-07C: `renameSchema_ShouldRenameTargetSchema_WhenExists`
-```mermaid
-sequenceDiagram
-    title TC-07C: renameSchema_ShouldRenameTargetSchema_WhenExists
-    participant Test
-    participant Database
-    participant Schema
-
-    Test->>Database: renameSchema("raw_schema", "prod_schema")
-    Database->>Schema: rename("prod_schema")
     Database-->>Test: void
 ```
 
@@ -523,34 +482,20 @@ sequenceDiagram
 
 ---
 
-### TC-09: `renameSchema`
+### TC-09: `listTables`
 
-#### Happy Path: `rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed`
+#### Happy Path: `listTables_ShouldReturnManagedTables_WhenTablesExist`
 ```mermaid
 sequenceDiagram
-    title TC-09: rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed
+    title TC-09: listTables_ShouldReturnManagedTables_WhenTablesExist
     participant Test
     participant Schema
 
-    Test->>Schema: new Schema("raw_schema")
+    Test->>Schema: new Schema("public")
     Test->>Schema: createTable("t1")
     Test->>Schema: createTable("t2")
     Test->>Schema: listTables()
     Schema-->>Test: List<Table> ["t1", "t2"]
-    Test->>Schema: rename("prod_schema")
-    Schema-->>Test: void
-```
-
-#### TC-09A: `renameSchema_ShouldThrowException_WhenSchemaNotFound`
-```mermaid
-sequenceDiagram
-    title TC-09A: renameSchema_ShouldThrowException_WhenSchemaNotFound
-    participant Test
-    participant Database
-
-    Test->>Database: renameSchema("missing_schema", "new_name")
-    Database->>Database: containsSchema("missing_schema")
-    Database-->>Test: throw SchemaNotFoundException
 ```
 
 ---

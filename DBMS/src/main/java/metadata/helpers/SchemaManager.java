@@ -36,16 +36,6 @@ public class SchemaManager {
         return schemas.containsKey(schemaName.toLowerCase());
     }
 
-    public void rename(String oldName, String newName) {
-        CatalogValidator.validateIdentifier(oldName, "Schema");
-        CatalogValidator.validateIdentifier(newName, "Schema");
-        CatalogValidator.ensureExists(oldName, schemas.keySet(), "Schema");
-        CatalogValidator.ensureUniqueName(newName, schemas.keySet(), "Schema");
-        Schema schema = schemas.remove(oldName.toLowerCase());
-        schema.rename(newName);
-        schemas.put(newName.toLowerCase(), schema);
-    }
-
     public List<Schema> listAll() {
         return Collections.unmodifiableList(new ArrayList<>(schemas.values()));
     }

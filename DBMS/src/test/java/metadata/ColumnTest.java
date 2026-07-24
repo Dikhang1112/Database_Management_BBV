@@ -47,9 +47,8 @@ class ColumnTest {
         column.setNullable(false);
         column.setDefaultValue("18");
         column.changeDataType(DataType.BIGINT);
-        column.rename("user_age");
 
-        assertThat(column.getColumnName()).isEqualTo("user_age");
+        assertThat(column.getColumnName()).isEqualTo("age");
         assertThat(column.getDataType()).isEqualTo(DataType.BIGINT);
         assertThat(column.isNullable()).isFalse();
         assertThat(column.getDefaultValue()).isEqualTo("18");

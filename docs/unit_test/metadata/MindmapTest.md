@@ -55,9 +55,6 @@ flowchart LR
     TC02 --> TC02B("TC-02B Invalid database name")
     TC02 --> TC02C("TC-02C Permission denied")
     TC02 --> TC02D("TC-02D Special characters")
-    TC02 --> TC02E("TC-02E Rename database valid")
-    TC02 --> TC02F("TC-02F Rename old database missing")
-    TC02 --> TC02G("TC-02G Rename new database duplicate")
 
     Cat2 --> TC03("TC-03 DropDatabase")
     TC03 --> TC03A("TC-03A Database not found")
@@ -79,11 +76,7 @@ flowchart LR
     TC06 --> TC06C("TC-06C Permission denied")
     TC06 --> TC06D("TC-06D Special characters")
 
-    Cat3 --> TC07("TC-07 RenameDatabase")
-    TC07 --> TC07A("TC-07A Duplicate database name")
-    TC07 --> TC07B("TC-07B Invalid name")
-    TC07 --> TC07C("TC-07C Rename schema in database")
-    TC07 --> TC07D("TC-07D Get Schema invalid name")
+    Cat3 --> TC07("TC-07 DatabaseStatus")
 
     %% =====================================================
     %% 4. Schema (Schema Level)
@@ -95,8 +88,7 @@ flowchart LR
     TC08 --> TC08C("TC-08C Schema read-only")
     TC08 --> TC08D("TC-08D Special characters")
 
-    Cat4 --> TC09("TC-09 RenameSchema")
-    TC09 --> TC09A("TC-09A Schema not found")
+    Cat4 --> TC09("TC-09 ListTables")
     TC09 --> TC09B("TC-09B Get Table invalid name")
 
     %% =====================================================

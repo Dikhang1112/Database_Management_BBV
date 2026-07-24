@@ -64,27 +64,15 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-09. Rename Schema & List Tables")
-    void rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed() {
-        Schema schema = new Schema("raw_schema");
+    @DisplayName("TC-09. List Tables in Schema")
+    void listTables_ShouldReturnManagedTables_WhenTablesExist() {
+        Schema schema = new Schema("public");
         schema.createTable("t1");
         schema.createTable("t2");
 
         List<Table> tables = schema.listTables();
-        schema.rename("prod_schema");
 
         assertThat(tables).hasSize(2);
-        assertThat(schema.getSchemaName()).isEqualTo("prod_schema");
-    }
-
-    @Test
-    @DisplayName("TC-09A. Rename Schema - Not Found")
-    void renameSchema_ShouldThrowException_WhenSchemaNotFound() {
-        Database database = new Database("app_db");
-
-        assertThatThrownBy(() -> database.renameSchema("missing_schema", "new_name"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Schema not found");
     }
 
     @Test

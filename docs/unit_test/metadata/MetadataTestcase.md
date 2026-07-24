@@ -247,45 +247,13 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-07. Rename Database (Happy Path)
-- **Test method:** `setStatus_And_rename_ShouldUpdateDatabaseState_WhenModified`
+### TC-07. Database Status Management
+- **Test method:** `setStatus_ShouldUpdateDatabaseStatus_WhenModified`
 - **Sequence diagram:** `TC-07`
-- **Input:** `new_name`, `DatabaseStatus.READ_ONLY`
-- **Why:** Verifies updating name and operational status properties of a Database instance.
+- **Input:** `DatabaseStatus.READ_ONLY`
+- **Why:** Verifies updating operational status properties of a Database instance.
 - **Expected output:**
-  - Database name updated to `"new_name"`, status updated to `READ_ONLY`.
-
-### TC-07A. Rename Database - Duplicate Name
-- **Test method:** `renameDatabase_ShouldThrowException_WhenDuplicateDatabaseName`
-- **Sequence diagram:** `TC-07A`
-- **Input:** `newName: "existing_db_name"`
-- **Why:** Blocks renaming a Database to a name already used by another active Database.
-- **Expected output:**
-  - Throws `IllegalStateException` ("Database already exists").
-
-### TC-07B. Rename Database - Invalid Name
-- **Test method:** `renameDatabase_ShouldThrowException_WhenNameIsInvalid`
-- **Sequence diagram:** `TC-07B`
-- **Input:** `newName: ""`
-- **Why:** Blocks renaming a Database to an empty string.
-- **Expected output:**
-  - Throws `IllegalArgumentException` ("Value is empty").
-
-### TC-07C. Rename Schema in Database (Happy Path)
-- **Test method:** `renameSchema_ShouldRenameTargetSchema_WhenExists`
-- **Sequence diagram:** `TC-07C`
-- **Input:** `oldSchema: "raw_schema"`, `newSchema: "prod_schema"`
-- **Why:** Ensures successful Schema renaming through the parent Database instance.
-- **Expected output:**
-  - Schema renamed to `"prod_schema"`.
-
-### TC-07D. Get Schema - Invalid Name Format
-- **Test method:** `getSchema_ShouldThrowException_WhenNameIsInvalid`
-- **Sequence diagram:** `TC-07D`
-- **Input:** Invalid schema name: `"schema#invalid"`
-- **Why:** Verifies format validation when retrieving Schema information.
-- **Expected output:**
-  - Throws `IllegalArgumentException` ("Schema name contains invalid characters").
+  - Database status updated to `READ_ONLY`.
 
 ---
 
@@ -333,21 +301,13 @@ Each test scenario follows this standard format:
 
 ---
 
-### TC-09. Rename Schema (Happy Path)
-- **Test method:** `rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed`
+### TC-09. List Tables in Schema
+- **Test method:** `listTables_ShouldReturnManagedTables_WhenTablesExist`
 - **Sequence diagram:** `TC-09`
-- **Input:** `newName: "prod_schema"`
-- **Why:** Ensures child Tables remain intact and preserved when renaming a Schema.
+- **Input:** Schema with tables `"t1"`, `"t2"`
+- **Why:** Verifies retrieving all child tables managed within a Schema instance.
 - **Expected output:**
-  - Schema name updated and table list maintained.
-
-### TC-09A. Rename Schema - Schema Not Found
-- **Test method:** `renameSchema_ShouldThrowException_WhenSchemaNotFound`
-- **Sequence diagram:** `TC-09A`
-- **Input:** Non-existing schema name: `"missing_schema"`
-- **Why:** Ensures appropriate exception handling when renaming a non-existent Schema.
-- **Expected output:**
-  - Throws `IllegalArgumentException` ("Schema not found").
+  - Returns list containing 2 table instances.
 
 ### TC-09B. Get Table - Invalid Name Format
 - **Test method:** `getTable_ShouldThrowException_WhenNameIsInvalid`
