@@ -2,88 +2,118 @@
 classDiagram
     direction TD
 
-    %% =====================================================
-    %% QUERY OPTIMIZER & CBO ENGINE BREAKDOWN
-    %% Pattern: "Plan Node Hierarchy & Cost Estimation Breakdown"
-    %% =====================================================
+%% =====================================================
+%% QUERY OPTIMIZER
+%% =====================================================
 
-    class QueryOptimizer {
-        -CostEstimator costEstimator
-        -PlanGenerator planGenerator
-        +generateLogicalPlan(AST ast) LogicalPlan
-        +optimize(LogicalPlan plan) PhysicalPlan
-    }
+class QueryOptimizer{
+    <<Strategy Context>>
+    +optimize(LogicalPlan logicalPlan) PhysicalPlan
+    +setOptimizationRule(OptimizationRule rule)
+}
 
-    class LogicalPlan {
-        -LogicalPlanNode root
-        +applyRule(String ruleName) void
-        +getLogicalRoot() LogicalPlanNode
-    }
+class OptimizationRule{
+    <<Interface>>
+    +optimize(LogicalPlan logicalPlan)*
+}
 
-    class LogicalPlanNode {
-        <<abstract>>
-        -String nodeType
-        -List<LogicalPlanNode> children
-        +getChildren() List<LogicalPlanNode>
-    }
+%% =====================================================
+%% QUERY REWRITE
+%% =====================================================
 
-    class LogicalScanNode {
-        -String tableName
-        -List<String> columns
-    }
+class QueryRewriter{
+    +rewrite(LogicalPlan logicalPlan)
+}
 
-    class LogicalFilterNode {
-        -ASTNode predicate
-    }
+class PredicatePushdownOptimizer{
+    +optimize(LogicalPlan logicalPlan)
+}
 
-    class LogicalProjectNode {
-        -List<String> expressions
-    }
+class ProjectionPushdownOptimizer{
+    +optimize(LogicalPlan logicalPlan)
+}
 
-    class PhysicalPlan {
-        -PhysicalPlanNode root
-        -double estimatedCost
-        +getPhysicalRoot() PhysicalPlanNode
-        +getEstimatedCost() double
-    }
+class ConstantFoldingOptimizer{
+    +optimize(LogicalPlan logicalPlan)
+}
 
-    class PhysicalPlanNode {
-        <<abstract>>
-        -double cost
-        +getCost() double
-    }
+%% =====================================================
+%% JOIN OPTIMIZATION
+%% =====================================================
 
-    class SeqScanNode {
-        -String tableName
-    }
+class JoinOptimizer{
+    +optimize(LogicalPlan logicalPlan)
+}
 
-    class IndexScanNode {
-        -String indexName
-        -String searchKey
-    }
+class JoinOrderOptimizer{
+    +optimize(LogicalPlan logicalPlan)
+}
 
-    class CostEstimator {
-        -StatisticsManager statisticsManager
-        +calculateIoCost(LogicalPlanNode node) double
-        +calculateCpuCost(LogicalPlanNode node) double
-    }
+class JoinMethodSelector{
+    +selectJoinMethod(LogicalPlan logicalPlan)
+}
 
-    class StatisticsManager {
-        -Map<String, Long> tableCardinalities
-        +estimateCardinality(String tableName) long
-        +estimateSelectivity(String column, String value) double
-    }
+%% =====================================================
+%% COST OPTIMIZATION
+%% =====================================================
 
-    %% Relationships
-    LogicalPlan *-- LogicalPlanNode : Points to Logical Root
-    LogicalPlanNode <|-- LogicalScanNode
-    LogicalPlanNode <|-- LogicalFilterNode
-    LogicalPlanNode <|-- LogicalProjectNode
+class CostEstimator{
+    +estimate(LogicalPlan logicalPlan)
+}
 
-    PhysicalPlan *-- PhysicalPlanNode : Points to Physical Root
-    PhysicalPlanNode <|-- SeqScanNode
-    PhysicalPlanNode <|-- IndexScanNode
+class CardinalityEstimator{
+    +estimate(LogicalPlan logicalPlan)
+}
 
-    QueryOptimizer *-- CostEstimator : Uses Resource Computations
-    CostEstimator *-- StatisticsManager : Queries Density Metrics
+class StatisticsManager{
+    +estimateCardinality()
+    +estimateSelectivity()
+}
+
+%% =====================================================
+%% PLAN SEARCH
+%% =====================================================
+
+class PlanEnumerator{
+    +enumerate(LogicalPlan logicalPlan)
+}
+
+class AccessPathSelector{
+    +select(LogicalPlan logicalPlan)
+}
+
+%% =====================================================
+%% SHARED OBJECTS
+%% =====================================================
+
+class LogicalPlan
+
+class PhysicalPlan
+
+%% =====================================================
+%% RELATIONSHIPS
+%% =====================================================
+
+QueryOptimizer --> QueryRewriter
+QueryOptimizer --> JoinOptimizer
+QueryOptimizer --> CostEstimator
+QueryOptimizer --> PlanEnumerator
+
+OptimizationRule <|.. QueryRewriter
+OptimizationRule <|.. JoinOptimizer
+OptimizationRule <|.. CostEstimator
+
+QueryRewriter *-- PredicatePushdownOptimizer
+QueryRewriter *-- ProjectionPushdownOptimizer
+QueryRewriter *-- ConstantFoldingOptimizer
+
+JoinOptimizer *-- JoinOrderOptimizer
+JoinOptimizer *-- JoinMethodSelector
+
+CostEstimator --> CardinalityEstimator
+CostEstimator --> StatisticsManager
+
+PlanEnumerator --> AccessPathSelector
+
+PlanEnumerator --> PhysicalPlan
 ```

@@ -8,7 +8,7 @@ This document details the **13 core and operational Design Patterns** in the `me
 
 ### 1.1. Singleton Pattern
 * **Pattern**: Singleton Pattern
-* **Class/Interface Applied**: CatalogManager
+* **Class/Interface Applied**: CatalogManager, MetadataModule
 * **Method**: `getInstance()`
 * **Reason for Use**: Ensures that only a single instance of `CatalogManager` is instantiated and accessed across the DBMS to manage the central database map (`databases`), preventing duplicate instantiations and in-memory metadata conflicts.
 

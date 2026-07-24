@@ -1,163 +1,192 @@
-﻿```mermaid
+```mermaid
 classDiagram
     direction TD
 
-    %% =====================================================
-    %% QUERY PROCESSOR MODULE (PURE DML COMPILER)
-    %% =====================================================
-    class QueryProcessor{
-        <<Module>>
-        +executeIngestion(String sqlText) PhysicalPlan
-    }
+%% =====================================================
+%% QUERY PROCESSOR MODULE
+%% =====================================================
 
-    %% =====================================================
-    %% LEXICAL ANALYSIS DIVISION
-    %% =====================================================
-    class Lexer{
-        +tokenize(String sqlText) TokenStream
-        -scanIdentifier() Token
-        -scanNumber() Token
-    }
+class QueryProcessor{
+    <<Facade>>
+    +compile(String sqlText) PhysicalPlan
+}
 
-    class TokenStream{
-        +hasNext() boolean
-        +consume() Token
-        +lookAhead() Token
-    }
+%% =====================================================
+%% SQL COMPILATION PIPELINE
+%% =====================================================
 
-    class Token{
-        +getType() TokenType
-        +getValue() String
-    }
+class CompilerStage{
+    <<Interface>>
+    +process(Object input) Object*
+}
 
-    %% =====================================================
-    %% SYNTAX ANALYSIS DIVISION
-    %% =====================================================
-    class SQLParser{
-        +parse(TokenStream stream) ParseTree
-        -parseSelectClause() ParseTreeNode
-        -parseWhereClause() ParseTreeNode
-    }
+class Lexer{
+    <<Chain of Responsibility>>
+    +process(String sqlText) TokenStream
+}
 
-    class ParseTree{
-        +getRootNode() ParseTreeNode
-        +toDebugString() String
-    }
+class SQLParser{
+    <<Chain of Responsibility>>
+    +process(TokenStream stream) ParseTree
+}
 
-    %% =====================================================
-    %% AST CONSTRUCTION DIVISION
-    %% =====================================================
-    class ASTBuilder{
-        +buildAST(ParseTree parseTree) AST
-        -mapToLogicalNode(ParseTreeNode node) ASTNode
-    }
+class ASTBuilder{
+    <<Chain of Responsibility>>
+    +process(ParseTree tree) AST
+}
 
-    class AST{
-        +getRootASTNode() ASTNode
-        +traverseTree() void
-    }
+class SemanticAnalyzer{
+    <<Visitor>>
+    +process(AST ast) AST
+    +visit(ASTNode node)
+}
 
-    %% =====================================================
-    %% SEMANTIC ANALYSIS DIVISION
-    %% =====================================================
-    class SemanticAnalyzer{
-        +validate(AST ast) boolean
-    }
+class QueryRewriter{
+    <<Visitor>>
+    +process(AST ast) AST
+    +visit(ASTNode node)
+}
 
-    class NameResolver{
-        +resolveIdentifiers(ASTNode node) void
-    }
+class QueryOptimizer{
+    <<Strategy Context>>
+    +process(AST ast) PhysicalPlan
+    +setOptimizationRule(OptimizationRule rule)
+}
 
-    class TypeChecker{
-        +checkTypeConformity(ASTNode node) void
-    }
+class PlanGenerator{
+    +createPhysicalPlan(LogicalPlan plan) PhysicalPlan
+}
 
-    %% =====================================================
-    %% QUERY OPTIMIZER DIVISION (CBO ENGINE)
-    %% =====================================================
-    class QueryOptimizer{
-        +generateLogicalPlan(AST ast) LogicalPlan
-        +optimize(LogicalPlan plan) PhysicalPlan
-    }
+%% =====================================================
+%% LEXICAL STRUCTURES
+%% =====================================================
 
-    class LogicalPlan{
-        +applyRule(String ruleName) void
-        +getLogicalRoot() LogicalPlanNode
-    }
+class TokenStream
+class Token
+class ParseTree
 
-    class PhysicalPlan{
-        +getPhysicalRoot() PhysicalPlanNode
-        +getEstimatedCost() double
-    }
+%% =====================================================
+%% ABSTRACT SYNTAX TREE
+%% =====================================================
 
-    class CostEstimator{
-        +calculateIoCost(LogicalPlanNode node) double
-        +calculateCpuCost(LogicalPlanNode node) double
-    }
+class AST{
+    +getRoot() ASTNode
+}
 
-    class PlanGenerator{
-        +enumeratePhysicalPlans(LogicalPlan lPlan) List<PhysicalPlan>
-        +selectBestPlan(List<PhysicalPlan> plans) PhysicalPlan
-    }
+class ASTNode{
+    <<Composite>>
+    +accept(ASTVisitor visitor)
+}
 
-    class StatisticsManager{
-        +estimateCardinality(String tableName) long
-        +estimateSelectivity(String column, String value) double
-    }
+class ASTVisitor{
+    <<Interface>>
+    +visit(ASTNode node)*
+}
 
-    %% =====================================================
-    %% EXTERNAL CONTEXT BOUNDARIES (SHARED SYSTEM DOMAINS)
-    %% =====================================================
-    class MetadataModule{
-        <<External Module>>
-        +fetchTableSchema(String table) TableSchema
-        +checkTableExists(String table) boolean
-        +checkColumnExists(String table, String col) boolean
-    }
+%% =====================================================
+%% EXPRESSION TREE
+%% =====================================================
 
-    class ExecutionEngine{
-        <<External Module>>
-        +executePhysicalPlan(PhysicalPlan plan) ResultSet
-    }
+class ExpressionNode{
+    +evaluate()
+}
 
-    %% =====================================================
-    %% INTERNAL STRUCTURAL COMPOSITIONS
-    %% =====================================================
-    QueryProcessor *-- Lexer : Owns Tokenizer Engine
-    QueryProcessor *-- SQLParser : Owns Grammar Validator
-    QueryProcessor *-- ASTBuilder : Owns Structural Tree Generator
-    QueryProcessor *-- SemanticAnalyzer : Owns Logical Domain Validator
-    QueryProcessor *-- QueryOptimizer : Owns Plan Transformer
-    QueryProcessor *-- StatisticsManager : Owns Data Density Estimator
+class PredicateNode{
+    +evaluate()
+}
 
-    %% =====================================================
-    %% INTERNAL PIPELINE DATAFLOWS
-    %% =====================================================
-    Lexer --> TokenStream : Produces Sequential Stream
-    TokenStream *-- Token : Encapsulates Value Tokens
+%% =====================================================
+%% PLAN BUILDERS
+%% =====================================================
 
-    SQLParser --> TokenStream : Consumes Stream Tokens
-    SQLParser --> ParseTree : Generates Concrete Syntax Tree
+class LogicalPlanBuilder{
+    <<Builder>>
+    +build(AST ast) LogicalPlan
+}
 
-    ASTBuilder --> ParseTree : Consumes Abstract Trees
-    ASTBuilder --> AST : Transforms to Abstract Syntax Tree
+class PhysicalPlanBuilder{
+    <<Builder>>
+    +build(LogicalPlan plan) PhysicalPlan
+}
 
-    SemanticAnalyzer --> AST : Inspects Node Nodes
-    SemanticAnalyzer *-- NameResolver : Delegates Structural Binding
-    SemanticAnalyzer *-- TypeChecker : Delegates Data Type Verification
+%% =====================================================
+%% OPTIMIZATION
+%% =====================================================
 
-    QueryOptimizer --> LogicalPlan : Caches Structural Operations
-    QueryOptimizer *-- CostEstimator : Delegates CPU/IO Resource Computation
-    QueryOptimizer *-- PlanGenerator : Delegates Physical Execution Path Evaluation
+class OptimizationRule{
+    <<Interface / Strategy>>
+    +optimize(LogicalPlan plan) LogicalPlan*
+}
 
-    PlanGenerator --> PhysicalPlan : Emits Best Cost Plan Matrix
-    CostEstimator --> StatisticsManager : Fetches System Structural Cardinality Matrix
+class CostEstimator{
+    <<Strategy>>
+    +estimate(LogicalPlan plan)
+}
 
-    %% =====================================================
-    %% EXTERNAL CROSS-PLANE DEPENDENCIES
-    %% =====================================================
-    NameResolver ..> MetadataModule : Syncs Logical Identifiers with Physical Table Catalog
-    TypeChecker ..> MetadataModule : Syncs Data Field Properties with Physical Field Catalog
-    QueryOptimizer ..> MetadataModule : Inspects B-Plus Tree Index Configuration Metrics
-    PhysicalPlan --> ExecutionEngine : Dispatches Compiled Execution Vectors to Database Kernel CPU
+%% =====================================================
+%% PLANS
+%% =====================================================
+
+class LogicalPlan
+class PhysicalPlan
+
+%% =====================================================
+%% EXTERNAL MODULE
+%% =====================================================
+
+class MetadataModule{
+    <<External Module>>
+}
+
+class ExecutionEngine{
+    <<External Module>>
+}
+
+%% =====================================================
+%% RELATIONSHIPS
+%% =====================================================
+
+CompilerStage <|.. Lexer
+CompilerStage <|.. SQLParser
+CompilerStage <|.. ASTBuilder
+CompilerStage <|.. SemanticAnalyzer
+CompilerStage <|.. QueryRewriter
+CompilerStage <|.. QueryOptimizer
+
+ASTVisitor <|.. SemanticAnalyzer
+ASTVisitor <|.. QueryRewriter
+
+QueryProcessor *-- Lexer
+QueryProcessor *-- SQLParser
+QueryProcessor *-- ASTBuilder
+QueryProcessor *-- SemanticAnalyzer
+QueryProcessor *-- QueryRewriter
+QueryProcessor *-- QueryOptimizer
+QueryProcessor *-- PlanGenerator
+
+Lexer --> TokenStream
+TokenStream *-- Token
+
+SQLParser --> ParseTree
+
+ASTBuilder --> AST
+
+AST *-- ASTNode
+
+ASTNode <|-- ExpressionNode
+ASTNode <|-- PredicateNode
+
+QueryOptimizer --> OptimizationRule
+QueryOptimizer --> CostEstimator
+
+LogicalPlanBuilder --> LogicalPlan
+PhysicalPlanBuilder --> PhysicalPlan
+
+PlanGenerator --> PhysicalPlan
+
+SemanticAnalyzer ..> MetadataModule
+QueryRewriter ..> MetadataModule
+QueryOptimizer ..> MetadataModule
+
+PlanGenerator --> ExecutionEngine
 ```

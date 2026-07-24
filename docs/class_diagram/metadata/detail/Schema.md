@@ -17,7 +17,6 @@ classDiagram
 
         +createSchema(String schemaName) Schema
         +dropSchema(String schemaName)
-        +rename(String newName)
 
         +getSchema(String schemaName) Schema
         +containsSchema(String schemaName) boolean
@@ -46,8 +45,6 @@ classDiagram
         +getTable(String tableName) Table
         +containsTable(String tableName) boolean
         +listTables() List~Table~
-
-        +rename(String newName)
     }
 
 %% =====================================================
@@ -83,15 +80,6 @@ classDiagram
         +undo()
     }
 
-    class RenameSchemaCommand{
-
-        -String oldName
-        -String newName
-
-        +execute()
-        +undo()
-    }
-
 %% =====================================================
 %% ENUM
 %% =====================================================
@@ -116,9 +104,7 @@ classDiagram
 
     DDLCommand <|.. CreateSchemaCommand
     DDLCommand <|.. DropSchemaCommand
-    DDLCommand <|.. RenameSchemaCommand
 
     CreateSchemaCommand ..> Database
     DropSchemaCommand ..> Database
-    RenameSchemaCommand ..> Database
 ```
