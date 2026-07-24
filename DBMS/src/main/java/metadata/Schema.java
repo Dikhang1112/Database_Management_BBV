@@ -55,6 +55,8 @@ public class Schema implements MetadataElement {
     }
 
     public void rename(String newName) {
+        ensureNotReadOnly();
+        SecurityValidator.validatePermission(newName);
         CatalogValidator.validateIdentifier(newName, "Schema");
         this.schemaName = newName;
     }
@@ -63,14 +65,9 @@ public class Schema implements MetadataElement {
         this.readOnly = readOnly;
     }
 
-    public boolean isReadOnly() {
-        return readOnly;
-    }
-
     public String getSchemaName() {
         return schemaName;
     }
-
     // Pattern: Composite
     @Override
     public String getElementName() {

@@ -1,6 +1,7 @@
 package metadata;
 
 import metadata.enums.DataType;
+import metadata.helpers.CatalogValidator;
 import metadata.helpers.SecurityValidator;
 import metadata.interfaces.MetadataElement;
 
@@ -21,6 +22,8 @@ public class Column implements MetadataElement, Cloneable {
     }
 
     public void rename(String newName) {
+        SecurityValidator.validatePermission(newName);
+        CatalogValidator.validateIdentifier(newName, "Column");
         this.columnName = newName;
     }
 

@@ -27,6 +27,7 @@ public class SchemaManager {
 
     public Schema get(String schemaName) {
         CatalogValidator.validateIdentifier(schemaName, "Schema");
+        CatalogValidator.ensureExists(schemaName, schemas.keySet(), "Schema");
         return schemas.get(schemaName.toLowerCase());
     }
 

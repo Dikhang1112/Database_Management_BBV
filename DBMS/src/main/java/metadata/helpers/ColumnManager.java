@@ -11,12 +11,9 @@ public class ColumnManager {
     private final Map<String, Column> columns = new ConcurrentHashMap<>();
 
     public void add(Column column) {
-        if (column == null) {
-            throw new IllegalArgumentException("Value is empty");
-        }
         String nameColumn = column.getColumnName();
-        SecurityValidator.validatePermission(nameColumn);
         CatalogValidator.validateIdentifier(nameColumn, "Column");
+        SecurityValidator.validatePermission(nameColumn);
         CatalogValidator.ensureUniqueName(nameColumn, columns.keySet(), "Column");
         columns.put(nameColumn.toLowerCase(), column);
     }

@@ -5,6 +5,7 @@ import metadata.helpers.CatalogValidator;
 import metadata.helpers.ColumnManager;
 import metadata.helpers.ConstraintManager;
 import metadata.helpers.IndexManager;
+import metadata.helpers.SecurityValidator;
 import metadata.helpers.TableEventPublisher;
 import metadata.interfaces.MetadataChangeListener;
 import metadata.interfaces.MetadataElement;
@@ -50,6 +51,8 @@ public class Table implements MetadataElement, Cloneable {
     }
 
     public void rename(String newName) {
+        ensureNotLocked();
+        SecurityValidator.validatePermission(newName);
         CatalogValidator.validateIdentifier(newName, "Table");
         this.tableName = newName;
         eventPublisher.notifyListeners("TABLE_RENAMED", newName);

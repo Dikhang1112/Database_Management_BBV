@@ -68,6 +68,8 @@ public class Database implements MetadataElement {
     }
 
     public void rename(String newName) {
+        ensureNotLocked();
+        SecurityValidator.validatePermission(newName);
         CatalogValidator.validateIdentifier(newName, "Database");
         this.databaseName = newName;
     }

@@ -31,6 +31,7 @@ public class TableManager {
 
     public Table get(String tableName) {
         CatalogValidator.validateIdentifier(tableName, "Table");
+        CatalogValidator.ensureExists(tableName, tables.keySet(), "Table");
         return tables.get(tableName.toLowerCase());
     }
 

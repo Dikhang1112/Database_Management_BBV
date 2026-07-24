@@ -1,5 +1,6 @@
 package metadata;
 
+import metadata.helpers.CatalogValidator;
 import metadata.interfaces.DDLCommand;
 
 /**
@@ -30,18 +31,29 @@ public class MetadataModule {
         return catalogManager;
     }
 
+    // Pattern: Facade
     public Database getDatabase(String databaseName) {
         if (catalogManager == null) return null;
+        CatalogValidator.validateIdentifier(databaseName, "Database");
+        if (!catalogManager.containsDatabase(databaseName)) return null;
         return catalogManager.getDatabase(databaseName);
     }
 
     // Pattern: Facade
-    public Table getTable(String databaseName, String schemaName, String tableName) {
-        if (catalogManager == null) return null;
-        Database db = catalogManager.getDatabase(databaseName);
+    public Schema getSchema(String databaseName, String schemaName) {
+        Database db = getDatabase(databaseName);
         if (db == null) return null;
-        Schema schema = db.getSchema(schemaName);
+        CatalogValidator.validateIdentifier(schemaName, "Schema");
+        if (!db.containsSchema(schemaName)) return null;
+        return db.getSchema(schemaName);
+    }
+
+    // Pattern: Facade
+    public Table getTable(String databaseName, String schemaName, String tableName) {
+        Schema schema = getSchema(databaseName, schemaName);
         if (schema == null) return null;
+        CatalogValidator.validateIdentifier(tableName, "Table");
+        if (!schema.containsTable(tableName)) return null;
         return schema.getTable(tableName);
     }
 
