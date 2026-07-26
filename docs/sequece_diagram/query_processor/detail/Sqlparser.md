@@ -1,4 +1,4 @@
-```mermaid
+﻿```mermaid
 sequenceDiagram
     autonumber
     actor Client as "Client / QueryProcessor"
@@ -14,33 +14,33 @@ sequenceDiagram
     %% =====================================================
     %% GIAI ĐOẠN 1: LEXICAL STREAM CONSUMPTION
     %% =====================================================
-    Client->>Parser: parse(tokenStream)
+    Client->>+Parser: parse(tokenStream)
     activate Parser
     
     Note over Parser, TS: Phase 1: Stream Inspection & Token Consumption
-    Parser->>TS: hasNext()
+    Parser->>+TS: hasNext()
     activate TS
-    TS-->>Parser: boolean (true)
+    TS-->>-Parser: boolean (true)
     deactivate TS
 
-    Parser->>TS: lookAhead(0)
+    Parser->>+TS: lookAhead(0)
     activate TS
-    TS-->>Parser: Token (SELECT)
+    TS-->>-Parser: Token (SELECT)
     deactivate TS
 
-    Parser->>TS: consume()
+    Parser->>+TS: consume()
     activate TS
-    TS-->>Parser: Token (SELECT)
+    TS-->>-Parser: Token (SELECT)
     deactivate TS
     
-    Parser->>T: getType()
+    Parser->>+T: getType()
     activate T
-    T-->>Parser: "KEYWORD"
+    T-->>-Parser: "KEYWORD"
     deactivate T
 
-    Parser->>T: getValue()
+    Parser->>+T: getValue()
     activate T
-    T-->>Parser: "SELECT"
+    T-->>-Parser: "SELECT"
     deactivate T
 
     %% =====================================================
@@ -49,79 +49,79 @@ sequenceDiagram
     Note over Parser, SelectNode: Phase 2: Building AST Nodes & Expression Tree
 
     %% Parsing Identifier AST Node
-    Parser->>TS: consume()
+    Parser->>+TS: consume()
     activate TS
-    TS-->>Parser: Token (Identifier: "age")
+    TS-->>-Parser: Token (Identifier: "age")
     deactivate TS
 
-    Parser->>IdNode: new IdentifierASTNode("age")
-    IdNode-->>Parser: instance
-    Parser->>IdNode: getValue()
+    Parser->>+IdNode: new IdentifierASTNode("age")
+    IdNode-->>-Parser: instance
+    Parser->>+IdNode: getValue()
     activate IdNode
-    IdNode-->>Parser: "age"
+    IdNode-->>-Parser: "age"
     deactivate IdNode
 
     %% Parsing Literal AST Node
-    Parser->>TS: consume()
+    Parser->>+TS: consume()
     activate TS
-    TS-->>Parser: Token (Literal: "18")
+    TS-->>-Parser: Token (Literal: "18")
     deactivate TS
 
-    Parser->>LitNode: new LiteralASTNode("18", "INTEGER")
-    LitNode-->>Parser: instance
-    Parser->>LitNode: getValue()
+    Parser->>+LitNode: new LiteralASTNode("18", "INTEGER")
+    LitNode-->>-Parser: instance
+    Parser->>+LitNode: getValue()
     activate LitNode
-    LitNode-->>Parser: "18"
+    LitNode-->>-Parser: "18"
     deactivate LitNode
-    Parser->>LitNode: getInferredType()
+    Parser->>+LitNode: getInferredType()
     activate LitNode
-    LitNode-->>Parser: "INTEGER"
+    LitNode-->>-Parser: "INTEGER"
     deactivate LitNode
 
     %% Parsing Binary Operation AST Node
-    Parser->>BinOpNode: new BinaryOpASTNode(">", leftNode: IdentifierASTNode, rightNode: LiteralASTNode)
-    BinOpNode-->>Parser: instance
-    Parser->>BinOpNode: getOperatorType()
+    Parser->>+BinOpNode: new BinaryOpASTNode(">", leftNode: IdentifierASTNode, rightNode: LiteralASTNode)
+    BinOpNode-->>-Parser: instance
+    Parser->>+BinOpNode: getOperatorType()
     activate BinOpNode
-    BinOpNode-->>Parser: ">"
+    BinOpNode-->>-Parser: ">"
     deactivate BinOpNode
-    Parser->>BinOpNode: getLeftNode()
+    Parser->>+BinOpNode: getLeftNode()
     activate BinOpNode
-    BinOpNode-->>Parser: IdentifierASTNode ("age")
+    BinOpNode-->>-Parser: IdentifierASTNode ("age")
     deactivate BinOpNode
-    Parser->>BinOpNode: getRightNode()
+    Parser->>+BinOpNode: getRightNode()
     activate BinOpNode
-    BinOpNode-->>Parser: LiteralASTNode ("18")
+    BinOpNode-->>-Parser: LiteralASTNode ("18")
     deactivate BinOpNode
 
     %% Parsing Select AST Node
-    Parser->>SelectNode: new SelectASTNode("users", projectionFields, whereCondition: BinaryOpASTNode)
-    SelectNode-->>Parser: instance
-    Parser->>SelectNode: getTableName()
+    Parser->>+SelectNode: new SelectASTNode("users", projectionFields, whereCondition: BinaryOpASTNode)
+    SelectNode-->>-Parser: instance
+    Parser->>+SelectNode: getTableName()
     activate SelectNode
-    SelectNode-->>Parser: "users"
+    SelectNode-->>-Parser: "users"
     deactivate SelectNode
-    Parser->>SelectNode: getProjectionFields()
+    Parser->>+SelectNode: getProjectionFields()
     activate SelectNode
-    SelectNode-->>Parser: ["id", "name", "age"]
+    SelectNode-->>-Parser: ["id", "name", "age"]
     deactivate SelectNode
-    Parser->>SelectNode: getWhereCondition()
+    Parser->>+SelectNode: getWhereCondition()
     activate SelectNode
-    SelectNode-->>Parser: BinaryOpASTNode (whereCondition)
+    SelectNode-->>-Parser: BinaryOpASTNode (whereCondition)
     deactivate SelectNode
 
     %% =====================================================
     %% GIAI ĐOẠN 3: AST TREE ROOT ENCAPSULATION
     %% =====================================================
     Note over Parser, AST: Phase 3: Root AST Encapsulation
-    Parser->>AST: new AST(rootASTNode: SelectASTNode)
-    AST-->>Parser: instance
+    Parser->>+AST: new AST(rootASTNode: SelectASTNode)
+    AST-->>-Parser: instance
 
-    Parser->>AST: getRootASTNode()
+    Parser->>+AST: getRootASTNode()
     activate AST
-    AST-->>Parser: ASTNode (SelectASTNode)
+    AST-->>-Parser: ASTNode (SelectASTNode)
     deactivate AST
 
-    Parser-->>Client: AST
+    Parser-->>-Client: AST
     deactivate Parser
 ```

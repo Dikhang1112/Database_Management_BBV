@@ -1,4 +1,4 @@
-```mermaid
+﻿```mermaid
 sequenceDiagram
     autonumber
     actor Client
@@ -15,56 +15,56 @@ sequenceDiagram
     %% Phase 1: Database, Schema, and Table Setup
     %% -----------------------------------------------------
     Note over Client, DB: Phase 1: Database & Schema Initialization
-    Client->>CM: createDatabase("sales_db")
+    Client->>+CM: createDatabase("sales_db")
     activate CM
     create participant DB
-    CM-->>DB: new Database("sales_db")
-    CM-->>Client: Database instance
+    CM-->>-DB: new Database("sales_db")
+    CM-->>-Client: Database instance
     deactivate CM
 
-    Client->>DB: createSchema("public")
+    Client->>+DB: createSchema("public")
     activate DB
     create participant S
-    DB-->>S: new Schema("public")
-    DB-->>Client: Schema instance
+    DB-->>-S: new Schema("public")
+    DB-->>-Client: Schema instance
     deactivate DB
 
     %% -----------------------------------------------------
     %% Phase 2: Table Creation with Columns, Constraints, & Indexes
     %% -----------------------------------------------------
     Note over Client, T: Phase 2: Table & Schema definition
-    Client->>S: createTable("orders")
+    Client->>+S: createTable("orders")
     activate S
     create participant T
-    S-->>T: new Table("orders")
-    S-->>Client: Table instance
+    S-->>-T: new Table("orders")
+    S-->>-Client: Table instance
     deactivate S
 
-    Client->>T: addColumn(orderIdColumn)
+    Client->>+T: addColumn(orderIdColumn)
     activate T
-    T->>C: changeDataType(INT)
+    T->>+C: changeDataType(INT)
     activate C
-    C-->>T: void
+    C-->>-T: void
     deactivate C
-    T-->>Client: void
+    T-->>-Client: void
     deactivate T
 
-    Client->>T: addConstraint(pkConstraint)
+    Client->>+T: addConstraint(pkConstraint)
     activate T
-    T->>CT: validate()
+    T->>+CT: validate()
     activate CT
-    CT-->>T: true
+    CT-->>-T: true
     deactivate CT
-    T-->>Client: void
+    T-->>-Client: void
     deactivate T
 
-    Client->>T: addIndex(orderDateIdx)
+    Client->>+T: addIndex(orderDateIdx)
     activate T
-    T->>I: enable()
+    T->>+I: enable()
     activate I
-    I-->>T: void
+    I-->>-T: void
     deactivate I
-    T-->>Client: void
+    T-->>-Client: void
     deactivate T
 
     %% -----------------------------------------------------
@@ -72,20 +72,20 @@ sequenceDiagram
     %% -----------------------------------------------------
     Note over Client, SP: Phase 3: Procedures & Advanced objects
 
-    Client->>S: createProcedure("archive_old_orders")
+    Client->>+S: createProcedure("archive_old_orders")
     activate S
     create participant SP
-    S-->>SP: new StoredProcedure("archive_old_orders")
-    S->>SP: compile()
+    S-->>-SP: new StoredProcedure("archive_old_orders")
+    S->>+SP: compile()
     activate SP
-    SP-->>S: void
+    SP-->>-S: void
     deactivate SP
-    S-->>Client: StoredProcedure instance
+    S-->>-Client: StoredProcedure instance
     deactivate S
 
-    Client->>SP: execute()
+    Client->>+SP: execute()
     activate SP
     Note over SP: Performs procedural logic
-    SP-->>Client: ExecutionResult
+    SP-->>-Client: ExecutionResult
     deactivate SP
 ```
