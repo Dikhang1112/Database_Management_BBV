@@ -1,23 +1,22 @@
-# Query Processor Unit Test Scenarios Mindmap
+# Query Processor Subsystem - Semantic Analysis Unit Test Scenarios Mindmap
 
-This mindmap represents the structural taxonomy of the Query Processor unit test scenarios, covering `Lexer`, `TokenStream`, `Token`, `SQLParser`, `AST`, `ASTNode` (`SelectASTNode`, `BinaryOpASTNode`, `IdentifierASTNode`, `LiteralASTNode`), `QueryOptimizer`, and `StatisticsManager` classes.
+This mindmap represents the structural taxonomy of the Query Processor - Semantic Analysis unit test scenarios, organized from top-level orchestrator (`SemanticAnalyzer`) down to component-level resolvers, type checkers, validators, and AST visitor nodes (`SemanticAnalyzer` ➔ `NameResolver` ➔ `TypeChecker` ➔ `AggregateValidator` ➔ `GroupByValidator` ➔ `OrderByValidator` ➔ `ASTVisitor & ASTNode`).
 
 ```mermaid
 flowchart LR
-    Root(("Query Processor Unit Tests"))
+    Root(("Query Processor Semantic Analysis Unit Tests"))
 
-    %% Categories
-    Cat1(["1. LexerTest"])
-    Cat2(["2. TokenStreamTest"])
-    Cat3(["3. TokenTest"])
-    Cat4(["4. SQLParserTest"])
-    Cat5(["5. ASTTest"])
-    Cat6(["6. SelectASTNodeTest"])
-    Cat7(["7. BinaryOpASTNodeTest"])
-    Cat8(["8. IdentifierASTNodeTest"])
-    Cat9(["9. LiteralASTNodeTest"])
-    Cat10(["10. QueryOptimizerTest"])
-    Cat11(["11. StatisticsManagerTest"])
+    %% =====================================================
+    %% Categories (Semantic Analysis Subsystem Hierarchy)
+    %% =====================================================
+
+    Cat1(["1. SemanticAnalyzerTest"])
+    Cat2(["2. NameResolverTest"])
+    Cat3(["3. TypeCheckerTest"])
+    Cat4(["4. AggregateValidatorTest"])
+    Cat5(["5. GroupByValidatorTest"])
+    Cat6(["6. OrderByValidatorTest"])
+    Cat7(["7. ASTVisitorAndNodeTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -26,71 +25,69 @@ flowchart LR
     Root --> Cat5
     Root --> Cat6
     Root --> Cat7
-    Root --> Cat8
-    Root --> Cat9
-    Root --> Cat10
-    Root --> Cat11
 
-    %% LexerTest
-    Cat1 --> TC01("TC-01 Tokenize Valid SQL")
-    TC01 --> TC01A("Case-insensitive keywords")
-    TC01 --> TC01B("Numeric and string literals")
-    TC01 --> TC01C("Operators and punctuation")
-    TC01 --> TC01D("Unterminated string literal")
-    TC01 --> TC01E("Invalid character error")
+    %% =====================================================
+    %% 1. SemanticAnalyzerTest (Main Orchestrator & Visitor)
+    %% =====================================================
 
-    %% TokenStreamTest
-    Cat2 --> TC02("TC-02 Consume Tokens")
-    TC02 --> TC02A("LookAhead offset without advancing")
-    TC02 --> TC02B("Empty stream boundary")
-    TC02 --> TC02C("LookAhead out of bounds")
-    TC02 --> TC02D("Consume past EOF")
+    Cat1 --> TC01("TC-01 Analyze Full AST")
+    TC01 --> TC01A("TC-01A Analyze Null AST")
+    TC01 --> TC01B("TC-01B Visit AST Node")
+    TC01 --> TC01C("TC-01C Visit Null AST Node")
+    TC01 --> TC01D("TC-01D Semantic Analysis Error Propagation")
 
-    %% TokenTest
-    Cat3 --> TC03("TC-03 Create Token")
-    TC03 --> TC03A("Token equality comparison")
-    TC03 --> TC03B("Default constructor initialization")
+    %% =====================================================
+    %% 2. NameResolverTest (Table, Column & Alias Resolution)
+    %% =====================================================
 
-    %% SQLParserTest
-    Cat4 --> TC04("TC-04 Parse Select Query")
-    TC04 --> TC04A("Parse query without WHERE clause")
-    TC04 --> TC04B("Syntax error missing FROM keyword")
-    TC04 --> TC04C("Unexpected token error")
-    TC04 --> TC04D("Empty token stream error")
+    Cat2 --> TC02("TC-02 Resolve Table Identifier")
+    TC02 --> TC02A("TC-02A Resolve Table - Table Not Found")
+    TC02 --> TC02B("TC-02B Resolve Column Identifier")
+    TC02 --> TC02C("TC-02C Resolve Column - Column Not Found")
+    TC02 --> TC02D("TC-02D Resolve Table Alias")
+    TC02 --> TC02E("TC-02E Resolve Duplicate Alias Collision")
+    TC02 --> TC02F("TC-02F Resolve Full AST Identifiers")
 
-    %% ASTTest
-    Cat5 --> TC05("TC-05 Create AST")
-    TC05 --> TC05A("Empty AST initialization")
-    TC05 --> TC05B("Get root AST node")
+    %% =====================================================
+    %% 3. TypeCheckerTest (Expression & Function Type Checking)
+    %% =====================================================
 
-    %% SelectASTNodeTest
-    Cat6 --> TC06("TC-06 Build Select AST Node")
-    TC06 --> TC06A("Null WHERE condition allowed")
-    TC06 --> TC06B("Multiple projection fields")
+    Cat3 --> TC03("TC-03 Validate AST Types")
+    TC03 --> TC03A("TC-03A Compatible Operands Expression")
+    TC03 --> TC03B("TC-03B Incompatible Type Mismatch")
+    TC03 --> TC03C("TC-03C Check Function Types")
+    TC03 --> TC03D("TC-03D Function Not Found")
+    TC03 --> TC03E("TC-03E Parameter Type Mismatch")
 
-    %% BinaryOpASTNodeTest
-    Cat7 --> TC07("TC-07 Build Binary Op Node")
-    TC07 --> TC07A("Nested binary operators evaluation")
+    %% =====================================================
+    %% 4. AggregateValidatorTest (Aggregate Function Validation)
+    %% =====================================================
 
-    %% IdentifierASTNodeTest
-    Cat8 --> TC08("TC-08 Build Identifier Node")
-    TC08 --> TC08A("Qualified column identifier (table.col)")
+    Cat4 --> TC04("TC-04 Validate Aggregate Functions")
+    TC04 --> TC04A("TC-04A Nested Aggregates Disallowed")
+    TC04 --> TC04B("TC-04B Aggregate in WHERE Clause Disallowed")
 
-    %% LiteralASTNodeTest
-    Cat9 --> TC09("TC-09 Build Literal Node")
-    TC09 --> TC09A("Integer literal node")
-    TC09 --> TC09B("String literal node")
-    TC09 --> TC09C("Boolean literal node")
-    TC09 --> TC09D("NULL literal node")
+    %% =====================================================
+    %% 5. GroupByValidatorTest (GROUP BY Clause Validation)
+    %% =====================================================
 
-    %% QueryOptimizerTest
-    Cat10 --> TC10("TC-10 Generate Logical Plan")
-    TC10 --> TC10A("Optimize logical plan to physical plan")
-    TC10 --> TC10B("Estimate execution plan cost")
-    TC10 --> TC10C("Select IndexScan when index exists")
+    Cat5 --> TC05("TC-05 Validate GROUP BY Clause")
+    TC05 --> TC05A("TC-05A Missing Non-Aggregated Column")
+    TC05 --> TC05B("TC-05B Empty GROUP BY with Non-Aggregated Column")
 
-    %% StatisticsManagerTest
-    Cat11 --> TC11("TC-11 Estimate Table Cardinality")
-    TC11 --> TC11A("Estimate predicate selectivity")
-    TC11 --> TC11B("Table not found exception")
+    %% =====================================================
+    %% 6. OrderByValidatorTest (ORDER BY Clause Validation)
+    %% =====================================================
+
+    Cat6 --> TC06("TC-06 Validate ORDER BY Clause")
+    TC06 --> TC06A("TC-06A Ambiguous Sort Key")
+    TC06 --> TC06B("TC-06B DISTINCT Query Sort Key Missing from Projection")
+
+    %% =====================================================
+    %% 7. ASTVisitorAndNodeTest (Visitor Double Dispatch & AST)
+    %% =====================================================
+
+    Cat7 --> TC07("TC-07 AST Node Accept Visitor")
+    TC07 --> TC07A("TC-07A AST Node Accept Null Visitor")
+    TC07 --> TC07B("TC-07B AST Root Traversal")
 ```
