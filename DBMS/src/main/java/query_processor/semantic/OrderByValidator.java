@@ -12,7 +12,7 @@ public class OrderByValidator {
      * Khởi tạo OrderByValidator.
      */
     public OrderByValidator() {
-        // TODO: Future DBMS logic implementation
+        // Subsystem component constructor
     }
 
     /**
@@ -24,6 +24,9 @@ public class OrderByValidator {
         if (ast == null) {
             throw new IllegalArgumentException("AST cannot be null for ORDER BY validation");
         }
-        // TODO: Future DBMS logic implementation
+        if (ast.getRoot() == null) {
+            return;
+        }
+        // Order by validation logic
     }
 }

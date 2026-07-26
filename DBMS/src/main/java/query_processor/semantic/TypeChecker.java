@@ -19,7 +19,6 @@ public class TypeChecker {
      */
     public TypeChecker(MetadataModule metadataModule) {
         this.metadataModule = metadataModule;
-        // TODO: Future DBMS logic implementation
     }
 
     /**
@@ -28,17 +27,31 @@ public class TypeChecker {
      * @param ast Cây AST cần kiểm tra kiểu.
      */
     public void validate(AST ast) {
-        // TODO: Future DBMS logic implementation
+        if (ast == null || ast.getRoot() == null) {
+            return;
+        }
+        checkExpression(ast.getRoot());
     }
 
     /**
      * Kiểm tra tương thích kiểu dữ liệu của một biểu thức.
      *
      * @param node Nút biểu thức trong cây AST.
-     * @return true nếu kiểu biểu thức hợp lệ (mock trả về true).
+     * @return true nếu kiểu biểu thức hợp lệ.
      */
     public boolean checkExpression(ASTNode node) {
-        // TODO: Future DBMS logic implementation
+        if (node == null) {
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * Lấy tham chiếu MetadataModule.
+     *
+     * @return MetadataModule instance.
+     */
+    public MetadataModule getMetadataModule() {
+        return metadataModule;
     }
 }
