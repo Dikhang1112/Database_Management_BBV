@@ -34,7 +34,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Caller as Internal Caller
+    actor Client as Client / Application
     participant Facade as MetadataModule
     participant CM as CatalogManager
     participant DB as Database
@@ -42,16 +42,16 @@ sequenceDiagram
     participant Table as Table
     participant Cmd as DDLCommand
 
-    Caller->>Facade: getTable("sales_db", "public", "orders")
+    Client->>Facade: getTable("sales_db", "public", "orders")
     Facade->>CM: getDatabase("sales_db")
     CM-->>Facade: Database instance
     Facade->>DB: getSchema("public")
     DB-->>Facade: Schema instance
     Facade->>Schema: getTable("orders")
     Schema-->>Facade: Table instance
-    Facade-->>Caller: Table instance
+    Facade-->>Client: Table instance
 
-    Caller->>Facade: executeDDL(command)
+    Client->>Facade: executeDDL(command)
     Facade->>Cmd: execute()
     Cmd-->>Facade: executed
 ```
