@@ -55,15 +55,11 @@ public class MetadataModule {
         }
     }
 
-    public boolean tableExists(String tableName) {
+    public boolean containsTable(String tableName) {
         return true;
     }
 
-    public boolean columnExists(String tableName, String columnName) {
-        return true;
-    }
-
-    public boolean functionExists(String functionName) {
+    public boolean containsColumn(String tableName, String columnName) {
         return true;
     }
 }

@@ -2,7 +2,7 @@ package query_processor.semantic;
 
 import query_processor.ast.AST;
 import query_processor.abstracts.ASTNode;
-import query_processor.external.MetadataModule;
+import metadata.facade.MetadataModule;
 
 /**
  * Lớp chịu trách nhiệm phân giải định danh (Database, Table, Column, Alias) trong cây AST.
@@ -39,7 +39,7 @@ public class NameResolver {
      */
     public boolean resolveTable(ASTNode node) {
         // TODO: Future DBMS logic implementation
-        return metadataModule != null && metadataModule.tableExists("mock_table");
+        return metadataModule != null && metadataModule.containsTable("mock_table");
     }
 
     /**
@@ -50,7 +50,7 @@ public class NameResolver {
      */
     public boolean resolveColumn(ASTNode node) {
         // TODO: Future DBMS logic implementation
-        return metadataModule != null && metadataModule.columnExists("mock_table", "mock_column");
+        return metadataModule != null && metadataModule.containsColumn("mock_table", "mock_column");
     }
 
     /**

@@ -8,15 +8,14 @@ This document provides detailed Mermaid sequence diagrams with explicit UML acti
 
 ### TC-01: `analyze`
 
-#### Happy Path: `analyze_ShouldExecuteFiveStepValidationInOrder_WhenValidASTProvided`
+#### Happy Path: `analyze_ShouldExecuteFourStepValidationInOrder_WhenValidASTProvided`
 ```mermaid
 sequenceDiagram
-    title TC-01: analyze_ShouldExecuteFiveStepValidationInOrder_WhenValidASTProvided
+    title TC-01: analyze_ShouldExecuteFourStepValidationInOrder_WhenValidASTProvided
     participant Test
     participant SemanticAnalyzer
     participant NameResolver
     participant TypeChecker
-    participant AggregateValidator
     participant GroupByValidator
     participant OrderByValidator
 
@@ -25,13 +24,11 @@ sequenceDiagram
     NameResolver-->>-SemanticAnalyzer: void (1st step completed)
     SemanticAnalyzer->>+TypeChecker: validate(ast)
     TypeChecker-->>-SemanticAnalyzer: void (2nd step completed)
-    SemanticAnalyzer->>+AggregateValidator: validate(ast)
-    AggregateValidator-->>-SemanticAnalyzer: void (3rd step completed)
     SemanticAnalyzer->>+GroupByValidator: validate(ast)
-    GroupByValidator-->>-SemanticAnalyzer: void (4th step completed)
+    GroupByValidator-->>-SemanticAnalyzer: void (3rd step completed)
     SemanticAnalyzer->>+OrderByValidator: validate(ast)
-    OrderByValidator-->>-SemanticAnalyzer: void (5th step completed)
-    SemanticAnalyzer-->>-Test: void (All 5 steps passed)
+    OrderByValidator-->>-SemanticAnalyzer: void (4th step completed)
+    SemanticAnalyzer-->>-Test: void (All 4 steps passed)
 ```
 
 #### TC-01A: `analyze_ShouldHandleNullASTGracefully_WhenASTIsNull`
@@ -101,7 +98,7 @@ sequenceDiagram
     participant MetadataModule
 
     Test->>+NameResolver: resolveTable(tableNode)
-    NameResolver->>+MetadataModule: tableExists("users")
+    NameResolver->>+MetadataModule: containsTable("users")
     MetadataModule-->>-NameResolver: true
     NameResolver-->>-Test: true
 ```
@@ -115,7 +112,7 @@ sequenceDiagram
     participant MetadataModule
 
     Test->>+NameResolver: resolveTable(tableNode)
-    NameResolver->>+MetadataModule: tableExists("missing_table")
+    NameResolver->>+MetadataModule: containsTable("missing_table")
     MetadataModule-->>-NameResolver: false
     NameResolver-->>-Test: false
 ```
@@ -129,7 +126,7 @@ sequenceDiagram
     participant MetadataModule
 
     Test->>+NameResolver: resolveColumn(columnNode)
-    NameResolver->>+MetadataModule: columnExists("users", "email")
+    NameResolver->>+MetadataModule: containsColumn("users", "email")
     MetadataModule-->>-NameResolver: true
     NameResolver-->>-Test: true
 ```
@@ -143,7 +140,7 @@ sequenceDiagram
     participant MetadataModule
 
     Test->>+NameResolver: resolveColumn(columnNode)
-    NameResolver->>+MetadataModule: columnExists("users", "unknown_col")
+    NameResolver->>+MetadataModule: containsColumn("users", "unknown_col")
     MetadataModule-->>-NameResolver: false
     NameResolver-->>-Test: false
 ```
@@ -193,17 +190,15 @@ sequenceDiagram
 
 ### TC-03: `validate` & `checkExpression`
 
-#### Happy Path: `validate_ShouldCheckAllExpressionsAndFunctions_WhenASTIsProvided`
+#### Happy Path: `validate_ShouldCheckAllExpressions_WhenASTIsProvided`
 ```mermaid
 sequenceDiagram
-    title TC-03: validate_ShouldCheckAllExpressionsAndFunctions_WhenASTIsProvided
+    title TC-03: validate_ShouldCheckAllExpressions_WhenASTIsProvided
     participant Test
     participant TypeChecker
 
     Test->>+TypeChecker: validate(ast)
     TypeChecker->>+TypeChecker: checkExpressions(ast)
-    TypeChecker-->>-TypeChecker: void
-    TypeChecker->>+TypeChecker: checkFunctions(ast)
     TypeChecker-->>-TypeChecker: void
     TypeChecker-->>-Test: void
 ```
@@ -234,107 +229,16 @@ sequenceDiagram
     TypeChecker-->>-Test: false (Type mismatch)
 ```
 
-#### TC-03C: `checkFunction_ShouldReturnTrue_WhenFunctionAndArgumentsAreValid`
-```mermaid
-sequenceDiagram
-    title TC-03C: checkFunction_ShouldReturnTrue_WhenFunctionAndArgumentsAreValid
-    participant Test
-    participant TypeChecker
-    participant MetadataModule
-
-    Test->>+TypeChecker: checkFunction(functionNode)
-    TypeChecker->>+MetadataModule: functionExists("LOWER")
-    MetadataModule-->>-TypeChecker: true
-    TypeChecker->>+TypeChecker: validateParameters("LOWER", ["VARCHAR"])
-    TypeChecker-->>-TypeChecker: true
-    TypeChecker-->>-Test: true
-```
-
-#### TC-03D: `checkFunction_ShouldReturnFalse_WhenFunctionDoesNotExist`
-```mermaid
-sequenceDiagram
-    title TC-03D: checkFunction_ShouldReturnFalse_WhenFunctionDoesNotExist
-    participant Test
-    participant TypeChecker
-    participant MetadataModule
-
-    Test->>+TypeChecker: checkFunction(unknownFuncNode)
-    TypeChecker->>+MetadataModule: functionExists("UNKNOWN_FUNC")
-    MetadataModule-->>-TypeChecker: false
-    TypeChecker-->>-Test: false
-```
-
-#### TC-03E: `checkFunction_ShouldReturnFalse_WhenArgumentTypeIsInvalid`
-```mermaid
-sequenceDiagram
-    title TC-03E: checkFunction_ShouldReturnFalse_WhenArgumentTypeIsInvalid
-    participant Test
-    participant TypeChecker
-    participant MetadataModule
-
-    Test->>+TypeChecker: checkFunction(invalidArgFuncNode)
-    TypeChecker->>+MetadataModule: functionExists("SQRT")
-    MetadataModule-->>-TypeChecker: true
-    TypeChecker->>+TypeChecker: validateParameters("SQRT", ["VARCHAR"])
-    TypeChecker-->>-TypeChecker: false
-    TypeChecker-->>-Test: false (Invalid parameter type)
-```
-
 ---
 
-## 4. AggregateValidator Unit Tests
+## 4. GroupByValidator Unit Tests
 
 ### TC-04: `validate`
-
-#### Happy Path: `validate_ShouldPass_WhenAggregateFunctionsAreUsedInSelectList`
-```mermaid
-sequenceDiagram
-    title TC-04: validate_ShouldPass_WhenAggregateFunctionsAreUsedInSelectList
-    participant Test
-    participant AggregateValidator
-
-    Test->>+AggregateValidator: validate(validAggregateAST)
-    AggregateValidator->>+AggregateValidator: inspectSelectList(ast)
-    AggregateValidator-->>-AggregateValidator: void
-    AggregateValidator-->>-Test: void
-```
-
-#### TC-04A: `validate_ShouldThrowException_WhenAggregateFunctionsAreNested`
-```mermaid
-sequenceDiagram
-    title TC-04A: validate_ShouldThrowException_WhenAggregateFunctionsAreNested
-    participant Test
-    participant AggregateValidator
-
-    Test->>+AggregateValidator: validate(nestedAggregateAST)
-    AggregateValidator->>+AggregateValidator: detectNestedAggregates(ast)
-    AggregateValidator-->>-AggregateValidator: true (Nested found)
-    AggregateValidator-->>-Test: throw SemanticException ("Nested aggregate functions are not allowed")
-```
-
-#### TC-04B: `validate_ShouldThrowException_WhenAggregateIsUsedInWhereClause`
-```mermaid
-sequenceDiagram
-    title TC-04B: validate_ShouldThrowException_WhenAggregateIsUsedInWhereClause
-    participant Test
-    participant AggregateValidator
-
-    Test->>+AggregateValidator: validate(whereAggregateAST)
-    AggregateValidator->>+AggregateValidator: inspectWhereClause(ast)
-    AggregateValidator-->>-AggregateValidator: true (Aggregate in WHERE found)
-    AggregateValidator-->>-Test: throw SemanticException ("Aggregate functions not allowed in WHERE clause")
-```
-
----
-
-## 5. GroupByValidator Unit Tests
-
-### TC-05: `validate`
 
 #### Happy Path: `validate_ShouldPass_WhenAllNonAggregatedSelectColumnsAreInGroupBy`
 ```mermaid
 sequenceDiagram
-    title TC-05: validate_ShouldPass_WhenAllNonAggregatedSelectColumnsAreInGroupBy
+    title TC-04: validate_ShouldPass_WhenAllNonAggregatedSelectColumnsAreInGroupBy
     participant Test
     participant GroupByValidator
 
@@ -344,10 +248,10 @@ sequenceDiagram
     GroupByValidator-->>-Test: void
 ```
 
-#### TC-05A: `validate_ShouldThrowException_WhenNonAggregatedColumnMissingFromGroupBy`
+#### TC-04A: `validate_ShouldThrowException_WhenNonAggregatedColumnMissingFromGroupBy`
 ```mermaid
 sequenceDiagram
-    title TC-05A: validate_ShouldThrowException_WhenNonAggregatedColumnMissingFromGroupBy
+    title TC-04A: validate_ShouldThrowException_WhenNonAggregatedColumnMissingFromGroupBy
     participant Test
     participant GroupByValidator
 
@@ -357,10 +261,10 @@ sequenceDiagram
     GroupByValidator-->>-Test: throw SemanticException ("Column 'name' must appear in GROUP BY clause...")
 ```
 
-#### TC-05B: `validate_ShouldThrowException_WhenQueryHasAggregatesAndUnaggregatedColumnsWithoutGroupBy`
+#### TC-04B: `validate_ShouldThrowException_WhenQueryHasAggregatesAndUnaggregatedColumnsWithoutGroupBy`
 ```mermaid
 sequenceDiagram
-    title TC-05B: validate_ShouldThrowException_WhenQueryHasAggregatesAndUnaggregatedColumnsWithoutGroupBy
+    title TC-04B: validate_ShouldThrowException_WhenQueryHasAggregatesAndUnaggregatedColumnsWithoutGroupBy
     participant Test
     participant GroupByValidator
 
@@ -372,14 +276,14 @@ sequenceDiagram
 
 ---
 
-## 6. OrderByValidator Unit Tests
+## 5. OrderByValidator Unit Tests
 
-### TC-06: `validate`
+### TC-05: `validate`
 
 #### Happy Path: `validate_ShouldPass_WhenOrderByColumnsAreValid`
 ```mermaid
 sequenceDiagram
-    title TC-06: validate_ShouldPass_WhenOrderByColumnsAreValid
+    title TC-05: validate_ShouldPass_WhenOrderByColumnsAreValid
     participant Test
     participant OrderByValidator
 
@@ -389,10 +293,10 @@ sequenceDiagram
     OrderByValidator-->>-Test: void
 ```
 
-#### TC-06A: `validate_ShouldThrowException_WhenOrderByColumnIsAmbiguous`
+#### TC-05A: `validate_ShouldThrowException_WhenOrderByColumnIsAmbiguous`
 ```mermaid
 sequenceDiagram
-    title TC-06A: validate_ShouldThrowException_WhenOrderByColumnIsAmbiguous
+    title TC-05A: validate_ShouldThrowException_WhenOrderByColumnIsAmbiguous
     participant Test
     participant OrderByValidator
 
@@ -402,10 +306,10 @@ sequenceDiagram
     OrderByValidator-->>-Test: throw SemanticException ("Ambiguous column reference 'created_at' in ORDER BY")
 ```
 
-#### TC-06B: `validate_ShouldThrowException_WhenDistinctQuerySortColumnNotInSelectList`
+#### TC-05B: `validate_ShouldThrowException_WhenDistinctQuerySortColumnNotInSelectList`
 ```mermaid
 sequenceDiagram
-    title TC-06B: validate_ShouldThrowException_WhenDistinctQuerySortColumnNotInSelectList
+    title TC-05B: validate_ShouldThrowException_WhenDistinctQuerySortColumnNotInSelectList
     participant Test
     participant OrderByValidator
 
@@ -417,14 +321,14 @@ sequenceDiagram
 
 ---
 
-## 7. ASTVisitorAndNode Unit Tests
+## 6. ASTVisitorAndNode Unit Tests
 
-### TC-07: `accept` & `getRoot`
+### TC-06: `accept` & `getRoot`
 
 #### Happy Path: `accept_ShouldInvokeVisitOnVisitor_WhenAcceptCalled`
 ```mermaid
 sequenceDiagram
-    title TC-07: accept_ShouldInvokeVisitOnVisitor_WhenAcceptCalled
+    title TC-06: accept_ShouldInvokeVisitOnVisitor_WhenAcceptCalled
     participant Test
     participant ASTNode
     participant ASTVisitor
@@ -435,10 +339,10 @@ sequenceDiagram
     ASTNode-->>-Test: void
 ```
 
-#### TC-07A: `accept_ShouldHandleNullVisitor_WhenVisitorIsNull`
+#### TC-06A: `accept_ShouldHandleNullVisitor_WhenVisitorIsNull`
 ```mermaid
 sequenceDiagram
-    title TC-07A: accept_ShouldHandleNullVisitor_WhenVisitorIsNull
+    title TC-06A: accept_ShouldHandleNullVisitor_WhenVisitorIsNull
     participant Test
     participant ASTNode
 
@@ -448,10 +352,10 @@ sequenceDiagram
     ASTNode-->>-Test: void (Safely handled)
 ```
 
-#### TC-07B: `getRoot_ShouldReturnAndSetRootNode_WhenASTConstructed`
+#### TC-06B: `getRoot_ShouldReturnAndSetRootNode_WhenASTConstructed`
 ```mermaid
 sequenceDiagram
-    title TC-07B: getRoot_ShouldReturnAndSetRootNode_WhenASTConstructed
+    title TC-06B: getRoot_ShouldReturnAndSetRootNode_WhenASTConstructed
     participant Test
     participant AST
 

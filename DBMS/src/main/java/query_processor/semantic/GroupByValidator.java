@@ -21,6 +21,9 @@ public class GroupByValidator {
      * @param ast Cây AST chứa mệnh đề GROUP BY.
      */
     public void validate(AST ast) {
+        if (ast == null) {
+            throw new IllegalArgumentException("AST cannot be null for GROUP BY validation");
+        }
         // TODO: Future DBMS logic implementation
     }
 }

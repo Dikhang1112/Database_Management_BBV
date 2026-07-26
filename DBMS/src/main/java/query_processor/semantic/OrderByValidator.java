@@ -21,6 +21,9 @@ public class OrderByValidator {
      * @param ast Cây AST chứa mệnh đề ORDER BY.
      */
     public void validate(AST ast) {
+        if (ast == null) {
+            throw new IllegalArgumentException("AST cannot be null for ORDER BY validation");
+        }
         // TODO: Future DBMS logic implementation
     }
 }

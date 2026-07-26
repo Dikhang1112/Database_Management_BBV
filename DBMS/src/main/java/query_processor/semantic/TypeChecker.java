@@ -2,10 +2,10 @@ package query_processor.semantic;
 
 import query_processor.ast.AST;
 import query_processor.abstracts.ASTNode;
-import query_processor.external.MetadataModule;
+import metadata.facade.MetadataModule;
 
 /**
- * Lớp chịu trách nhiệm thẩm định và kiểm tra kiểu dữ liệu trong các biểu thức và hàm của SQL.
+ * Lớp chịu trách nhiệm thẩm định và kiểm tra kiểu dữ liệu trong các biểu thức của SQL.
  * Tuân thủ nguyên tắc Single Responsibility Principle (SRP).
  */
 public class TypeChecker {
@@ -40,16 +40,5 @@ public class TypeChecker {
     public boolean checkExpression(ASTNode node) {
         // TODO: Future DBMS logic implementation
         return true;
-    }
-
-    /**
-     * Kiểm tra kiểu tham số và kiểu trả về của một hàm SQL.
-     *
-     * @param node Nút gọi hàm trong cây AST.
-     * @return true nếu hàm và tham số có kiểu dữ liệu hợp lệ (mock trả về true).
-     */
-    public boolean checkFunction(ASTNode node) {
-        // TODO: Future DBMS logic implementation
-        return metadataModule != null && metadataModule.functionExists("mock_function");
     }
 }

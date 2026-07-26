@@ -1,6 +1,6 @@
 # Query Processor Subsystem - Semantic Analysis Unit Test Scenarios Mindmap
 
-This mindmap represents the structural taxonomy of the Query Processor - Semantic Analysis unit test scenarios, organized from top-level orchestrator (`SemanticAnalyzer`) down to component-level resolvers, type checkers, validators, and AST visitor nodes (`SemanticAnalyzer` ➔ `NameResolver` ➔ `TypeChecker` ➔ `AggregateValidator` ➔ `GroupByValidator` ➔ `OrderByValidator` ➔ `ASTVisitor & ASTNode`).
+This mindmap represents the structural taxonomy of the Query Processor - Semantic Analysis unit test scenarios, organized from top-level orchestrator (`SemanticAnalyzer`) down to component-level resolvers, type checkers, validators, and AST visitor nodes (`SemanticAnalyzer` ➔ `NameResolver` ➔ `TypeChecker` ➔ `GroupByValidator` ➔ `OrderByValidator` ➔ `ASTVisitor & ASTNode`).
 
 ```mermaid
 flowchart LR
@@ -13,10 +13,9 @@ flowchart LR
     Cat1(["1. SemanticAnalyzerTest"])
     Cat2(["2. NameResolverTest"])
     Cat3(["3. TypeCheckerTest"])
-    Cat4(["4. AggregateValidatorTest"])
-    Cat5(["5. GroupByValidatorTest"])
-    Cat6(["6. OrderByValidatorTest"])
-    Cat7(["7. ASTVisitorAndNodeTest"])
+    Cat4(["4. GroupByValidatorTest"])
+    Cat5(["5. OrderByValidatorTest"])
+    Cat6(["6. ASTVisitorAndNodeTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -24,7 +23,6 @@ flowchart LR
     Root --> Cat4
     Root --> Cat5
     Root --> Cat6
-    Root --> Cat7
 
     %% =====================================================
     %% 1. SemanticAnalyzerTest (Main Orchestrator & Visitor)
@@ -49,45 +47,34 @@ flowchart LR
     TC02 --> TC02F("TC-02F Resolve Full AST Identifiers")
 
     %% =====================================================
-    %% 3. TypeCheckerTest (Expression & Function Type Checking)
+    %% 3. TypeCheckerTest (Expression Type Checking)
     %% =====================================================
 
     Cat3 --> TC03("TC-03 Validate AST Types")
     TC03 --> TC03A("TC-03A Compatible Operands Expression")
     TC03 --> TC03B("TC-03B Incompatible Type Mismatch")
-    TC03 --> TC03C("TC-03C Check Function Types")
-    TC03 --> TC03D("TC-03D Function Not Found")
-    TC03 --> TC03E("TC-03E Parameter Type Mismatch")
 
     %% =====================================================
-    %% 4. AggregateValidatorTest (Aggregate Function Validation)
+    %% 4. GroupByValidatorTest (GROUP BY Clause Validation)
     %% =====================================================
 
-    Cat4 --> TC04("TC-04 Validate Aggregate Functions")
-    TC04 --> TC04A("TC-04A Nested Aggregates Disallowed")
-    TC04 --> TC04B("TC-04B Aggregate in WHERE Clause Disallowed")
+    Cat4 --> TC04("TC-04 Validate GROUP BY Clause")
+    TC04 --> TC04A("TC-04A Missing Column")
+    TC04 --> TC04B("TC-04B Empty GROUP BY with Unaggregated Column")
 
     %% =====================================================
-    %% 5. GroupByValidatorTest (GROUP BY Clause Validation)
+    %% 5. OrderByValidatorTest (ORDER BY Clause Validation)
     %% =====================================================
 
-    Cat5 --> TC05("TC-05 Validate GROUP BY Clause")
-    TC05 --> TC05A("TC-05A Missing Non-Aggregated Column")
-    TC05 --> TC05B("TC-05B Empty GROUP BY with Non-Aggregated Column")
+    Cat5 --> TC05("TC-05 Validate ORDER BY Clause")
+    TC05 --> TC05A("TC-05A Ambiguous Sort Key")
+    TC05 --> TC05B("TC-05B DISTINCT Query Sort Key Missing from Projection")
 
     %% =====================================================
-    %% 6. OrderByValidatorTest (ORDER BY Clause Validation)
+    %% 6. ASTVisitorAndNodeTest (Visitor Double Dispatch & AST)
     %% =====================================================
 
-    Cat6 --> TC06("TC-06 Validate ORDER BY Clause")
-    TC06 --> TC06A("TC-06A Ambiguous Sort Key")
-    TC06 --> TC06B("TC-06B DISTINCT Query Sort Key Missing from Projection")
-
-    %% =====================================================
-    %% 7. ASTVisitorAndNodeTest (Visitor Double Dispatch & AST)
-    %% =====================================================
-
-    Cat7 --> TC07("TC-07 AST Node Accept Visitor")
-    TC07 --> TC07A("TC-07A AST Node Accept Null Visitor")
-    TC07 --> TC07B("TC-07B AST Root Traversal")
+    Cat6 --> TC06("TC-06 AST Node Accept Visitor")
+    TC06 --> TC06A("TC-06A AST Node Accept Null Visitor")
+    TC06 --> TC06B("TC-06B AST Root Traversal")
 ```
