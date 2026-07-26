@@ -1,11 +1,16 @@
 package metadata;
 
+import metadata.constraints.PrimaryKeyConstraint;
+import metadata.domain.Column;
+import metadata.domain.Table;
 import metadata.enums.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.List;
 
@@ -14,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class TableTest {
 
     @Mock
@@ -24,6 +30,7 @@ class TableTest {
     void addColumn_ShouldAttachColumnToTable_WhenColumnIsAdded() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");
+        when(mockColumn.getElementName()).thenReturn("order_id");
 
         table.addColumn(mockColumn);
         List<Column> columns = table.listColumns();
@@ -37,6 +44,7 @@ class TableTest {
     void addColumn_ShouldThrowException_WhenColumnAlreadyExists() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");
+        when(mockColumn.getElementName()).thenReturn("order_id");
         table.addColumn(mockColumn);
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
@@ -60,6 +68,7 @@ class TableTest {
     void addColumn_ShouldThrowException_WhenPermissionDenied() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("secret_col");
+        when(mockColumn.getElementName()).thenReturn("secret_col");
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
                 .isInstanceOf(SecurityException.class)
@@ -71,6 +80,7 @@ class TableTest {
     void addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("col#name!");
+        when(mockColumn.getElementName()).thenReturn("col#name!");
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
                 .isInstanceOf(IllegalArgumentException.class)

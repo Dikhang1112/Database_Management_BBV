@@ -1,5 +1,10 @@
 package metadata;
 
+import metadata.domain.CatalogManager;
+import metadata.domain.Database;
+import metadata.domain.Schema;
+import metadata.domain.Table;
+import metadata.facade.MetadataModule;
 import metadata.interfaces.DDLCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.domain.Database;
+import metadata.domain.Schema;
 import metadata.enums.DatabaseStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

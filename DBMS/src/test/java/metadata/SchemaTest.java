@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.domain.Schema;
+import metadata.domain.Table;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Column;
+import metadata.domain.Column;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +11,7 @@ public class ColumnManager {
     private final Map<String, Column> columns = new ConcurrentHashMap<>();
 
     public void add(Column column) {
-        String nameColumn = column.getColumnName();
+        String nameColumn = column.getElementName();
         CatalogValidator.validateIdentifier(nameColumn, "Column");
         SecurityValidator.validatePermission(nameColumn);
         CatalogValidator.ensureUniqueName(nameColumn, columns.keySet(), "Column");
@@ -29,7 +29,7 @@ public class ColumnManager {
         if (columnList != null) {
             for (Column col : columnList) {
                 if (col != null) {
-                    columns.put(col.getColumnName().toLowerCase(), col);
+                    columns.put(col.getElementName().toLowerCase(), col);
                 }
             }
         }

@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Index;
+import metadata.domain.Index;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -1,5 +1,8 @@
 package metadata;
 
+import metadata.domain.Column;
+import metadata.domain.Index;
+import metadata.domain.Table;
 import metadata.enums.DataType;
 import metadata.enums.IndexType;
 import org.junit.jupiter.api.DisplayName;

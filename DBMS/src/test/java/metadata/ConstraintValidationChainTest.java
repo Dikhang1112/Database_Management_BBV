@@ -1,5 +1,8 @@
 package metadata;
 
+import metadata.constraints.CheckConstraint;
+import metadata.constraints.ConstraintValidationChain;
+import metadata.constraints.PrimaryKeyConstraint;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

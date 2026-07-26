@@ -1,5 +1,10 @@
 package metadata;
 
+import metadata.constraints.CheckConstraint;
+import metadata.constraints.ForeignKeyConstraint;
+import metadata.constraints.PrimaryKeyConstraint;
+import metadata.domain.Column;
+import metadata.domain.Table;
 import metadata.enums.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

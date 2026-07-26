@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Table;
+import metadata.domain.Table;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

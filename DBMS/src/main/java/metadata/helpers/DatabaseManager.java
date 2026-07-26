@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Database;
+import metadata.domain.Database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,6 @@ public class DatabaseManager {
     public void remove(String databaseName) {
         CatalogValidator.ensureExists(databaseName, databases.keySet(), "Database");
         SecurityValidator.validatePermission(databaseName);
-
         Database db = get(databaseName);
         if (db != null && !db.listSchemas().isEmpty()) {
             throw new IllegalStateException("Database is not empty");
@@ -32,7 +31,9 @@ public class DatabaseManager {
 
     public Database get(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
-        CatalogValidator.ensureExists(databaseName, databases.keySet(), "Database");
+        if (!contains(databaseName)) {
+            return null;
+        }
         return databases.get(databaseName.toLowerCase());
     }
 
