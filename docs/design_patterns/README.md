@@ -10,18 +10,27 @@ Tài liệu này tổng hợp toàn bộ các **Design Pattern** được áp d�
 
 ### 1.1. Bảng Tổng Quan Design Patterns
 
+#### Creational Patterns (Nhóm Khởi Tạo)
 | # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
 |:---:|:---|:---|:---|:---|
 | 1 | **Singleton** | `CatalogManager`<br>`MetadataModule` | `getInstance()` | Đảm bảo duy nhất 1 Quản lý Catalog và 1 điểm truy cập Facade chính cho toàn bộ hệ thống DBMS trong RAM. |
-| 2 | **Facade** | `MetadataModule` | `getTable(...)`<br>`executeDDL(...)` | Cung cấp giao diện API cấp cao đơn giản hóa việc tương tác phức tạp giữa CatalogManager, Database, Schema và Table. |
-| 3 | **Composite** | `MetadataElement` (Interface)<br>`CatalogManager`, `Database`, `Schema`, `Table`, `Column` | `getElementName()` | Xây dựng cấu trúc cây phân cấp quản lý đồng nhất cho các thành phần Metadata trong hệ thống. |
-| 4 | **State** | `Database`<br>`DatabaseStatus` | `setStatus(...)`<br>`createSchema(...)` | Quản lý và chặn thao tác thay đổi cấu trúc khi Database ở trạng thái `OFFLINE` hoặc `READ_ONLY`. |
-| 5 | **Factory Method** | `Schema`<br>`ConstraintFactory` | `createTable(...)`<br>`createConstraint(...)` | Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt. |
-| 6 | **Command** | `DDLCommand` (Interface)<br>`CreateTableCommand`, `CreateSchemaCommand`, v.v. | `execute()`<br>`undo()` | Đóng gói các thao tác DDL thành các đối tượng lệnh có khả năng Thực thi (`execute`) và Hoàn tác (`undo` / Rollback). |
-| 7 | **Prototype** | `Table`<br>`Column` | `clone()` | Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu. |
-| 8 | **Memento** | `TableMemento`<br>`Table` | `createMemento()`<br>`restore(...)` | Chụp ảnh trạng thái (Snapshot) danh sách các cột của Table và hỗ trợ khôi phục về trạng thái trước đó. |
-| 9 | **Observer** | `MetadataChangeListener` (Interface)<br>`Table`<br>`TableEventPublisher` | `registerListener(...)`<br>`notifyListeners(...)`<br>`onMetadataChanged(...)` | `Table` phát thông báo sự kiện thay đổi cấu trúc cho các Observer lắng nghe tự động cập nhật. |
-| 10 | **Builder** | `ColumnBuilder` | `setType(...)`<br>`setNullable(...)`<br>`setDefaultValue(...)`<br>`build()` | Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API. |
+| 2 | **Factory Method** | `Schema`<br>`ConstraintFactory` | `createTable(...)`<br>`createConstraint(...)` | Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt. |
+| 3 | **Prototype** | `Table`<br>`Column` | `clone()` | Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu. |
+| 4 | **Builder** | `ColumnBuilder` | `setType(...)`<br>`setNullable(...)`<br>`setDefaultValue(...)`<br>`build()` | Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API. |
+
+#### Structural Patterns (Nhóm Cấu Trúc)
+| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+|:---:|:---|:---|:---|:---|
+| 5 | **Facade** | `MetadataModule` | `getTable(...)`<br>`executeDDL(...)` | Cung cấp giao diện API cấp cao đơn giản hóa việc tương tác phức tạp giữa CatalogManager, Database, Schema và Table. |
+| 6 | **Composite** | `MetadataElement` (Interface)<br>`CatalogManager`, `Database`, `Schema`, `Table`, `Column` | `getElementName()` | Xây dựng cấu trúc cây phân cấp quản lý đồng nhất cho các thành phần Metadata trong hệ thống. |
+
+#### Behavioral Patterns (Nhóm Hành Vi)
+| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+|:---:|:---|:---|:---|:---|
+| 7 | **State** | `Database`<br>`DatabaseStatus` | `setStatus(...)`<br>`createSchema(...)` | Quản lý và chặn thao tác thay đổi cấu trúc khi Database ở trạng thái `OFFLINE` hoặc `READ_ONLY`. |
+| 8 | **Command** | `DDLCommand` (Interface)<br>`CreateTableCommand`, `CreateSchemaCommand`, v.v. | `execute()`<br>`undo()` | Đóng gói các thao tác DDL thành các đối tượng lệnh có khả năng Thực thi (`execute`) và Hoàn tác (`undo` / Rollback). |
+| 9 | **Memento** | `TableMemento`<br>`Table` | `createMemento()`<br>`restore(...)` | Chụp ảnh trạng thái (Snapshot) danh sách các cột của Table và hỗ trợ khôi phục về trạng thái trước đó. |
+| 10 | **Observer** | `MetadataChangeListener` (Interface)<br>`Table`<br>`TableEventPublisher` | `registerListener(...)`<br>`notifyListeners(...)`<br>`onMetadataChanged(...)` | `Table` phát thông báo sự kiện thay đổi cấu trúc cho các Observer lắng nghe tự động cập nhật. |
 | 11 | **Template Method** | `Constraint` (Abstract Class) | `validate()` | Định nghĩa thuật toán khung kiểm tra trạng thái `enabled` trước khi tiến hành thẩm định chi tiết. |
 | 12 | **Chain of Responsibility** | `ConstraintValidationChain` | `addConstraint(...)`<br>`validateAll()` | Quản lý chuỗi thẩm định ràng buộc dữ liệu nối tiếp (Fail-Fast: PK ➔ FK ➔ Check). |
 | 13 | **Strategy** | `IndexRebuildStrategy` (Interface)<br>`Index` | `setRebuildStrategy(...)`<br>`rebuild()` | Cho phép gán và thực thi linh hoạt chiến lược rebuild thuật toán cho đối tượng `Index`. |
@@ -30,7 +39,9 @@ Tài liệu này tổng hợp toàn bộ các **Design Pattern** được áp d�
 
 ### 1.2. Chi Tiết Từng Pattern & Khung Mã Java Code (Class/Interface & Method Signature)
 
-#### 1. Singleton Pattern
+#### Creational Patterns (Nhóm Khởi Tạo)
+
+##### 1. Singleton Pattern
 * **Class / Interface**: `CatalogManager`, `MetadataModule`
 * **Method**: `getInstance()`
 * **Công dụng**: Đảm bảo duy nhất 1 Quản lý Catalog và 1 điểm truy cập Facade chính cho toàn bộ hệ thống DBMS trong RAM.
@@ -54,7 +65,89 @@ public class CatalogManager implements MetadataElement {
 
 ---
 
-#### 2. Facade Pattern
+##### 2. Factory Method Pattern
+* **Class / Interface**: `Schema`, `ConstraintFactory`
+* **Method**: `createTable(tableName)`, `createConstraint(type, name, args)`
+* **Công dụng**: Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt.
+
+**Khung Mã Java:**
+```java
+package metadata.domain;
+
+public class Schema implements MetadataElement {
+    // Pattern: Factory Method
+    public Table createTable(String tableName) {
+        // ...
+        return null;
+    }
+}
+
+package metadata.constraints;
+
+public class ConstraintFactory {
+    // Pattern: Factory Method
+    public static Constraint createConstraint(String type, String name, Object... args) {
+        // ...
+        return null;
+    }
+}
+```
+
+---
+
+##### 3. Prototype Pattern
+* **Class / Interface**: `Table`, `Column`
+* **Method**: `clone()`
+* **Công dụng**: Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu.
+
+**Khung Mã Java:**
+```java
+package metadata.domain;
+
+public class Table implements MetadataElement, Cloneable {
+    // Pattern: Prototype
+    @Override
+    public Table clone() {
+        // ...
+        return null;
+    }
+}
+
+public class Column implements MetadataElement, Cloneable {
+    // Pattern: Prototype
+    @Override
+    public Column clone() {
+        // ...
+        return null;
+    }
+}
+```
+
+---
+
+##### 4. Builder Pattern
+* **Class / Interface**: `ColumnBuilder`
+* **Method**: `setType(...)`, `setNullable(...)`, `setDefaultValue(...)`, `build()`
+* **Công dụng**: Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API.
+
+**Khung Mã Java:**
+```java
+package metadata.builders;
+
+public class ColumnBuilder {
+    public ColumnBuilder(String columnName) { }
+    public ColumnBuilder setType(DataType dataType) { return this; }
+    public ColumnBuilder setNullable(boolean nullable) { return this; }
+    public ColumnBuilder setDefaultValue(String defaultValue) { return this; }
+    public Column build() { return null; }
+}
+```
+
+---
+
+#### Structural Patterns (Nhóm Cấu Trúc)
+
+##### 5. Facade Pattern
 * **Class / Interface**: `MetadataModule`
 * **Method**: `getTable(databaseName, schemaName, tableName)`, `executeDDL(command)`
 * **Công dụng**: Cung cấp giao diện API cấp cao đơn giản hóa việc tương tác phức tạp giữa CatalogManager, Database, Schema và Table.
@@ -81,7 +174,7 @@ public class MetadataModule {
 
 ---
 
-#### 3. Composite Pattern
+##### 6. Composite Pattern
 * **Class / Interface**: `MetadataElement` (Interface), `CatalogManager`, `Database`, `Schema`, `Table`, `Column`
 * **Method**: `getElementName()`
 * **Công dụng**: Xây dựng cấu trúc cây phân cấp quản lý đồng nhất cho các thành phần Metadata trong hệ thống.
@@ -115,7 +208,9 @@ public class Column implements MetadataElement, Cloneable {
 
 ---
 
-#### 4. State Pattern
+#### Behavioral Patterns (Nhóm Hành Vi)
+
+##### 7. State Pattern
 * **Class / Interface**: `Database`, `DatabaseStatus`
 * **Method**: `setStatus(status)`, `createSchema(schemaName)`
 * **Công dụng**: Quản lý và chặn thao tác thay đổi cấu trúc khi Database ở trạng thái `OFFLINE` hoặc `READ_ONLY`.
@@ -146,37 +241,7 @@ public class Database implements MetadataElement {
 
 ---
 
-#### 5. Factory Method Pattern
-* **Class / Interface**: `Schema`, `ConstraintFactory`
-* **Method**: `createTable(tableName)`, `createConstraint(type, name, args)`
-* **Công dụng**: Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt.
-
-**Khung Mã Java:**
-```java
-package metadata.domain;
-
-public class Schema implements MetadataElement {
-    // Pattern: Factory Method
-    public Table createTable(String tableName) {
-        // ...
-        return null;
-    }
-}
-
-package metadata.constraints;
-
-public class ConstraintFactory {
-    // Pattern: Factory Method
-    public static Constraint createConstraint(String type, String name, Object... args) {
-        // ...
-        return null;
-    }
-}
-```
-
----
-
-#### 6. Command Pattern
+##### 8. Command Pattern
 * **Class / Interface**: `DDLCommand` (Interface), `CreateTableCommand`, `DropTableCommand`, `CreateSchemaCommand`, v.v.
 * **Method**: `execute()`, `undo()`
 * **Công dụng**: Đóng gói các thao tác DDL thành các đối tượng lệnh có khả năng Thực thi (`execute`) và Hoàn tác (`undo` / Rollback).
@@ -205,37 +270,7 @@ public class CreateTableCommand implements DDLCommand {
 
 ---
 
-#### 7. Prototype Pattern
-* **Class / Interface**: `Table`, `Column`
-* **Method**: `clone()`
-* **Công dụng**: Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu.
-
-**Khung Mã Java:**
-```java
-package metadata.domain;
-
-public class Table implements MetadataElement, Cloneable {
-    // Pattern: Prototype
-    @Override
-    public Table clone() {
-        // ...
-        return null;
-    }
-}
-
-public class Column implements MetadataElement, Cloneable {
-    // Pattern: Prototype
-    @Override
-    public Column clone() {
-        // ...
-        return null;
-    }
-}
-```
-
----
-
-#### 8. Memento Pattern
+##### 9. Memento Pattern
 * **Class / Interface**: `TableMemento`, `Table`
 * **Method**: `createMemento()`, `restore(memento)`
 * **Công dụng**: Chụp ảnh trạng thái (Snapshot) danh sách các cột của Table và hỗ trợ khôi phục về trạng thái trước đó.
@@ -263,7 +298,7 @@ public class Table implements MetadataElement, Cloneable {
 
 ---
 
-#### 9. Observer Pattern
+##### 10. Observer Pattern
 * **Class / Interface**: `MetadataChangeListener` (Interface), `Table`, `TableEventPublisher`
 * **Method**: `registerListener(...)`, `notifyListeners(...)`, `onMetadataChanged(...)`
 * **Công dụng**: `Table` phát thông báo sự kiện thay đổi cấu trúc cho các Observer lắng nghe tự động cập nhật.
@@ -294,27 +329,7 @@ public class Table implements MetadataElement, Cloneable {
 
 ---
 
-#### 10. Builder Pattern
-* **Class / Interface**: `ColumnBuilder`
-* **Method**: `setType(...)`, `setNullable(...)`, `setDefaultValue(...)`, `build()`
-* **Công dụng**: Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API.
-
-**Khung Mã Java:**
-```java
-package metadata.builders;
-
-public class ColumnBuilder {
-    public ColumnBuilder(String columnName) { }
-    public ColumnBuilder setType(DataType dataType) { return this; }
-    public ColumnBuilder setNullable(boolean nullable) { return this; }
-    public ColumnBuilder setDefaultValue(String defaultValue) { return this; }
-    public Column build() { return null; }
-}
-```
-
----
-
-#### 11. Template Method Pattern
+##### 11. Template Method Pattern
 * **Class / Interface**: `Constraint` (Abstract Class)
 * **Method**: `validate()`, `preValidate()`, `doValidate()`, `postValidate()`
 * **Công dụng**: Định nghĩa thuật toán khung kiểm tra trạng thái `enabled` trước khi tiến hành thẩm định chi tiết.
@@ -337,7 +352,7 @@ public abstract class Constraint {
 
 ---
 
-#### 12. Chain of Responsibility Pattern
+##### 12. Chain of Responsibility Pattern
 * **Class / Interface**: `ConstraintValidationChain`
 * **Method**: `addConstraint(...)`, `validateAll()`
 * **Công dụng**: Quản lý chuỗi thẩm định ràng buộc dữ liệu nối tiếp (Fail-Fast: PK ➔ FK ➔ Check).
@@ -357,7 +372,7 @@ public class ConstraintValidationChain {
 
 ---
 
-#### 13. Strategy Pattern
+##### 13. Strategy Pattern
 * **Class / Interface**: `IndexRebuildStrategy` (Interface), `Index`
 * **Method**: `setRebuildStrategy(...)`, `rebuild()`
 * **Công dụng**: Cho phép gán và thực thi linh hoạt chiến lược rebuild thuật toán cho đối tượng `Index`.
@@ -388,7 +403,7 @@ public class Index {
 
 ### 2.1. CatalogManager & MetadataModule Level (Root Catalog Level)
 
-#### 2.1.1. Singleton Pattern
+#### 2.1.1. Singleton Pattern (Creational)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -404,7 +419,7 @@ sequenceDiagram
 
 ---
 
-#### 2.1.2. Facade Pattern
+#### 2.1.2. Facade Pattern (Structural)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -432,7 +447,7 @@ sequenceDiagram
 
 ---
 
-#### 2.1.3. Composite Pattern
+#### 2.1.3. Composite Pattern (Structural)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -456,7 +471,7 @@ sequenceDiagram
 
 ### 2.2. Database Level
 
-#### 2.2.1. State Pattern
+#### 2.2.1. State Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -478,7 +493,7 @@ sequenceDiagram
 
 ### 2.3. Schema Level
 
-#### 2.3.1. Factory Method Pattern
+#### 2.3.1. Factory Method Pattern (Creational)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -491,7 +506,7 @@ sequenceDiagram
 
 ---
 
-#### 2.3.2. Command Pattern
+#### 2.3.2. Command Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -510,7 +525,7 @@ sequenceDiagram
 
 ### 2.4. Table Level
 
-#### 2.4.1. Prototype Pattern
+#### 2.4.1. Prototype Pattern (Creational)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -528,7 +543,7 @@ sequenceDiagram
 
 ---
 
-#### 2.4.2. Memento Pattern
+#### 2.4.2. Memento Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -550,7 +565,7 @@ sequenceDiagram
 
 ---
 
-#### 2.4.3. Observer Pattern (Subject)
+#### 2.4.3. Observer Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -567,7 +582,7 @@ sequenceDiagram
 
 ### 2.5. Column Level
 
-#### 2.5.1. Builder Pattern
+#### 2.5.1. Builder Pattern (Creational)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -593,7 +608,7 @@ sequenceDiagram
 
 ### 2.6. Constraint Level
 
-#### 2.6.1. Factory Method Pattern (Constraint)
+#### 2.6.1. Factory Method Pattern (Creational)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -609,7 +624,7 @@ sequenceDiagram
 
 ---
 
-#### 2.6.2. Template Method Pattern
+#### 2.6.2. Template Method Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -627,7 +642,7 @@ sequenceDiagram
 
 ---
 
-#### 2.6.3. Chain of Responsibility Pattern
+#### 2.6.3. Chain of Responsibility Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -655,12 +670,11 @@ sequenceDiagram
     deactivate Chain
 ```
 
-
 ---
 
 ### 2.7. Index Level
 
-#### 2.7.1. Strategy Pattern
+#### 2.7.1. Strategy Pattern (Behavioral)
 ```mermaid
 sequenceDiagram
     autonumber
@@ -683,15 +697,24 @@ sequenceDiagram
 
 ### 3.1. Bảng Tổng Quan Design Patterns
 
+#### Creational Patterns (Nhóm Khởi Tạo)
 | # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
 |:---:|:---|:---|:---|:---|
-| 1 | **Facade** | `QueryProcessor` | `compile(sqlText)` | Cung cấp giao diện tập trung duy nhất cho toàn bộ chuỗi biên dịch và tối ưu hóa câu lệnh SQL (Lexer ➔ Parser ➔ AST ➔ Semantic ➔ Optimizer ➔ PlanGenerator). |
-| 2 | **Chain of Responsibility** | `CompilerStage` (Interface)<br>`Lexer`<br>`SQLParser`<br>`ASTBuilder`<br>`SemanticAnalyzer`<br>`QueryRewriter`<br>`QueryOptimizer` | `process(...)` | Nối chuỗi các công đoạn xử lý SQL tuần tự độc lập (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization). |
-| 3 | **Composite** | `AST`<br>`ASTNode` (Composite Node) | `accept(visitor)` | Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất. |
-| 4 | **Visitor** | `ASTVisitor` (Interface)<br>`SemanticAnalyzer`<br>`QueryRewriter` | `visit(node)`<br>`analyze(ast)`<br>`rewrite(ast)` | Thao tác duyệt cây AST để kiểm tra ngữ nghĩa và tối ưu hóa logic mà không làm thay đổi cấu trúc nút cây `ASTNode`. |
-| 5 | **Strategy** | `QueryOptimizer` (Strategy Context)<br>`OptimizationRule` (Interface)<br>`CostEstimator`<br>`PredicatePushdownOptimizer`<br>`ProjectionPushdownOptimizer`<br>`ConstantFoldingOptimizer` | `optimize(plan)`<br>`setOptimizationRule(rule)`<br>`estimate(plan)` | Đóng gói linh hoạt các thuật toán tối ưu hóa dựa trên chi phí (CBO) và các quy tắc biến đổi kế hoạch truy vấn độc lập. |
-| 6 | **Builder** | `LogicalPlanBuilder`<br>`PhysicalPlanBuilder` | `build(ast)`<br>`build(logicalPlan)` | Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu. |
-| 7 | **Factory Method** | `LogicalOperatorFactory`<br>`PhysicalOperatorFactory` | `createOperator(...)` | Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt (`Operator Nodes`). |
+| 1 | **Builder** | `LogicalPlanBuilder`<br>`PhysicalPlanBuilder` | `build(ast)`<br>`build(logicalPlan)` | Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu. |
+| 2 | **Factory Method** | `LogicalOperatorFactory`<br>`PhysicalOperatorFactory` | `createOperator(...)` | Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt (`Operator Nodes`). |
+
+#### Structural Patterns (Nhóm Cấu Trúc)
+| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+|:---:|:---|:---|:---|:---|
+| 3 | **Facade** | `QueryProcessor` | `compile(sqlText)` | Cung cấp giao diện tập trung duy nhất cho toàn bộ chuỗi biên dịch và tối ưu hóa câu lệnh SQL (Lexer ➔ Parser ➔ AST ➔ Semantic ➔ Optimizer ➔ PlanGenerator). |
+| 4 | **Composite** | `AST`<br>`ASTNode` (Composite Node) | `accept(visitor)` | Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất. |
+
+#### Behavioral Patterns (Nhóm Hành Vi)
+| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+|:---:|:---|:---|:---|:---|
+| 5 | **Chain of Responsibility** | `CompilerStage` (Interface)<br>`Lexer`<br>`SQLParser`<br>`ASTBuilder`<br>`SemanticAnalyzer`<br>`QueryRewriter`<br>`QueryOptimizer` | `process(...)` | Nối chuỗi các công đoạn xử lý SQL tuần tự độc lập (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization). |
+| 6 | **Visitor** | `ASTVisitor` (Interface)<br>`SemanticAnalyzer`<br>`QueryRewriter` | `visit(node)`<br>`analyze(ast)`<br>`rewrite(ast)` | Thao tác duyệt cây AST để kiểm tra ngữ nghĩa và tối ưu hóa logic mà không làm thay đổi cấu trúc nút cây `ASTNode`. |
+| 7 | **Strategy** | `QueryOptimizer` (Strategy Context)<br>`OptimizationRule` (Interface)<br>`CostEstimator`<br>`PredicatePushdownOptimizer`<br>`ProjectionPushdownOptimizer`<br>`ConstantFoldingOptimizer` | `optimize(plan)`<br>`setOptimizationRule(rule)`<br>`estimate(plan)` | Đóng gói linh hoạt các thuật toán tối ưu hóa dựa trên chi phí (CBO) và các quy tắc biến đổi kế hoạch truy vấn độc lập. |
 
 ---
 
@@ -750,7 +773,67 @@ sequenceDiagram
 
 ### 3.3. Chi Tiết Từng Pattern & Khung Mã Java Code (Class/Interface & Method Signature)
 
-#### 1. Facade Pattern
+#### Creational Patterns (Nhóm Khởi Tạo)
+
+##### 1. Builder Pattern
+* **Class / Interface**: `LogicalPlanBuilder`, `PhysicalPlanBuilder`
+* **Method**: `build(ast)`, `build(logicalPlan)`
+* **Công dụng**: Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu.
+
+**Khung Mã Java:**
+```java
+package query_processor.planner;
+
+public class LogicalPlanBuilder {
+    // Pattern: Builder
+    public LogicalPlan build(AST ast) {
+        // ...
+        return null;
+    }
+}
+
+public class PhysicalPlanBuilder {
+    // Pattern: Builder
+    public PhysicalPlan build(LogicalPlan logicalPlan) {
+        // ...
+        return null;
+    }
+}
+```
+
+---
+
+##### 2. Factory Method Pattern
+* **Class / Interface**: `LogicalOperatorFactory`, `PhysicalOperatorFactory`
+* **Method**: `createOperator(node)`
+* **Công dụng**: Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt.
+
+**Khung Mã Java:**
+```java
+package query_processor.planner;
+
+public class LogicalOperatorFactory {
+    // Pattern: Factory Method
+    public static LogicalPlanNode createOperator(ASTNode node) {
+        // ...
+        return null;
+    }
+}
+
+public class PhysicalOperatorFactory {
+    // Pattern: Factory Method
+    public static PhysicalPlanNode createOperator(LogicalPlanNode logicalNode) {
+        // ...
+        return null;
+    }
+}
+```
+
+---
+
+#### Structural Patterns (Nhóm Cấu Trúc)
+
+##### 3. Facade Pattern
 * **Class / Interface**: `QueryProcessor`
 * **Method**: `compile(sqlText)`
 * **Công dụng**: Cung cấp giao diện tập trung duy nhất cho toàn bộ chuỗi biên dịch và tối ưu hóa câu lệnh SQL.
@@ -778,7 +861,34 @@ public class QueryProcessor {
 
 ---
 
-#### 2. Chain of Responsibility Pattern
+##### 4. Composite Pattern
+* **Class / Interface**: `ASTNode` (Abstract Class), `SelectASTNode`
+* **Method**: `accept(visitor)`
+* **Công dụng**: Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất.
+
+**Khung Mã Java:**
+```java
+package query_processor.abstracts;
+
+public abstract class ASTNode {
+    public abstract void accept(ASTVisitor visitor);
+}
+
+package query_processor.ast;
+
+public class SelectASTNode extends ASTNode {
+    @Override
+    public void accept(ASTVisitor visitor) {
+        // ...
+    }
+}
+```
+
+---
+
+#### Behavioral Patterns (Nhóm Hành Vi)
+
+##### 5. Chain of Responsibility Pattern
 * **Class / Interface**: `CompilerStage` (Interface), `AbstractCompilerStage`
 * **Method**: `process(input)`, `setNextStage(nextStage)`
 * **Công dụng**: Nối chuỗi các công đoạn xử lý SQL tuần tự độc lập (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization).
@@ -804,32 +914,7 @@ public abstract class AbstractCompilerStage implements CompilerStage {
 
 ---
 
-#### 3. Composite Pattern
-* **Class / Interface**: `ASTNode` (Abstract Class), `SelectASTNode`
-* **Method**: `accept(visitor)`
-* **Công dụng**: Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất.
-
-**Khung Mã Java:**
-```java
-package query_processor.abstracts;
-
-public abstract class ASTNode {
-    public abstract void accept(ASTVisitor visitor);
-}
-
-package query_processor.ast;
-
-public class SelectASTNode extends ASTNode {
-    @Override
-    public void accept(ASTVisitor visitor) {
-        // ...
-    }
-}
-```
-
----
-
-#### 4. Visitor Pattern
+##### 6. Visitor Pattern
 * **Class / Interface**: `ASTVisitor` (Interface), `SemanticAnalyzer`, `QueryRewriter`
 * **Method**: `visit(node)`, `analyze(ast)`, `rewrite(ast)`
 * **Công dụng**: Thao tác duyệt cây AST để kiểm tra ngữ nghĩa và tối ưu hóa logic mà không làm thay đổi cấu trúc nút cây `ASTNode`.
@@ -858,7 +943,7 @@ public class SemanticAnalyzer implements ASTVisitor {
 
 ---
 
-#### 5. Strategy Pattern
+##### 7. Strategy Pattern
 * **Class / Interface**: `QueryOptimizer` (Strategy Context), `OptimizationRule` (Interface), `PredicatePushdownOptimizer`
 * **Method**: `optimize(plan)`, `setOptimizationRule(rule)`
 * **Công dụng**: Đóng gói linh hoạt các thuật toán tối ưu hóa dựa trên chi phí (CBO) và các quy tắc biến đổi kế hoạch truy vấn độc lập.
@@ -893,69 +978,69 @@ public class QueryOptimizer implements CompilerStage {
 
 ---
 
-#### 6. Builder Pattern
-* **Class / Interface**: `LogicalPlanBuilder`, `PhysicalPlanBuilder`
-* **Method**: `build(ast)`, `build(logicalPlan)`
-* **Công dụng**: Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu.
-
-**Khung Mã Java:**
-```java
-package query_processor.planner;
-
-public class LogicalPlanBuilder {
-    // Pattern: Builder
-    public LogicalPlan build(AST ast) {
-        // ...
-        return null;
-    }
-}
-
-public class PhysicalPlanBuilder {
-    // Pattern: Builder
-    public PhysicalPlan build(LogicalPlan logicalPlan) {
-        // ...
-        return null;
-    }
-}
-```
-
----
-
-#### 7. Factory Method Pattern
-* **Class / Interface**: `LogicalOperatorFactory`, `PhysicalOperatorFactory`
-* **Method**: `createOperator(node)`
-* **Công dụng**: Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt.
-
-**Khung Mã Java:**
-```java
-package query_processor.planner;
-
-public class LogicalOperatorFactory {
-    // Pattern: Factory Method
-    public static LogicalPlanNode createOperator(ASTNode node) {
-        // ...
-        return null;
-    }
-}
-
-public class PhysicalOperatorFactory {
-    // Pattern: Factory Method
-    public static PhysicalPlanNode createOperator(LogicalPlanNode logicalNode) {
-        // ...
-        return null;
-    }
-}
-```
-
----
-
 ## 4. Sequence Diagrams for Key Design Patterns & Features in Query Processor Module
 
 ---
 
 ### 4.1. Sequence Diagrams by Design Pattern
 
-#### 4.1.1. Facade Pattern
+#### Creational Patterns (Nhóm Khởi Tạo)
+
+##### 4.1.1. Builder Pattern
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Optimizer as QueryOptimizer
+    participant LPB as LogicalPlanBuilder
+    participant PPB as PhysicalPlanBuilder
+    participant LP as LogicalPlan
+    participant PP as PhysicalPlan
+
+    Optimizer->>+LPB: build(AST)
+    LPB->>+LPB: addLogicalScan()
+    LPB->>+LPB: addLogicalFilter()
+    LPB->>+LPB: addLogicalProject()
+    LPB-->>-Optimizer: LogicalPlan instance
+
+    Optimizer->>+PPB: build(LogicalPlan)
+    PPB->>+PPB: addPhysicalSeqScan()
+    PPB->>+PPB: addPhysicalHashJoin()
+    PPB-->>-Optimizer: PhysicalPlan instance
+```
+
+---
+
+##### 4.1.2. Factory Method Pattern
+```mermaid
+sequenceDiagram
+    autonumber
+    participant LPB as LogicalPlanBuilder
+    participant LOF as LogicalOperatorFactory
+    participant PPB as PhysicalPlanBuilder
+    participant POF as PhysicalOperatorFactory
+
+    LPB->>+LOF: createOperator(ASTNode)
+    alt Node type is SELECT
+        LOF->>+LOF: instantiate LogicalScan
+    else Node type is WHERE
+        LOF->>+LOF: instantiate LogicalFilter
+    end
+    LOF-->>-LPB: LogicalOperator instance
+
+    PPB->>+POF: createOperator(LogicalPlanNode)
+    alt Operator type is JOIN
+        POF->>+POF: instantiate PhysicalHashJoin
+    else Operator type is SCAN
+        POF->>+POF: instantiate PhysicalSeqScan
+    end
+    POF-->>-PPB: PhysicalOperator instance
+```
+
+---
+
+#### Structural Patterns (Nhóm Cấu Trúc)
+
+##### 4.1.3. Facade Pattern
 ```mermaid
 sequenceDiagram
     autonumber
@@ -989,7 +1074,27 @@ sequenceDiagram
 
 ---
 
-#### 4.1.2. Chain of Responsibility Pattern
+##### 4.1.4. Composite Pattern
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Visitor as ASTVisitor (SemanticAnalyzer)
+    participant Tree as AST
+    participant RootNode as ASTNode (SelectNode)
+    participant ChildNode as ASTNode (WhereNode)
+
+    Visitor->>+Tree: traverseTree()
+    Tree->>+RootNode: accept(Visitor)
+    RootNode->>+Visitor: visit(SelectNode)
+    RootNode->>+ChildNode: accept(Visitor)
+    ChildNode->>+Visitor: visit(WhereNode)
+```
+
+---
+
+#### Behavioral Patterns (Nhóm Hành Vi)
+
+##### 4.1.5. Chain of Responsibility Pattern
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1017,25 +1122,7 @@ sequenceDiagram
 
 ---
 
-#### 4.1.3. Composite Pattern
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Visitor as ASTVisitor (SemanticAnalyzer)
-    participant Tree as AST
-    participant RootNode as ASTNode (SelectNode)
-    participant ChildNode as ASTNode (WhereNode)
-
-    Visitor->>+Tree: traverseTree()
-    Tree->>+RootNode: accept(Visitor)
-    RootNode->>+Visitor: visit(SelectNode)
-    RootNode->>+ChildNode: accept(Visitor)
-    ChildNode->>+Visitor: visit(WhereNode)
-```
-
----
-
-#### 4.1.4. Visitor Pattern
+##### 4.1.6. Visitor Pattern
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1061,7 +1148,7 @@ sequenceDiagram
 
 ---
 
-#### 4.1.5. Strategy Pattern
+##### 4.1.7. Strategy Pattern
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1079,58 +1166,6 @@ sequenceDiagram
     Rule-->>-Optimizer: Optimized LogicalPlan
     Optimizer->>+Cost: estimate(LogicalPlan)
     Cost-->>-Optimizer: Estimated CPU & I/O Cost
-```
-
----
-
-#### 4.1.6. Builder Pattern
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Optimizer as QueryOptimizer
-    participant LPB as LogicalPlanBuilder
-    participant PPB as PhysicalPlanBuilder
-    participant LP as LogicalPlan
-    participant PP as PhysicalPlan
-
-    Optimizer->>+LPB: build(AST)
-    LPB->>+LPB: addLogicalScan()
-    LPB->>+LPB: addLogicalFilter()
-    LPB->>+LPB: addLogicalProject()
-    LPB-->>-Optimizer: LogicalPlan instance
-
-    Optimizer->>+PPB: build(LogicalPlan)
-    PPB->>+PPB: addPhysicalSeqScan()
-    PPB->>+PPB: addPhysicalHashJoin()
-    PPB-->>-Optimizer: PhysicalPlan instance
-```
-
----
-
-#### 4.1.7. Factory Method Pattern
-```mermaid
-sequenceDiagram
-    autonumber
-    participant LPB as LogicalPlanBuilder
-    participant LOF as LogicalOperatorFactory
-    participant PPB as PhysicalPlanBuilder
-    participant POF as PhysicalOperatorFactory
-
-    LPB->>+LOF: createOperator(ASTNode)
-    alt Node type is SELECT
-        LOF->>+LOF: instantiate LogicalScan
-    else Node type is WHERE
-        LOF->>+LOF: instantiate LogicalFilter
-    end
-    LOF-->>-LPB: LogicalOperator instance
-
-    PPB->>+POF: createOperator(LogicalPlanNode)
-    alt Operator type is JOIN
-        POF->>+POF: instantiate PhysicalHashJoin
-    else Operator type is SCAN
-        POF->>+POF: instantiate PhysicalSeqScan
-    end
-    POF-->>-PPB: PhysicalOperator instance
 ```
 
 ---

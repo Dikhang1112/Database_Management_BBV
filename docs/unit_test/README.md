@@ -10,7 +10,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 | STT | Module | Number of Test Classes | Total Testcases | Status |
 |:---:|:---|:---:|:---:|:---:|
 | 1 | Metadata | 12 | 77 | Done |
-| 2 | Query Processor | 12 | 43 | Doing |
+| 2 | Query Processor | 21 | 57 | Doing |
 | 3 | Database Core Server | 5 | 35 | Planned |
 | 4 | Execution Engine | 9 | 55 | Planned |
 | 5 | Storage Engine | 10 | 65 | Planned |
@@ -19,7 +19,7 @@ This document provides a comprehensive roadmap of all unit test scenarios across
 | 8 | Performance & Scalability | 3 | 18 | Planned |
 | 9 | Monitoring | 2 | 12 | Planned |
 | 10 | Automation | 2 | 10 | Planned |
-| **Total** | **10 Modules** | **63 Classes** | **362 Testcases** | |
+| **Total** | **10 Modules** | **72 Classes** | **376 Testcases** | |
 
 ---
 
@@ -250,88 +250,41 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    Root(("Query Processor Unit Tests"))
+    Root(("Query Processor Unit Tests (21 Classes / 57 Testcases)"))
 
-    Cat1(["1. LexerTest"])
-    Cat2(["2. TokenStreamTest"])
-    Cat3(["3. TokenTest"])
-    Cat4(["4. SQLParserTest"])
-    Cat5(["5. ASTBuilderTest"])
-    Cat6(["6. ASTTest"])
-    Cat7(["7. SelectASTNodeTest"])
-    Cat8(["8. BinaryOpASTNodeTest"])
-    Cat9(["9. IdentifierASTNodeTest"])
-    Cat10(["10. LiteralASTNodeTest"])
-    Cat11(["11. QueryOptimizerTest"])
-    Cat12(["12. StatisticsManagerTest"])
+    subgraph Phase1 ["1. Semantic Analysis (6 Classes / 24 Testcases - Done)"]
+        SA1(["SemanticAnalyzerTest"])
+        SA2(["NameResolverTest"])
+        SA3(["TypeCheckerTest"])
+        SA4(["GroupByValidatorTest"])
+        SA5(["OrderByValidatorTest"])
+        SA6(["ASTVisitorAndNodeTest"])
+    end
 
-    Root --> Cat1
-    Root --> Cat2
-    Root --> Cat3
-    Root --> Cat4
-    Root --> Cat5
-    Root --> Cat6
-    Root --> Cat7
-    Root --> Cat8
-    Root --> Cat9
-    Root --> Cat10
-    Root --> Cat11
-    Root --> Cat12
+    subgraph Phase2 ["2. Plan Generation (7 Classes / 16 Testcases - Detail Doc)"]
+        PG1(["PlanGeneratorTest"])
+        PG2(["LogicalPlanBuilderTest"])
+        PG3(["LogicalOperatorFactoryTest"])
+        PG4(["PhysicalPlanBuilderTest"])
+        PG5(["PhysicalOperatorFactoryTest"])
+        PG6(["PlanValidatorTest"])
+        PG7(["PlanNormalizerTest"])
+    end
 
-    Cat1 --> TC01("TC-01 Tokenize Valid SQL")
-    TC01 --> TC01A("Case-insensitive keywords")
-    TC01 --> TC01B("Numeric and string literals")
-    TC01 --> TC01C("Operators and punctuation")
-    TC01 --> TC01D("Unterminated string literal")
-    TC01 --> TC01E("Invalid character error")
+    subgraph Phase3 ["3. Query Optimizer (8 Classes / 17 Testcases - Detail Doc)"]
+        QO1(["QueryOptimizerTest"])
+        QO2(["QueryRewriterTest"])
+        QO3(["PredicatePushdownOptimizerTest"])
+        QO4(["ProjectionPushdownOptimizerTest"])
+        QO5(["ConstantFoldingOptimizerTest"])
+        QO6(["JoinOptimizerTest"])
+        QO7(["CostEstimatorTest"])
+        QO8(["AccessPathSelectorTest"])
+    end
 
-    Cat2 --> TC02("TC-02 Consume Tokens")
-    TC02 --> TC02A("LookAhead offset without advancing")
-    TC02 --> TC02B("Empty stream boundary")
-    TC02 --> TC02C("LookAhead out of bounds")
-    TC02 --> TC02D("Consume past EOF")
-
-    Cat3 --> TC03("TC-03 Create Token")
-    TC03 --> TC03A("Token equality comparison")
-    TC03 --> TC03B("Default constructor initialization")
-
-    Cat4 --> TC04("TC-04 Parse Select Query")
-    TC04 --> TC04A("Parse query without WHERE clause")
-    TC04 --> TC04B("Syntax error missing FROM keyword")
-    TC04 --> TC04C("Unexpected token error")
-    TC04 --> TC04D("Empty token stream error")
-
-    Cat5 --> TC05("TC-05 Build AST from ParseTree")
-    TC05 --> TC05A("Map ParseTreeNode to ASTNode")
-
-    Cat6 --> TC06("TC-06 Create AST")
-    TC06 --> TC06A("Empty AST initialization")
-    TC06 --> TC06B("Get root AST node")
-
-    Cat7 --> TC07("TC-07 Build Select AST Node")
-    TC07 --> TC07A("Null WHERE condition allowed")
-    TC07 --> TC07B("Multiple projection fields")
-
-    Cat8 --> TC08("TC-08 Build Binary Op Node")
-    TC08 --> TC08A("Nested binary operators evaluation")
-
-    Cat9 --> TC09("TC-09 Build Identifier Node")
-    TC09 --> TC09A("Qualified column identifier (table.col)")
-
-    Cat10 --> TC10("TC-10 Build Literal Node")
-    TC10 --> TC10A("Integer literal node")
-    TC10 --> TC10B("String literal node")
-    TC10 --> TC10C("Boolean literal node")
-    TC10 --> TC10D("NULL literal node")
-
-    Cat11 --> TC11("TC-11 Generate Logical Plan")
-    TC11 --> TC11A("Optimize logical plan to physical plan")
-    TC11 --> TC11B("Estimate execution plan cost")
-    TC11 --> TC11C("Select IndexScan when index exists")
-
-    Cat12 --> TC12("TC-12 Estimate Table Cardinality")
-    TC12 --> TC12A("Estimate predicate selectivity")
-    TC12 --> TC12B("Table not found exception")
+    Root --> Phase1
+    Root --> Phase2
+    Root --> Phase3
 ```
 
 ---
