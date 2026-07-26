@@ -1,4 +1,4 @@
-﻿# Sequence Diagrams for Key Design Patterns in Metadata Module
+# Sequence Diagrams for Key Design Patterns in Metadata Module
 
 This document contains **13 Mermaid Sequence Diagrams** illustrating interaction flows for core and operational **Design Patterns** in the `metadata` module, matching 100% with `ListPatterm.md` by object hierarchy from **Root Catalog** ➔ **Database & Schema** ➔ **Table** ➔ **Column, Constraint, & Index** ➔ **Schema Observers**.
 
@@ -309,18 +309,22 @@ sequenceDiagram
     participant FK as ForeignKeyConstraint
 
     Table->>+Chain: addConstraint(pkConstraint)
+    Chain-->>-Table: void
     Table->>+Chain: addConstraint(fkConstraint)
+    Chain-->>-Table: void
     Table->>+Chain: validateAll()
     Chain->>+PK: validate()
     alt PK Valid
-        PK-->>-Chain: true
+        PK-->>Chain: true
         Chain->>+FK: validate()
         FK-->>-Chain: true
-        Chain-->>-Table: true (validateAll Passed)
+        Chain-->>Table: true (validateAll Passed)
     else PK Invalid
-        PK-->>-Chain: false
-        Chain-->>-Table: false (validateAll Failed)
+        PK-->>Chain: false
+        Chain-->>Table: false (validateAll Failed)
     end
+    deactivate PK
+    deactivate Chain
 ```
 
 ---
