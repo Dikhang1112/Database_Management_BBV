@@ -32,7 +32,6 @@ class CatalogManager{
 +getInstance() CatalogManager$
 +createDatabase(String databaseName) Database
 +dropDatabase(String databaseName)
-+renameDatabase(String oldName,String newName)
 +getDatabase(String databaseName) Database
 +containsDatabase(String databaseName) boolean
 +listDatabases() List~Database~
@@ -51,7 +50,6 @@ class Database{
 -DatabaseStatus status
 -LocalDateTime createdAt
 
-+rename(String newName)
 +setStatus(DatabaseStatus status)
 +getDatabaseName() String
 +getStatus() DatabaseStatus
@@ -89,15 +87,6 @@ class CreateDatabaseCommand{
 class DropDatabaseCommand{
 
 -String databaseName
-
-+execute()
-+undo()
-}
-
-class RenameDatabaseCommand{
-
--String oldName
--String newName
 
 +execute()
 +undo()

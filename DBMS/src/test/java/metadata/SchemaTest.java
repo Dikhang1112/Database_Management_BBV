@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.domain.Schema;
+import metadata.domain.Table;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SchemaTest {
 
     @Test
-    @DisplayName("TC-07. Create Table")
+    @DisplayName("TC-08. Create Table")
     void createTable_ShouldRegisterTableInSchema_WhenValidTableNameIsProvided() {
         Schema schema = new Schema("public");
 
@@ -22,7 +24,7 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-07A. Create Table - Already Exists")
+    @DisplayName("TC-08A. Create Table - Already Exists")
     void createTable_ShouldThrowException_WhenTableAlreadyExists() {
         Schema schema = new Schema("public");
         schema.createTable("users");
@@ -33,7 +35,7 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-07B. Create Table - Permission Denied")
+    @DisplayName("TC-08B. Create Table - Permission Denied")
     void createTable_ShouldThrowException_WhenPermissionDenied() {
         Schema schema = new Schema("public");
 
@@ -43,7 +45,7 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-07C. Create Table - Schema Read Only")
+    @DisplayName("TC-08C. Create Table - Schema Read Only")
     void createTable_ShouldThrowException_WhenSchemaIsReadOnly() {
         Schema schema = new Schema("public");
         schema.setReadOnly(true);
@@ -54,7 +56,7 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-07D. Create Table - Special Characters")
+    @DisplayName("TC-08D. Create Table - Special Characters")
     void createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters() {
         Schema schema = new Schema("public");
 
@@ -64,26 +66,24 @@ class SchemaTest {
     }
 
     @Test
-    @DisplayName("TC-08. Rename Schema & List Tables")
-    void rename_And_listTables_ShouldUpdateSchemaNameAndMaintainTables_WhenRenamed() {
-        Schema schema = new Schema("raw_schema");
+    @DisplayName("TC-09. List Tables in Schema")
+    void listTables_ShouldReturnManagedTables_WhenTablesExist() {
+        Schema schema = new Schema("public");
         schema.createTable("t1");
         schema.createTable("t2");
 
         List<Table> tables = schema.listTables();
-        schema.rename("prod_schema");
 
         assertThat(tables).hasSize(2);
-        assertThat(schema.getSchemaName()).isEqualTo("prod_schema");
     }
 
     @Test
-    @DisplayName("TC-08A. Rename Schema - Not Found")
-    void renameSchema_ShouldThrowException_WhenSchemaNotFound() {
-        Database database = new Database("app_db");
+    @DisplayName("TC-09B. Get Table - Invalid Name")
+    void getTable_ShouldThrowException_WhenTableNameIsInvalid() {
+        Schema schema = new Schema("public");
 
-        assertThatThrownBy(() -> database.renameSchema("missing_schema", "new_name"))
+        assertThatThrownBy(() -> schema.getTable("invalid@table!"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Schema not found");
+                .hasMessageContaining("Table name contains invalid characters");
     }
 }

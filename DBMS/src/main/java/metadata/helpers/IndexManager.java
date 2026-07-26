@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Index;
+import metadata.domain.Index;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +31,7 @@ public class IndexManager {
     }
 
     public Index get(String indexName) {
-        if (indexName == null) return null;
+        CatalogValidator.validateIdentifier(indexName, "Index");
         return indexes.get(indexName.toLowerCase());
     }
 

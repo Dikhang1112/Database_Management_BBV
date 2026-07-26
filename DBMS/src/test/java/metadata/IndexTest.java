@@ -1,5 +1,8 @@
 package metadata;
 
+import metadata.domain.Column;
+import metadata.domain.Index;
+import metadata.domain.Table;
 import metadata.enums.DataType;
 import metadata.enums.IndexType;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class IndexTest {
 
     @Test
-    @DisplayName("TC-13. Add Index")
+    @DisplayName("TC-14. Add Index")
     void addIndex_ShouldAttachIndexToTable_WhenIndexIsAddedAndRebuilt() {
         Table table = new Table("users");
         Index index = new Index("idx_user_email", IndexType.BTREE);
@@ -27,7 +30,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13A. Add Index - Duplicate Index Name")
+    @DisplayName("TC-14A. Add Index - Duplicate Index Name")
     void addIndex_ShouldThrowException_WhenDuplicateIndexName() {
         Table table = new Table("users");
         Index index1 = new Index("idx_user_email", IndexType.BTREE);
@@ -41,7 +44,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13B. Add Index - Column Not Found")
+    @DisplayName("TC-14B. Add Index - Column Not Found")
     void addIndex_ShouldThrowException_WhenIndexedColumnNotFound() {
         Table table = new Table("users");
         Index index = new Index("idx_missing_col", IndexType.BTREE);
@@ -53,7 +56,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13D. Remove Index")
+    @DisplayName("TC-14C. Remove Index")
     void removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists() {
         Table table = new Table("users");
         Index index = new Index("idx_user_email", IndexType.BTREE);
@@ -65,7 +68,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13E. Remove Index - Index Not Found")
+    @DisplayName("TC-14D. Remove Index - Index Not Found")
     void removeIndex_ShouldThrowException_WhenIndexNotFound() {
         Table table = new Table("users");
 
@@ -75,7 +78,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13F. Remove Index - Table Locked")
+    @DisplayName("TC-14E. Remove Index - Table Locked")
     void removeIndex_ShouldThrowException_WhenTableIsLocked() {
         Table table = new Table("users");
         Index index = new Index("idx_user_email", IndexType.BTREE);
@@ -88,7 +91,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-13G. Remove Index - Invalid Name Format")
+    @DisplayName("TC-14F. Remove Index - Invalid Name Format")
     void removeIndex_ShouldThrowException_WhenIndexNameIsInvalid() {
         Table table = new Table("users");
 
@@ -98,7 +101,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-14. Rebuild Index")
+    @DisplayName("TC-15. Rebuild Index")
     void rebuildIndex_ShouldReenableIndex_WhenRebuilt() {
         Index index = new Index("idx_user_email", IndexType.BTREE);
         index.disable();
@@ -109,7 +112,7 @@ class IndexTest {
     }
 
     @Test
-    @DisplayName("TC-14A. Rebuild Index - Disabled & Corrupted")
+    @DisplayName("TC-15A. Rebuild Index - Disabled & Corrupted")
     void rebuildIndex_ShouldThrowException_WhenIndexIsDisabledAndCorrupted() {
         Index index = new Index("idx_corrupted", IndexType.BTREE);
         index.setCorrupted(true);

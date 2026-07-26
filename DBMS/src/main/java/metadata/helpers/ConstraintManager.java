@@ -10,6 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConstraintManager {
     private final Map<String, Constraint> constraints = new ConcurrentHashMap<>();
 
+    public ConstraintManager() {
+    }
+
     public ConstraintManager(ColumnManager columnManager) {
     }
 
@@ -31,7 +34,7 @@ public class ConstraintManager {
     }
 
     public Constraint get(String constraintName) {
-        if (constraintName == null) return null;
+        CatalogValidator.validateIdentifier(constraintName, "Constraint");
         return constraints.get(constraintName.toLowerCase());
     }
 

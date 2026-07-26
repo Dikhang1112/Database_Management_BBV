@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Schema;
+import metadata.domain.Schema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,23 +26,14 @@ public class SchemaManager {
     }
 
     public Schema get(String schemaName) {
-        if (schemaName == null) return null;
+        CatalogValidator.validateIdentifier(schemaName, "Schema");
+        CatalogValidator.ensureExists(schemaName, schemas.keySet(), "Schema");
         return schemas.get(schemaName.toLowerCase());
     }
 
     public boolean contains(String schemaName) {
         if (schemaName == null) return false;
         return schemas.containsKey(schemaName.toLowerCase());
-    }
-
-    public void rename(String oldName, String newName) {
-        CatalogValidator.validateIdentifier(oldName, "Schema");
-        CatalogValidator.validateIdentifier(newName, "Schema");
-        CatalogValidator.ensureExists(oldName, schemas.keySet(), "Schema");
-        CatalogValidator.ensureUniqueName(newName, schemas.keySet(), "Schema");
-        Schema schema = schemas.remove(oldName.toLowerCase());
-        schema.rename(newName);
-        schemas.put(newName.toLowerCase(), schema);
     }
 
     public List<Schema> listAll() {

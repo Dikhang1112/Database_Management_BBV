@@ -22,31 +22,22 @@ classDiagram
 
         +createColumn(Column column)
         +dropColumn(String columnName)
-        +renameColumn(String oldName,String newName)
-
 
         +createConstraint(Constraint constraint)
         +dropConstraint(String constraintName)
 
-
         +createIndex(Index index)
         +dropIndex(String indexName)
-
-
-        +rename(String newName)
 
         +createMemento() TableMemento
         +restore(TableMemento memento)
 
         +clone() Table
 
-
         +registerListener(MetadataChangeListener listener)
         +removeListener(MetadataChangeListener listener)
         +notifyListeners(String eventType,String targetName)
     }
-
-
 
 %% =====================================================
 %% COLUMN
@@ -60,9 +51,6 @@ classDiagram
 
         -boolean nullable
         -String defaultValue
-
-
-        +rename(String newName)
 
         +changeDataType(DataType dataType)
 
@@ -295,20 +283,6 @@ class DropTableCommand{
 
 
 
-class RenameTableCommand{
-
--String oldName
-
--String newName
-
-
-+execute()
-
-+undo()
-}
-
-
-
 class CreateColumnCommand{
 
 -Column column
@@ -324,20 +298,6 @@ class CreateColumnCommand{
 class DropColumnCommand{
 
 -String columnName
-
-
-+execute()
-
-+undo()
-}
-
-
-
-class RenameColumnCommand{
-
--String oldName
-
--String newName
 
 
 +execute()
@@ -390,13 +350,9 @@ DDLCommand <|.. CreateTableCommand
 
 DDLCommand <|.. DropTableCommand
 
-DDLCommand <|.. RenameTableCommand
-
 DDLCommand <|.. CreateColumnCommand
 
 DDLCommand <|.. DropColumnCommand
-
-DDLCommand <|.. RenameColumnCommand
 
 
 
@@ -404,13 +360,9 @@ CreateTableCommand ..> Table
 
 DropTableCommand ..> Table
 
-RenameTableCommand ..> Table
-
 CreateColumnCommand ..> Table
 
 DropColumnCommand ..> Table
-
-RenameColumnCommand ..> Table
 
 
 

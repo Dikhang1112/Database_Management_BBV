@@ -1,10 +1,9 @@
 package metadata.interfaces;
 
-import metadata.Index;
+import metadata.domain.Index;
 
 /**
- * Interface cho Strategy Pattern trong metadata module.
- * Định nghĩa chiến lược rebuild lại chỉ mục trong Index.
+ * Interface cho Strategy Pattern định nghĩa thuật toán tái cấu trúc chỉ mục.
  */
 public interface IndexRebuildStrategy {
     void rebuildIndex(Index index);

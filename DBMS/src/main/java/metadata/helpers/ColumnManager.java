@@ -1,6 +1,6 @@
 package metadata.helpers;
 
-import metadata.Column;
+import metadata.domain.Column;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,12 +11,9 @@ public class ColumnManager {
     private final Map<String, Column> columns = new ConcurrentHashMap<>();
 
     public void add(Column column) {
-        if (column == null) {
-            throw new IllegalArgumentException("Value is empty");
-        }
-        String nameColumn = column.getColumnName();
-        SecurityValidator.validatePermission(nameColumn);
+        String nameColumn = column.getElementName();
         CatalogValidator.validateIdentifier(nameColumn, "Column");
+        SecurityValidator.validatePermission(nameColumn);
         CatalogValidator.ensureUniqueName(nameColumn, columns.keySet(), "Column");
         columns.put(nameColumn.toLowerCase(), column);
     }
@@ -27,29 +24,19 @@ public class ColumnManager {
         columns.remove(columnName.toLowerCase());
     }
 
-    public void rename(String oldName, String newName) {
-        CatalogValidator.validateIdentifier(oldName, "Column");
-        CatalogValidator.validateIdentifier(newName, "Column");
-        CatalogValidator.ensureExists(oldName, columns.keySet(), "Column");
-        CatalogValidator.ensureUniqueName(newName, columns.keySet(), "Column");
-        Column col = columns.remove(oldName.toLowerCase());
-        col.rename(newName);
-        columns.put(newName.toLowerCase(), col);
-    }
-
     public void restoreColumns(List<Column> columnList) {
         columns.clear();
         if (columnList != null) {
             for (Column col : columnList) {
                 if (col != null) {
-                    columns.put(col.getColumnName().toLowerCase(), col);
+                    columns.put(col.getElementName().toLowerCase(), col);
                 }
             }
         }
     }
 
     public Column get(String columnName) {
-        if (columnName == null) return null;
+        CatalogValidator.validateIdentifier(columnName, "Column");
         return columns.get(columnName.toLowerCase());
     }
 

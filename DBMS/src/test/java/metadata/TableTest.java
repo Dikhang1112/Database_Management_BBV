@@ -1,11 +1,16 @@
 package metadata;
 
+import metadata.constraints.PrimaryKeyConstraint;
+import metadata.domain.Column;
+import metadata.domain.Table;
 import metadata.enums.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.List;
 
@@ -14,16 +19,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class TableTest {
 
     @Mock
     private Column mockColumn;
 
     @Test
-    @DisplayName("TC-09. Add Column")
+    @DisplayName("TC-10. Add Column")
     void addColumn_ShouldAttachColumnToTable_WhenColumnIsAdded() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");
+        when(mockColumn.getElementName()).thenReturn("order_id");
 
         table.addColumn(mockColumn);
         List<Column> columns = table.listColumns();
@@ -33,10 +40,11 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-09A. Add Column - Column Already Exists")
+    @DisplayName("TC-10A. Add Column - Column Already Exists")
     void addColumn_ShouldThrowException_WhenColumnAlreadyExists() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("order_id");
+        when(mockColumn.getElementName()).thenReturn("order_id");
         table.addColumn(mockColumn);
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
@@ -45,7 +53,7 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-09B. Add Column - Table Locked")
+    @DisplayName("TC-10B. Add Column - Table Locked")
     void addColumn_ShouldThrowException_WhenTableIsLocked() {
         Table table = new Table("orders");
         table.setLocked(true);
@@ -56,10 +64,11 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-09C. Add Column - Permission Denied")
+    @DisplayName("TC-10C. Add Column - Permission Denied")
     void addColumn_ShouldThrowException_WhenPermissionDenied() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("secret_col");
+        when(mockColumn.getElementName()).thenReturn("secret_col");
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
                 .isInstanceOf(SecurityException.class)
@@ -67,10 +76,11 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-09D. Add Column - Special Characters")
+    @DisplayName("TC-10D. Add Column - Special Characters")
     void addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters() {
         Table table = new Table("orders");
         when(mockColumn.getColumnName()).thenReturn("col#name!");
+        when(mockColumn.getElementName()).thenReturn("col#name!");
 
         assertThatThrownBy(() -> table.addColumn(mockColumn))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -78,7 +88,7 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-10. Remove Column")
+    @DisplayName("TC-11. Remove Column")
     void removeColumn_ShouldDetachColumnFromTable_WhenColumnExists() {
         Table table = new Table("orders");
         Column column = new Column("temp_col", DataType.VARCHAR);
@@ -90,7 +100,7 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-10A. Remove Column - Column Not Found")
+    @DisplayName("TC-11A. Remove Column - Column Not Found")
     void removeColumn_ShouldThrowException_WhenColumnNotFound() {
         Table table = new Table("orders");
 
@@ -100,7 +110,7 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-10B. Remove Column - Referenced by Constraint")
+    @DisplayName("TC-11B. Remove Column - Referenced by Constraint")
     void removeColumn_ShouldThrowException_WhenReferencedByConstraint() {
         Table table = new Table("orders");
         table.addColumn(new Column("id", DataType.INT));
@@ -112,7 +122,7 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-10E. Remove Column - Table Locked")
+    @DisplayName("TC-11C. Remove Column - Table Locked")
     void removeColumn_ShouldThrowException_WhenTableIsLocked() {
         Table table = new Table("orders");
         table.addColumn(new Column("temp_col", DataType.VARCHAR));
@@ -124,12 +134,42 @@ class TableTest {
     }
 
     @Test
-    @DisplayName("TC-10F. Remove Column - Invalid Name Format")
+    @DisplayName("TC-11D. Remove Column - Invalid Name Format")
     void removeColumn_ShouldThrowException_WhenColumnNameIsInvalid() {
         Table table = new Table("orders");
 
         assertThatThrownBy(() -> table.removeColumn(""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Value is empty");
+    }
+
+    @Test
+    @DisplayName("TC-11E. Get Column - Invalid Name")
+    void getColumn_ShouldThrowException_WhenColumnNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getColumn("invalid#col"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Column name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-11F. Get Index - Invalid Name")
+    void getIndex_ShouldThrowException_WhenIndexNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getIndex("invalid#idx"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Index name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-11G. Get Constraint - Invalid Name")
+    void getConstraint_ShouldThrowException_WhenConstraintNameIsInvalid() {
+        Table table = new Table("orders");
+
+        assertThatThrownBy(() -> table.getConstraint("invalid#const"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Constraint name contains invalid characters");
     }
 }

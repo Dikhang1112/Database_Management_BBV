@@ -1,5 +1,7 @@
 package metadata;
 
+import metadata.domain.CatalogManager;
+import metadata.domain.Database;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-01. Create Database")
+    @DisplayName("TC-02. Create Database")
     void createDatabase_ShouldAddDatabaseToCatalog_WhenValidNameIsProvided() {
         Database db = catalogManager.createDatabase("sales_db");
 
@@ -29,7 +31,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-01A. Create Database - Already Exists")
+    @DisplayName("TC-02A. Create Database - Already Exists")
     void createDatabase_ShouldThrowException_WhenDatabaseAlreadyExists() {
         catalogManager.createDatabase("sales_db");
 
@@ -39,7 +41,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-01B. Create Database - Invalid Name")
+    @DisplayName("TC-02B. Create Database - Invalid Name")
     void createDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
         assertThatThrownBy(() -> catalogManager.createDatabase(""))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -47,7 +49,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-01C. Create Database - Permission Denied")
+    @DisplayName("TC-02C. Create Database - Permission Denied")
     void createDatabase_ShouldThrowException_WhenPermissionDenied() {
         assertThatThrownBy(() -> catalogManager.createDatabase("protected_db"))
                 .isInstanceOf(SecurityException.class)
@@ -55,7 +57,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-01D. Create Database - Special Characters")
+    @DisplayName("TC-02D. Create Database - Special Characters")
     void createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters() {
         assertThatThrownBy(() -> catalogManager.createDatabase("sales@db!"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -63,7 +65,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-02. Drop Database")
+    @DisplayName("TC-03. Drop Database")
     void dropDatabase_ShouldRemoveDatabaseFromCatalog_WhenDatabaseExists() {
         catalogManager.createDatabase("temp_db");
 
@@ -73,7 +75,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-02A. Drop Database - Not Found")
+    @DisplayName("TC-03A. Drop Database - Not Found")
     void dropDatabase_ShouldThrowException_WhenDatabaseNotFound() {
         assertThatThrownBy(() -> catalogManager.dropDatabase("missing_db"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -81,7 +83,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-02B. Drop Database - Database Not Empty")
+    @DisplayName("TC-03B. Drop Database - Database Not Empty")
     void dropDatabase_ShouldThrowException_WhenDatabaseIsNotEmpty() {
         Database db = catalogManager.createDatabase("db_with_schemas");
         db.createSchema("public");
@@ -92,7 +94,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-02C. Drop Database - Permission Denied")
+    @DisplayName("TC-03C. Drop Database - Permission Denied")
     void dropDatabase_ShouldThrowException_WhenPermissionDenied() {
         catalogManager.createDatabase("prod_db");
 
@@ -102,7 +104,7 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-03. Get & List Databases")
+    @DisplayName("TC-04. List Databases")
     void listDatabases_ShouldReturnAllRegisteredDatabases_WhenDatabasesAreCreated() {
         Database db1 = catalogManager.createDatabase("db1");
         Database db2 = catalogManager.createDatabase("db2");
@@ -114,7 +116,15 @@ class CatalogManagerTest {
     }
 
     @Test
-    @DisplayName("TC-04. Clear Catalog")
+    @DisplayName("TC-04A. Get Database - Invalid Name")
+    void getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid() {
+        assertThatThrownBy(() -> catalogManager.getDatabase("invalid@db!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Database name contains invalid characters");
+    }
+
+    @Test
+    @DisplayName("TC-05. Clear Catalog")
     void clear_ShouldRemoveAllDatabases_WhenCatalogIsCleared() {
         catalogManager.createDatabase("db1");
 

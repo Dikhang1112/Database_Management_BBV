@@ -1,5 +1,6 @@
 package metadata;
 
+import metadata.domain.Column;
 import metadata.enums.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ColumnTest {
 
     @Test
-    @DisplayName("TC-11. Change Data Type")
+    @DisplayName("TC-12. Change Data Type")
     void changeDataType_ShouldUpdateColumnDataType_WhenValid() {
         Column column = new Column("age", DataType.INT);
 
@@ -20,7 +21,7 @@ class ColumnTest {
     }
 
     @Test
-    @DisplayName("TC-11A. Change Data Type - Unsupported Conversion")
+    @DisplayName("TC-12A. Change Data Type - Unsupported Conversion")
     void changeDataType_ShouldThrowException_WhenUnsupportedConversion() {
         Column column = new Column("age", DataType.INT);
 
@@ -30,7 +31,7 @@ class ColumnTest {
     }
 
     @Test
-    @DisplayName("TC-11B. Change Data Type - Permission Denied")
+    @DisplayName("TC-12B. Change Data Type - Permission Denied")
     void changeDataType_ShouldThrowException_WhenPermissionDenied() {
         Column column = new Column("protected_col", DataType.INT);
 
@@ -40,23 +41,22 @@ class ColumnTest {
     }
 
     @Test
-    @DisplayName("TC-12. Column Operations & Properties")
+    @DisplayName("TC-13. Column Operations & Properties")
     void changeDataTypeAndsetDefaultValue_ShouldUpdateColumnProperties_WhenModified() {
         Column column = new Column("age", DataType.INT);
 
         column.setNullable(false);
         column.setDefaultValue("18");
         column.changeDataType(DataType.BIGINT);
-        column.rename("user_age");
 
-        assertThat(column.getColumnName()).isEqualTo("user_age");
+        assertThat(column.getColumnName()).isEqualTo("age");
         assertThat(column.getDataType()).isEqualTo(DataType.BIGINT);
         assertThat(column.isNullable()).isFalse();
         assertThat(column.getDefaultValue()).isEqualTo("18");
     }
 
     @Test
-    @DisplayName("TC-12A. Set Default Value - Invalid Default Value")
+    @DisplayName("TC-13A. Set Default Value - Invalid Default Value")
     void setDefaultValue_ShouldThrowException_WhenDefaultValueIsInvalid() {
         Column column = new Column("age", DataType.INT);
 
