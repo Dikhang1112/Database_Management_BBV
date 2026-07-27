@@ -1,6 +1,6 @@
 package query_processor.interfaces;
 
-import query_processor.planner.LogicalPlan;
+import query_processor.plan.LogicalPlan;
 
 /**
  * Giao diện định nghĩa chiến lược tối ưu hóa kế hoạch thực thi logic.

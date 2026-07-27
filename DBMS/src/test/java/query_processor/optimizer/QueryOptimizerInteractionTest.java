@@ -1,8 +1,8 @@
 package query_processor.optimizer;
 
 import query_processor.exceptions.JoinOptimizationException;
-import query_processor.planner.LogicalPlan;
-import query_processor.planner.PhysicalPlan;
+import query_processor.plan.LogicalPlan;
+import query_processor.plan.PhysicalPlan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

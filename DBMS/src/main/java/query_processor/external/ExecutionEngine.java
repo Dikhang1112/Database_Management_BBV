@@ -1,6 +1,6 @@
 package query_processor.external;
 
-import query_processor.planner.PhysicalPlan;
+import query_processor.plan.PhysicalPlan;
 
 /**
  * Module thực thi kế hoạch truy vấn vật lý (PhysicalPlan) trên Storage Engine.

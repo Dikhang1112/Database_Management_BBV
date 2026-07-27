@@ -1,6 +1,6 @@
 package query_processor.optimizer;
 
-import query_processor.planner.LogicalPlan;
+import query_processor.plan.LogicalPlan;
 
 public class QueryRewriter {
 

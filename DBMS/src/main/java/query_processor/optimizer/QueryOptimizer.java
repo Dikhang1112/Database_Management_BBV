@@ -1,7 +1,7 @@
 package query_processor.optimizer;
 
-import query_processor.planner.LogicalPlan;
-import query_processor.planner.PhysicalPlan;
+import query_processor.plan.LogicalPlan;
+import query_processor.plan.PhysicalPlan;
 import query_processor.interfaces.OptimizationRule;
 import query_processor.interfaces.CompilerStage;
 

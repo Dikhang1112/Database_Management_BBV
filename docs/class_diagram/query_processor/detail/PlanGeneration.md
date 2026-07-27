@@ -22,7 +22,7 @@ class LogicalPlanBuilder{
 
 class LogicalOperatorFactory{
 <<Factory Method>>
-+createOperator(ASTNode node)
++createOperator(ASTNode node) LogicalPlanNode
 }
 
 class LogicalPlan
@@ -33,12 +33,12 @@ class LogicalPlan
 
 class PhysicalPlanBuilder{
 <<Builder>>
-+build(LogicalPlan logicalPlan)
++build(LogicalPlan logicalPlan) PhysicalPlan
 }
 
 class PhysicalOperatorFactory{
 <<Factory Method>>
-+createOperator(LogicalPlanNode node)
++createOperator(LogicalPlanNode node) PhysicalPlanNode
 }
 
 class PhysicalPlan
@@ -65,12 +65,16 @@ class ASTNode
 
 class LogicalPlanNode
 
+class PhysicalPlanNode
+
 %% =====================================================
 %% RELATIONSHIPS
 %% =====================================================
 
 PlanGenerator --> LogicalPlanBuilder
 PlanGenerator --> PhysicalPlanBuilder
+PlanGenerator --> PlanValidator
+PlanGenerator --> PlanNormalizer
 
 LogicalPlanBuilder --> LogicalOperatorFactory
 LogicalPlanBuilder --> LogicalPlan
@@ -79,6 +83,11 @@ PhysicalPlanBuilder --> PhysicalOperatorFactory
 PhysicalPlanBuilder --> PhysicalPlan
 
 LogicalPlanBuilder --> AST
+LogicalPlan --> LogicalPlanNode
+PhysicalPlan --> PhysicalPlanNode
+
+LogicalOperatorFactory --> LogicalPlanNode
+PhysicalOperatorFactory --> PhysicalPlanNode
 
 PlanValidator --> LogicalPlan
 
