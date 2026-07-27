@@ -1,8 +1,9 @@
-package query_processor;
+package query_processor.semantic;
 
 import query_processor.abstracts.ASTNode;
 import query_processor.ast.AST;
-import query_processor.semantic.*;
+import query_processor.exceptions.SemanticException;
+import query_processor.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,7 @@ class SemanticAnalyzerTest {
         );
     }
 
+    // TC-01: Kiểm thử quy trình phân tích ngữ nghĩa 4 bước tiêu chuẩn theo đúng thứ tự bắt buộc: NameResolver -> TypeChecker -> GroupByValidator -> OrderByValidator.
     @Test
     @DisplayName("TC-01. Analyze Full AST - Happy Path")
     void analyze_ShouldExecuteFourStepValidationInOrder_WhenValidASTProvided() {
@@ -66,6 +68,7 @@ class SemanticAnalyzerTest {
         inOrder.verify(mockOrderByValidator).validate(mockAST);
     }
 
+    // TC-01A: Kiểm thử khả năng phòng thủ của SemanticAnalyzer khi đối tượng AST truyền vào bị null.
     @Test
     @DisplayName("TC-01A. Analyze Null AST")
     void analyze_ShouldHandleNullASTGracefully_WhenASTIsNull() {
@@ -73,6 +76,7 @@ class SemanticAnalyzerTest {
                 .doesNotThrowAnyException();
     }
 
+    // TC-01B: Xác minh cơ chế Double-dispatch của mẫu thiết kế Visitor Pattern: khi duyệt nút phải ủy quyền lại cho node.accept(this).
     @Test
     @DisplayName("TC-01B. Visit AST Node - Visitor Pattern")
     void visit_ShouldInvokeAcceptOnASTNode_WhenValidNodeVisited() {
@@ -81,6 +85,7 @@ class SemanticAnalyzerTest {
         verify(mockASTNode).accept(semanticAnalyzer);
     }
 
+    // TC-01C: Đảm bảo bộ duyệt bỏ qua các nút null một cách an toàn mà không bị crash hệ thống.
     @Test
     @DisplayName("TC-01C. Visit Null AST Node")
     void visit_ShouldDoNothing_WhenASTNodeIsNull() {
@@ -88,14 +93,15 @@ class SemanticAnalyzerTest {
                 .doesNotThrowAnyException();
     }
 
+    // TC-01D: Kiểm thử cơ chế ngắt sớm (Fail-fast): khi gặp lỗi TableNotFoundException thì dừng quy trình và không thực thi các bước phía sau.
     @Test
     @DisplayName("TC-01D. Semantic Analysis Error Propagation")
     void analyze_ShouldPropagateException_WhenAnyStepValidationFails() {
-        doThrow(new RuntimeException("Table 'missing' not found"))
+        doThrow(new TableNotFoundException("Table 'missing' not found"))
                 .when(mockNameResolver).resolve(mockAST);
 
         assertThatThrownBy(() -> semanticAnalyzer.analyze(mockAST))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(TableNotFoundException.class)
                 .hasMessageContaining("Table 'missing' not found");
 
         verify(mockNameResolver).resolve(mockAST);
