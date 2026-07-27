@@ -1,4 +1,4 @@
-# Sequence Diagrams - Metadata Subsystem Unit Test Scenarios
+﻿# Sequence Diagrams - Metadata Subsystem Unit Test Scenarios
 
 This document provides detailed Mermaid sequence diagrams for all positive (happy path) and negative (edge cases / exception) unit test scenarios mapped out in [MindmapTest.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/MindmapTest.md).
 
@@ -18,14 +18,14 @@ sequenceDiagram
     participant Database
     participant Schema
 
-    Test->>MetadataModule: getTable("sales_db", "public", "orders")
-    MetadataModule->>CatalogManager: getDatabase("sales_db")
-    CatalogManager-->>MetadataModule: Database ("sales_db")
-    MetadataModule->>Database: getSchema("public")
-    Database-->>MetadataModule: Schema ("public")
-    MetadataModule->>Schema: getTable("orders")
-    Schema-->>MetadataModule: Table ("orders")
-    MetadataModule-->>Test: Table ("orders")
+    Test->>+MetadataModule: getTable("sales_db", "public", "orders")
+    MetadataModule->>+CatalogManager: getDatabase("sales_db")
+    CatalogManager-->>-MetadataModule: Database ("sales_db")
+    MetadataModule->>+Database: getSchema("public")
+    Database-->>-MetadataModule: Schema ("public")
+    MetadataModule->>+Schema: getTable("orders")
+    Schema-->>-MetadataModule: Table ("orders")
+    MetadataModule-->>-Test: Table ("orders")
 ```
 
 #### TC-01A: `executeDDL_ShouldInvokeCommandExecute_WhenCommandIsProvided`
@@ -36,10 +36,10 @@ sequenceDiagram
     participant MetadataModule
     participant DDLCommand
 
-    Test->>MetadataModule: executeDDL(command)
-    MetadataModule->>DDLCommand: execute()
-    DDLCommand-->>MetadataModule: void
-    MetadataModule-->>Test: void
+    Test->>+MetadataModule: executeDDL(command)
+    MetadataModule->>+DDLCommand: execute()
+    DDLCommand-->>-MetadataModule: void
+    MetadataModule-->>-Test: void
 ```
 
 #### TC-01B: `getDatabase_ShouldReturnDatabase_WhenExists`
@@ -50,10 +50,10 @@ sequenceDiagram
     participant MetadataModule
     participant CatalogManager
 
-    Test->>MetadataModule: getDatabase("app_db")
-    MetadataModule->>CatalogManager: getDatabase("app_db")
-    CatalogManager-->>MetadataModule: Database ("app_db")
-    MetadataModule-->>Test: Database ("app_db")
+    Test->>+MetadataModule: getDatabase("app_db")
+    MetadataModule->>+CatalogManager: getDatabase("app_db")
+    CatalogManager-->>-MetadataModule: Database ("app_db")
+    MetadataModule-->>-Test: Database ("app_db")
 ```
 
 #### TC-01C: `getDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
@@ -64,10 +64,10 @@ sequenceDiagram
     participant MetadataModule
     participant CatalogValidator
 
-    Test->>MetadataModule: getDatabase("invalid#db")
-    MetadataModule->>CatalogValidator: validateIdentifier("invalid#db", "Database")
-    CatalogValidator-->>MetadataModule: throw IllegalArgumentException
-    MetadataModule-->>Test: throw IllegalArgumentException
+    Test->>+MetadataModule: getDatabase("invalid#db")
+    MetadataModule->>+CatalogValidator: validateIdentifier("invalid#db", "Database")
+    CatalogValidator-->>-MetadataModule: throw IllegalArgumentException
+    MetadataModule-->>-Test: throw IllegalArgumentException
 ```
 
 #### TC-01D: `getTable_ShouldThrowException_WhenAnyIdentifierIsInvalid`
@@ -78,10 +78,10 @@ sequenceDiagram
     participant MetadataModule
     participant CatalogManager
 
-    Test->>MetadataModule: getTable("invalid#db", "public", "users")
-    MetadataModule->>CatalogManager: getDatabase("invalid#db")
-    CatalogManager-->>MetadataModule: throw IllegalArgumentException
-    MetadataModule-->>Test: throw IllegalArgumentException
+    Test->>+MetadataModule: getTable("invalid#db", "public", "users")
+    MetadataModule->>+CatalogManager: getDatabase("invalid#db")
+    CatalogManager-->>-MetadataModule: throw IllegalArgumentException
+    MetadataModule-->>-Test: throw IllegalArgumentException
 ```
 
 #### TC-01E: `getTable_ShouldReturnNull_WhenDatabaseDoesNotExist`
@@ -92,10 +92,10 @@ sequenceDiagram
     participant MetadataModule
     participant CatalogManager
 
-    Test->>MetadataModule: getTable("missing_db", "public", "users")
-    MetadataModule->>CatalogManager: getDatabase("missing_db")
-    CatalogManager-->>MetadataModule: null
-    MetadataModule-->>Test: null
+    Test->>+MetadataModule: getTable("missing_db", "public", "users")
+    MetadataModule->>+CatalogManager: getDatabase("missing_db")
+    CatalogManager-->>-MetadataModule: null
+    MetadataModule-->>-Test: null
 ```
 
 #### TC-01F: `executeDDL_ShouldDoNothing_WhenCommandIsNull`
@@ -105,8 +105,8 @@ sequenceDiagram
     participant Test
     participant MetadataModule
 
-    Test->>MetadataModule: executeDDL(null)
-    MetadataModule-->>Test: void
+    Test->>+MetadataModule: executeDDL(null)
+    MetadataModule-->>-Test: void
 ```
 
 ---
@@ -123,12 +123,12 @@ sequenceDiagram
     participant CatalogManager
     participant Database
 
-    Test->>CatalogManager: createDatabase("sales_db")
-    CatalogManager->>Database: new Database()
-    CatalogManager->>Database: rename("sales_db")
-    CatalogManager-->>Test: Database instance ("sales_db")
-    Test->>CatalogManager: containsDatabase("sales_db")
-    CatalogManager-->>Test: true
+    Test->>+CatalogManager: createDatabase("sales_db")
+    CatalogManager->>+Database: new Database()
+    CatalogManager->>+Database: rename("sales_db")
+    CatalogManager-->>-Test: Database instance ("sales_db")
+    Test->>+CatalogManager: containsDatabase("sales_db")
+    CatalogManager-->>-Test: true
 ```
 
 #### TC-02A: `createDatabase_ShouldThrowException_WhenDatabaseAlreadyExists`
@@ -138,9 +138,9 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("sales_db")
-    CatalogManager->>CatalogManager: containsDatabase("sales_db")
-    CatalogManager-->>Test: throw DatabaseAlreadyExistsException
+    Test->>+CatalogManager: createDatabase("sales_db")
+    CatalogManager->>+CatalogManager: containsDatabase("sales_db")
+    CatalogManager-->>-Test: throw DatabaseAlreadyExistsException
 ```
 
 #### TC-02B: `createDatabase_ShouldThrowException_WhenDatabaseNameIsInvalid`
@@ -150,9 +150,9 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("")
-    CatalogManager->>CatalogManager: validateDatabaseName("")
-    CatalogManager-->>Test: throw IllegalArgumentException ("Value is empty")
+    Test->>+CatalogManager: createDatabase("")
+    CatalogManager->>+CatalogManager: validateDatabaseName("")
+    CatalogManager-->>-Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 #### TC-02C: `createDatabase_ShouldThrowException_WhenPermissionDenied`
@@ -163,10 +163,10 @@ sequenceDiagram
     participant CatalogManager
     participant SecurityManager
 
-    Test->>CatalogManager: createDatabase("protected_db")
-    CatalogManager->>SecurityManager: checkPermission("CREATE_DB")
-    SecurityManager-->>CatalogManager: Access Denied
-    CatalogManager-->>Test: throw SecurityException
+    Test->>+CatalogManager: createDatabase("protected_db")
+    CatalogManager->>+SecurityManager: checkPermission("CREATE_DB")
+    SecurityManager-->>-CatalogManager: Access Denied
+    CatalogManager-->>-Test: throw SecurityException
 ```
 
 #### TC-02D: `createDatabase_ShouldThrowException_WhenDatabaseNameContainsSpecialCharacters`
@@ -176,9 +176,9 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("sales@db!")
-    CatalogManager->>CatalogManager: validateNameFormat("sales@db!")
-    CatalogManager-->>Test: throw IllegalArgumentException ("Database name contains invalid characters")
+    Test->>+CatalogManager: createDatabase("sales@db!")
+    CatalogManager->>+CatalogManager: validateNameFormat("sales@db!")
+    CatalogManager-->>-Test: throw IllegalArgumentException ("Database name contains invalid characters")
 ```
 
 #### TC-02E: `renameDatabase_ShouldUpdateNameInCatalog_WhenValid`
@@ -189,9 +189,9 @@ sequenceDiagram
     participant CatalogManager
     participant Database
 
-    Test->>CatalogManager: renameDatabase("old_db", "new_db")
-    CatalogManager->>Database: rename("new_db")
-    CatalogManager-->>Test: void
+    Test->>+CatalogManager: renameDatabase("old_db", "new_db")
+    CatalogManager->>+Database: rename("new_db")
+    CatalogManager-->>-Test: void
 ```
 
 #### TC-02F: `renameDatabase_ShouldThrowException_WhenOldDatabaseNotFound`
@@ -201,8 +201,8 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: renameDatabase("missing_db", "new_db")
-    CatalogManager-->>Test: throw IllegalArgumentException ("Database not found")
+    Test->>+CatalogManager: renameDatabase("missing_db", "new_db")
+    CatalogManager-->>-Test: throw IllegalArgumentException ("Database not found")
 ```
 
 #### TC-02G: `renameDatabase_ShouldThrowException_WhenNewNameAlreadyExists`
@@ -212,8 +212,8 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: renameDatabase("db1", "db2")
-    CatalogManager-->>Test: throw IllegalStateException ("Database already exists")
+    Test->>+CatalogManager: renameDatabase("db1", "db2")
+    CatalogManager-->>-Test: throw IllegalStateException ("Database already exists")
 ```
 
 ---
@@ -227,12 +227,12 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("temp_db")
-    CatalogManager-->>Test: Database ("temp_db")
-    Test->>CatalogManager: dropDatabase("temp_db")
-    CatalogManager-->>Test: void
-    Test->>CatalogManager: containsDatabase("temp_db")
-    CatalogManager-->>Test: false
+    Test->>+CatalogManager: createDatabase("temp_db")
+    CatalogManager-->>-Test: Database ("temp_db")
+    Test->>+CatalogManager: dropDatabase("temp_db")
+    CatalogManager-->>-Test: void
+    Test->>+CatalogManager: containsDatabase("temp_db")
+    CatalogManager-->>-Test: false
 ```
 
 #### TC-03A: `dropDatabase_ShouldThrowException_WhenDatabaseNotFound`
@@ -242,9 +242,9 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: dropDatabase("missing_db")
-    CatalogManager->>CatalogManager: containsDatabase("missing_db")
-    CatalogManager-->>Test: throw DatabaseNotFoundException
+    Test->>+CatalogManager: dropDatabase("missing_db")
+    CatalogManager->>+CatalogManager: containsDatabase("missing_db")
+    CatalogManager-->>-Test: throw DatabaseNotFoundException
 ```
 
 #### TC-03B: `dropDatabase_ShouldThrowException_WhenDatabaseIsNotEmpty`
@@ -255,10 +255,10 @@ sequenceDiagram
     participant CatalogManager
     participant Database
 
-    Test->>CatalogManager: dropDatabase("db_with_schemas")
-    CatalogManager->>Database: listSchemas()
-    Database-->>CatalogManager: List<Schema> ["public"]
-    CatalogManager-->>Test: throw DatabaseNotEmptyException
+    Test->>+CatalogManager: dropDatabase("db_with_schemas")
+    CatalogManager->>+Database: listSchemas()
+    Database-->>-CatalogManager: List<Schema> ["public"]
+    CatalogManager-->>-Test: throw DatabaseNotEmptyException
 ```
 
 #### TC-03C: `dropDatabase_ShouldThrowException_WhenPermissionDenied`
@@ -269,10 +269,10 @@ sequenceDiagram
     participant CatalogManager
     participant SecurityManager
 
-    Test->>CatalogManager: dropDatabase("prod_db")
-    CatalogManager->>SecurityManager: checkPermission("DROP_DB")
-    SecurityManager-->>CatalogManager: Access Denied
-    CatalogManager-->>Test: throw SecurityException
+    Test->>+CatalogManager: dropDatabase("prod_db")
+    CatalogManager->>+SecurityManager: checkPermission("DROP_DB")
+    SecurityManager-->>-CatalogManager: Access Denied
+    CatalogManager-->>-Test: throw SecurityException
 ```
 
 ---
@@ -286,12 +286,12 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("db1")
-    Test->>CatalogManager: createDatabase("db2")
-    Test->>CatalogManager: listDatabases()
-    CatalogManager-->>Test: List<Database> ["db1", "db2"]
-    Test->>CatalogManager: getDatabase("db1")
-    CatalogManager-->>Test: Database ("db1")
+    Test->>+CatalogManager: createDatabase("db1")
+    Test->>+CatalogManager: createDatabase("db2")
+    Test->>+CatalogManager: listDatabases()
+    CatalogManager-->>-Test: List<Database> ["db1", "db2"]
+    Test->>+CatalogManager: getDatabase("db1")
+    CatalogManager-->>-Test: Database ("db1")
 ```
 
 ---
@@ -305,11 +305,11 @@ sequenceDiagram
     participant Test
     participant CatalogManager
 
-    Test->>CatalogManager: createDatabase("db1")
-    Test->>CatalogManager: clear()
-    CatalogManager-->>Test: void
-    Test->>CatalogManager: listDatabases()
-    CatalogManager-->>Test: Empty List []
+    Test->>+CatalogManager: createDatabase("db1")
+    Test->>+CatalogManager: clear()
+    CatalogManager-->>-Test: void
+    Test->>+CatalogManager: listDatabases()
+    CatalogManager-->>-Test: Empty List []
 ```
 
 ---
@@ -326,16 +326,16 @@ sequenceDiagram
     participant Database
     participant Schema
 
-    Test->>Database: new Database("app_db")
-    Test->>Database: createSchema("public")
-    Database->>Schema: new Schema()
-    Database->>Schema: rename("public")
-    Database-->>Test: Schema ("public")
-    Test->>Database: containsSchema("public")
-    Database-->>Test: true
-    Test->>Database: dropSchema("public")
-    Test->>Database: containsSchema("public")
-    Database-->>Test: false
+    Test->>+Database: new Database("app_db")
+    Test->>+Database: createSchema("public")
+    Database->>+Schema: new Schema()
+    Database->>+Schema: rename("public")
+    Database-->>-Test: Schema ("public")
+    Test->>+Database: containsSchema("public")
+    Database-->>-Test: true
+    Test->>+Database: dropSchema("public")
+    Test->>+Database: containsSchema("public")
+    Database-->>-Test: false
 ```
 
 #### TC-06A: `createSchema_ShouldThrowException_WhenSchemaAlreadyExists`
@@ -345,9 +345,9 @@ sequenceDiagram
     participant Test
     participant Database
 
-    Test->>Database: createSchema("public")
-    Database->>Database: containsSchema("public")
-    Database-->>Test: throw SchemaAlreadyExistsException
+    Test->>+Database: createSchema("public")
+    Database->>+Database: containsSchema("public")
+    Database-->>-Test: throw SchemaAlreadyExistsException
 ```
 
 #### TC-06B: `createSchema_ShouldThrowException_WhenDatabaseIsOffline`
@@ -357,10 +357,10 @@ sequenceDiagram
     participant Test
     participant Database
 
-    Test->>Database: setStatus(DatabaseStatus.OFFLINE)
-    Test->>Database: createSchema("public")
-    Database->>Database: getStatus()
-    Database-->>Test: throw DatabaseOfflineException
+    Test->>+Database: setStatus(DatabaseStatus.OFFLINE)
+    Test->>+Database: createSchema("public")
+    Database->>+Database: getStatus()
+    Database-->>-Test: throw DatabaseOfflineException
 ```
 
 #### TC-06C: `createSchema_ShouldThrowException_WhenPermissionDenied`
@@ -371,10 +371,10 @@ sequenceDiagram
     participant Database
     participant SecurityManager
 
-    Test->>Database: createSchema("secure_schema")
-    Database->>SecurityManager: checkPermission("CREATE_SCHEMA")
-    SecurityManager-->>Database: Access Denied
-    Database-->>Test: throw SecurityException
+    Test->>+Database: createSchema("secure_schema")
+    Database->>+SecurityManager: checkPermission("CREATE_SCHEMA")
+    SecurityManager-->>-Database: Access Denied
+    Database-->>-Test: throw SecurityException
 ```
 
 #### TC-06D: `createSchema_ShouldThrowException_WhenSchemaNameContainsSpecialCharacters`
@@ -384,9 +384,9 @@ sequenceDiagram
     participant Test
     participant Database
 
-    Test->>Database: createSchema("schema#123!")
-    Database->>Database: validateNameFormat("schema#123!")
-    Database-->>Test: throw IllegalArgumentException ("Schema name contains invalid characters")
+    Test->>+Database: createSchema("schema#123!")
+    Database->>+Database: validateNameFormat("schema#123!")
+    Database-->>-Test: throw IllegalArgumentException ("Schema name contains invalid characters")
 ```
 
 ---
@@ -400,9 +400,9 @@ sequenceDiagram
     participant Test
     participant Database
 
-    Test->>Database: new Database("app_db")
-    Test->>Database: setStatus(DatabaseStatus.READ_ONLY)
-    Database-->>Test: void
+    Test->>+Database: new Database("app_db")
+    Test->>+Database: setStatus(DatabaseStatus.READ_ONLY)
+    Database-->>-Test: void
 ```
 
 ---
@@ -419,14 +419,14 @@ sequenceDiagram
     participant Schema
     participant Table
 
-    Test->>Schema: new Schema("public")
-    Test->>Schema: createTable("users")
-    Schema->>Table: new Table("users")
-    Schema-->>Test: Table ("users")
-    Test->>Schema: containsTable("users")
-    Schema-->>Test: true
-    Test->>Schema: getTable("users")
-    Schema-->>Test: Table ("users")
+    Test->>+Schema: new Schema("public")
+    Test->>+Schema: createTable("users")
+    Schema->>+Table: new Table("users")
+    Schema-->>-Test: Table ("users")
+    Test->>+Schema: containsTable("users")
+    Schema-->>-Test: true
+    Test->>+Schema: getTable("users")
+    Schema-->>-Test: Table ("users")
 ```
 
 #### TC-08A: `createTable_ShouldThrowException_WhenTableAlreadyExists`
@@ -436,9 +436,9 @@ sequenceDiagram
     participant Test
     participant Schema
 
-    Test->>Schema: createTable("users")
-    Schema->>Schema: containsTable("users")
-    Schema-->>Test: throw TableAlreadyExistsException
+    Test->>+Schema: createTable("users")
+    Schema->>+Schema: containsTable("users")
+    Schema-->>-Test: throw TableAlreadyExistsException
 ```
 
 #### TC-08B: `createTable_ShouldThrowException_WhenPermissionDenied`
@@ -449,10 +449,10 @@ sequenceDiagram
     participant Schema
     participant SecurityManager
 
-    Test->>Schema: createTable("users")
-    Schema->>SecurityManager: checkPermission("CREATE_TABLE")
-    SecurityManager-->>Schema: Access Denied
-    Schema-->>Test: throw SecurityException
+    Test->>+Schema: createTable("users")
+    Schema->>+SecurityManager: checkPermission("CREATE_TABLE")
+    SecurityManager-->>-Schema: Access Denied
+    Schema-->>-Test: throw SecurityException
 ```
 
 #### TC-08C: `createTable_ShouldThrowException_WhenSchemaIsReadOnly`
@@ -462,10 +462,10 @@ sequenceDiagram
     participant Test
     participant Schema
 
-    Test->>Schema: setReadOnly(true)
-    Test->>Schema: createTable("users")
-    Schema->>Schema: isReadOnly()
-    Schema-->>Test: throw SchemaReadOnlyException
+    Test->>+Schema: setReadOnly(true)
+    Test->>+Schema: createTable("users")
+    Schema->>+Schema: isReadOnly()
+    Schema-->>-Test: throw SchemaReadOnlyException
 ```
 
 #### TC-08D: `createTable_ShouldThrowException_WhenTableNameContainsSpecialCharacters`
@@ -475,9 +475,9 @@ sequenceDiagram
     participant Test
     participant Schema
 
-    Test->>Schema: createTable("user@table!")
-    Schema->>Schema: validateNameFormat("user@table!")
-    Schema-->>Test: throw IllegalArgumentException ("Table name contains invalid characters")
+    Test->>+Schema: createTable("user@table!")
+    Schema->>+Schema: validateNameFormat("user@table!")
+    Schema-->>-Test: throw IllegalArgumentException ("Table name contains invalid characters")
 ```
 
 ---
@@ -491,11 +491,11 @@ sequenceDiagram
     participant Test
     participant Schema
 
-    Test->>Schema: new Schema("public")
-    Test->>Schema: createTable("t1")
-    Test->>Schema: createTable("t2")
-    Test->>Schema: listTables()
-    Schema-->>Test: List<Table> ["t1", "t2"]
+    Test->>+Schema: new Schema("public")
+    Test->>+Schema: createTable("t1")
+    Test->>+Schema: createTable("t2")
+    Test->>+Schema: listTables()
+    Schema-->>-Test: List<Table> ["t1", "t2"]
 ```
 
 ---
@@ -512,15 +512,15 @@ sequenceDiagram
     participant Table
     participant Column
 
-    Test->>Table: new Table("orders")
-    Test->>Column: new Column("order_id", DataType.BIGINT)
-    Column-->>Test: Column ("order_id")
-    Test->>Table: addColumn(Column)
-    Table-->>Test: void
-    Test->>Table: listColumns()
-    Table-->>Test: List<Column> ["order_id"]
-    Test->>Table: containsColumn("order_id")
-    Table-->>Test: true
+    Test->>+Table: new Table("orders")
+    Test->>+Column: new Column("order_id", DataType.BIGINT)
+    Column-->>-Test: Column ("order_id")
+    Test->>+Table: addColumn(Column)
+    Table-->>-Test: void
+    Test->>+Table: listColumns()
+    Table-->>-Test: List<Column> ["order_id"]
+    Test->>+Table: containsColumn("order_id")
+    Table-->>-Test: true
 ```
 
 #### TC-10A: `addColumn_ShouldThrowException_WhenColumnAlreadyExists`
@@ -531,9 +531,9 @@ sequenceDiagram
     participant Table
     participant Column
 
-    Test->>Table: addColumn(Column "order_id")
-    Table->>Table: containsColumn("order_id")
-    Table-->>Test: throw ColumnAlreadyExistsException
+    Test->>+Table: addColumn(Column "order_id")
+    Table->>+Table: containsColumn("order_id")
+    Table-->>-Test: throw ColumnAlreadyExistsException
 ```
 
 #### TC-10B: `addColumn_ShouldThrowException_WhenTableIsLocked`
@@ -544,9 +544,9 @@ sequenceDiagram
     participant Table
     participant Column
 
-    Test->>Table: addColumn(Column)
-    Table->>Table: isLocked()
-    Table-->>Test: throw TableLockedException
+    Test->>+Table: addColumn(Column)
+    Table->>+Table: isLocked()
+    Table-->>-Test: throw TableLockedException
 ```
 
 #### TC-10C: `addColumn_ShouldThrowException_WhenPermissionDenied`
@@ -558,10 +558,10 @@ sequenceDiagram
     participant Column
     participant SecurityManager
 
-    Test->>Table: addColumn(Column)
-    Table->>SecurityManager: checkPermission("ALTER_TABLE")
-    SecurityManager-->>Table: Access Denied
-    Table-->>Test: throw SecurityException
+    Test->>+Table: addColumn(Column)
+    Table->>+SecurityManager: checkPermission("ALTER_TABLE")
+    SecurityManager-->>-Table: Access Denied
+    Table-->>-Test: throw SecurityException
 ```
 
 #### TC-10D: `addColumn_ShouldThrowException_WhenColumnNameContainsSpecialCharacters`
@@ -572,9 +572,9 @@ sequenceDiagram
     participant Table
     participant Column
 
-    Test->>Table: addColumn(Column "col#name!")
-    Table->>Table: validateNameFormat("col#name!")
-    Table-->>Test: throw IllegalArgumentException ("Column name contains invalid characters")
+    Test->>+Table: addColumn(Column "col#name!")
+    Table->>+Table: validateNameFormat("col#name!")
+    Table-->>-Test: throw IllegalArgumentException ("Column name contains invalid characters")
 ```
 
 #### TC-10E: `createColumn_ShouldAddColumnToTable`
@@ -584,8 +584,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: createColumn(Column "user_id")
-    Table-->>Test: void
+    Test->>+Table: createColumn(Column "user_id")
+    Table-->>-Test: void
 ```
 
 ---
@@ -599,10 +599,10 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeColumn("temp_col")
-    Table-->>Test: void
-    Test->>Table: containsColumn("temp_col")
-    Table-->>Test: false
+    Test->>+Table: removeColumn("temp_col")
+    Table-->>-Test: void
+    Test->>+Table: containsColumn("temp_col")
+    Table-->>-Test: false
 ```
 
 #### TC-11A: `removeColumn_ShouldThrowException_WhenColumnNotFound`
@@ -612,9 +612,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeColumn("missing_col")
-    Table->>Table: containsColumn("missing_col")
-    Table-->>Test: throw ColumnNotFoundException
+    Test->>+Table: removeColumn("missing_col")
+    Table->>+Table: containsColumn("missing_col")
+    Table-->>-Test: throw ColumnNotFoundException
 ```
 
 #### TC-11B: `removeColumn_ShouldThrowException_WhenReferencedByConstraint`
@@ -624,9 +624,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeColumn("id")
-    Table->>Table: isReferencedByConstraint("id")
-    Table-->>Test: throw IllegalStateException ("referenced by constraint")
+    Test->>+Table: removeColumn("id")
+    Table->>+Table: isReferencedByConstraint("id")
+    Table-->>-Test: throw IllegalStateException ("referenced by constraint")
 ```
 
 #### TC-11C: `removeColumn_ShouldThrowException_WhenTableIsLocked`
@@ -636,9 +636,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeColumn("temp_col")
-    Table->>Table: isLocked()
-    Table-->>Test: throw IllegalStateException ("Table is locked")
+    Test->>+Table: removeColumn("temp_col")
+    Table->>+Table: isLocked()
+    Table-->>-Test: throw IllegalStateException ("Table is locked")
 ```
 
 #### TC-11D: `removeColumn_ShouldThrowException_WhenColumnNameIsInvalid`
@@ -648,9 +648,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeColumn("")
-    Table->>Table: validateNameFormat("")
-    Table-->>Test: throw IllegalArgumentException ("Value is empty")
+    Test->>+Table: removeColumn("")
+    Table->>+Table: validateNameFormat("")
+    Table-->>-Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -666,9 +666,9 @@ sequenceDiagram
     participant Test
     participant Column
 
-    Test->>Column: new Column("age", DataType.INT)
-    Test->>Column: changeDataType(DataType.BIGINT)
-    Column-->>Test: void
+    Test->>+Column: new Column("age", DataType.INT)
+    Test->>+Column: changeDataType(DataType.BIGINT)
+    Column-->>-Test: void
 ```
 
 #### TC-12A: `changeDataType_ShouldThrowException_WhenUnsupportedConversion`
@@ -678,9 +678,9 @@ sequenceDiagram
     participant Test
     participant Column
 
-    Test->>Column: changeDataType(DataType.BOOLEAN)
-    Column->>Column: isCompatibleConversion(INT, BOOLEAN)
-    Column-->>Test: throw DataTypeConversionException
+    Test->>+Column: changeDataType(DataType.BOOLEAN)
+    Column->>+Column: isCompatibleConversion(INT, BOOLEAN)
+    Column-->>-Test: throw DataTypeConversionException
 ```
 
 #### TC-12B: `changeDataType_ShouldThrowException_WhenPermissionDenied`
@@ -691,10 +691,10 @@ sequenceDiagram
     participant Column
     participant SecurityManager
 
-    Test->>Column: changeDataType(DataType.VARCHAR)
-    Column->>SecurityManager: checkPermission("ALTER_COLUMN")
-    SecurityManager-->>Column: Access Denied
-    Column-->>Test: throw SecurityException
+    Test->>+Column: changeDataType(DataType.VARCHAR)
+    Column->>+SecurityManager: checkPermission("ALTER_COLUMN")
+    SecurityManager-->>-Column: Access Denied
+    Column-->>-Test: throw SecurityException
 ```
 
 ---
@@ -708,12 +708,12 @@ sequenceDiagram
     participant Test
     participant Column
 
-    Test->>Column: new Column("age", DataType.INT)
-    Test->>Column: setNullable(false)
-    Test->>Column: setDefaultValue("18")
-    Test->>Column: changeDataType(DataType.BIGINT)
-    Test->>Column: rename("user_age")
-    Column-->>Test: Properties Updated
+    Test->>+Column: new Column("age", DataType.INT)
+    Test->>+Column: setNullable(false)
+    Test->>+Column: setDefaultValue("18")
+    Test->>+Column: changeDataType(DataType.BIGINT)
+    Test->>+Column: rename("user_age")
+    Column-->>-Test: Properties Updated
 ```
 
 #### TC-13A: `setDefaultValue_ShouldThrowException_WhenDefaultValueIsInvalid`
@@ -723,9 +723,9 @@ sequenceDiagram
     participant Test
     participant Column
 
-    Test->>Column: setDefaultValue("abc_not_an_int")
-    Column->>Column: validateDefaultValueType("abc_not_an_int", INT)
-    Column-->>Test: throw InvalidDefaultValueException
+    Test->>+Column: setDefaultValue("abc_not_an_int")
+    Column->>+Column: validateDefaultValueType("abc_not_an_int", INT)
+    Column-->>-Test: throw InvalidDefaultValueException
 ```
 
 ---
@@ -742,14 +742,14 @@ sequenceDiagram
     participant Table
     participant Index
 
-    Test->>Index: new Index("idx_user_email", IndexType.BTREE)
-    Index-->>Test: Index instance
-    Test->>Table: addIndex(Index)
-    Table-->>Test: void
-    Test->>Index: disable()
-    Index-->>Test: void
-    Test->>Index: rebuild()
-    Index-->>Test: void (enabled = true)
+    Test->>+Index: new Index("idx_user_email", IndexType.BTREE)
+    Index-->>-Test: Index instance
+    Test->>+Table: addIndex(Index)
+    Table-->>-Test: void
+    Test->>+Index: disable()
+    Index-->>-Test: void
+    Test->>+Index: rebuild()
+    Index-->>-Test: void (enabled = true)
 ```
 
 #### TC-14A: `addIndex_ShouldThrowException_WhenDuplicateIndexName`
@@ -760,9 +760,9 @@ sequenceDiagram
     participant Table
     participant Index
 
-    Test->>Table: addIndex(Index "idx_user_email")
-    Table->>Table: containsIndex("idx_user_email")
-    Table-->>Test: throw DuplicateIndexException
+    Test->>+Table: addIndex(Index "idx_user_email")
+    Table->>+Table: containsIndex("idx_user_email")
+    Table-->>-Test: throw DuplicateIndexException
 ```
 
 #### TC-14B: `addIndex_ShouldThrowException_WhenIndexedColumnNotFound`
@@ -773,9 +773,9 @@ sequenceDiagram
     participant Table
     participant Index
 
-    Test->>Table: addIndex(IndexOnMissingColumn)
-    Table->>Table: containsColumn("non_existing_col")
-    Table-->>Test: throw IllegalArgumentException ("Indexed column not found")
+    Test->>+Table: addIndex(IndexOnMissingColumn)
+    Table->>+Table: containsColumn("non_existing_col")
+    Table-->>-Test: throw IllegalArgumentException ("Indexed column not found")
 ```
 
 #### TC-14C: `removeIndex_ShouldRemoveIndexFromTable_WhenIndexExists`
@@ -785,8 +785,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeIndex("idx_user_email")
-    Table-->>Test: void
+    Test->>+Table: removeIndex("idx_user_email")
+    Table-->>-Test: void
 ```
 
 #### TC-14D: `removeIndex_ShouldThrowException_WhenIndexNotFound`
@@ -796,8 +796,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeIndex("missing_idx")
-    Table-->>Test: throw IllegalArgumentException ("Index not found")
+    Test->>+Table: removeIndex("missing_idx")
+    Table-->>-Test: throw IllegalArgumentException ("Index not found")
 ```
 
 #### TC-14E: `removeIndex_ShouldThrowException_WhenTableIsLocked`
@@ -807,9 +807,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeIndex("idx_user_email")
-    Table->>Table: isLocked()
-    Table-->>Test: throw IllegalStateException ("Table is locked")
+    Test->>+Table: removeIndex("idx_user_email")
+    Table->>+Table: isLocked()
+    Table-->>-Test: throw IllegalStateException ("Table is locked")
 ```
 
 #### TC-14F: `removeIndex_ShouldThrowException_WhenIndexNameIsInvalid`
@@ -819,9 +819,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeIndex("")
-    Table->>Table: validateNameFormat("")
-    Table-->>Test: throw IllegalArgumentException ("Value is empty")
+    Test->>+Table: removeIndex("")
+    Table->>+Table: validateNameFormat("")
+    Table-->>-Test: throw IllegalArgumentException ("Value is empty")
 ```
 
 ---
@@ -835,9 +835,9 @@ sequenceDiagram
     participant Test
     participant Index
 
-    Test->>Index: disable()
-    Test->>Index: rebuild()
-    Index-->>Test: void (enabled = true)
+    Test->>+Index: disable()
+    Test->>+Index: rebuild()
+    Index-->>-Test: void (enabled = true)
 ```
 
 #### TC-15A: `rebuildIndex_ShouldThrowException_WhenIndexIsDisabledAndCorrupted`
@@ -847,9 +847,9 @@ sequenceDiagram
     participant Test
     participant Index
 
-    Test->>Index: rebuild()
-    Index->>Index: checkIntegrity()
-    Index-->>Test: throw IllegalStateException ("Index is corrupted")
+    Test->>+Index: rebuild()
+    Index->>+Index: checkIntegrity()
+    Index-->>-Test: throw IllegalStateException ("Index is corrupted")
 ```
 
 ---
@@ -865,13 +865,13 @@ sequenceDiagram
     participant Test
     participant PrimaryKeyConstraint
 
-    Test->>PrimaryKeyConstraint: new PrimaryKeyConstraint("pk_users")
-    PrimaryKeyConstraint-->>Test: Constraint Instance
-    Test->>PrimaryKeyConstraint: validate()
-    PrimaryKeyConstraint-->>Test: true
-    Test->>PrimaryKeyConstraint: disable()
-    Test->>PrimaryKeyConstraint: validate()
-    PrimaryKeyConstraint-->>Test: false
+    Test->>+PrimaryKeyConstraint: new PrimaryKeyConstraint("pk_users")
+    PrimaryKeyConstraint-->>-Test: Constraint Instance
+    Test->>+PrimaryKeyConstraint: validate()
+    PrimaryKeyConstraint-->>-Test: true
+    Test->>+PrimaryKeyConstraint: disable()
+    Test->>+PrimaryKeyConstraint: validate()
+    PrimaryKeyConstraint-->>-Test: false
 ```
 
 #### TC-16A: `removeConstraint_ShouldRemoveConstraintFromTable_WhenConstraintExists`
@@ -881,8 +881,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeConstraint("pk_orders")
-    Table-->>Test: void
+    Test->>+Table: removeConstraint("pk_orders")
+    Table-->>-Test: void
 ```
 
 #### TC-16B: `removeConstraint_ShouldThrowException_WhenConstraintNotFound`
@@ -892,8 +892,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeConstraint("missing_pk")
-    Table-->>Test: throw IllegalArgumentException ("Constraint not found")
+    Test->>+Table: removeConstraint("missing_pk")
+    Table-->>-Test: throw IllegalArgumentException ("Constraint not found")
 ```
 
 #### TC-16C: `removeConstraint_ShouldThrowException_WhenTableIsLocked`
@@ -903,9 +903,9 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: removeConstraint("pk_orders")
-    Table->>Table: isLocked()
-    Table-->>Test: throw IllegalStateException ("Table is locked")
+    Test->>+Table: removeConstraint("pk_orders")
+    Table->>+Table: isLocked()
+    Table-->>-Test: throw IllegalStateException ("Table is locked")
 ```
 
 ---
@@ -921,12 +921,12 @@ sequenceDiagram
     participant Table
     participant Column
 
-    Test->>Table: new Table("parent_table")
-    Test->>Column: new Column("id", DataType.INT)
-    Test->>ForeignKeyConstraint: new ForeignKeyConstraint("fk_child", Table, Column)
-    ForeignKeyConstraint-->>Test: FK Instance
-    Test->>ForeignKeyConstraint: validateReference()
-    ForeignKeyConstraint-->>Test: true
+    Test->>+Table: new Table("parent_table")
+    Test->>+Column: new Column("id", DataType.INT)
+    Test->>+ForeignKeyConstraint: new ForeignKeyConstraint("fk_child", Table, Column)
+    ForeignKeyConstraint-->>-Test: FK Instance
+    Test->>+ForeignKeyConstraint: validateReference()
+    ForeignKeyConstraint-->>-Test: true
 ```
 
 #### TC-17A: `validateForeignKey_ShouldReturnFalse_WhenReferencedTableMissing`
@@ -936,9 +936,9 @@ sequenceDiagram
     participant Test
     participant ForeignKeyConstraint
 
-    Test->>ForeignKeyConstraint: validateReference()
-    ForeignKeyConstraint->>ForeignKeyConstraint: getReferencedTable()
-    ForeignKeyConstraint-->>Test: false (Referenced table missing)
+    Test->>+ForeignKeyConstraint: validateReference()
+    ForeignKeyConstraint->>+ForeignKeyConstraint: getReferencedTable()
+    ForeignKeyConstraint-->>-Test: false (Referenced table missing)
 ```
 
 #### TC-17B: `validateForeignKey_ShouldReturnFalse_WhenReferencedColumnMissing`
@@ -949,10 +949,10 @@ sequenceDiagram
     participant ForeignKeyConstraint
     participant Table
 
-    Test->>ForeignKeyConstraint: validateReference()
-    ForeignKeyConstraint->>Table: containsColumn(refCol)
-    Table-->>ForeignKeyConstraint: false
-    ForeignKeyConstraint-->>Test: false
+    Test->>+ForeignKeyConstraint: validateReference()
+    ForeignKeyConstraint->>+Table: containsColumn(refCol)
+    Table-->>-ForeignKeyConstraint: false
+    ForeignKeyConstraint-->>-Test: false
 ```
 
 #### TC-17C: `validateForeignKey_ShouldReturnFalse_WhenParentRowMissing`
@@ -963,10 +963,10 @@ sequenceDiagram
     participant ForeignKeyConstraint
     participant Table
 
-    Test->>ForeignKeyConstraint: validateReference()
-    ForeignKeyConstraint->>Table: parentRowExists(value)
-    Table-->>ForeignKeyConstraint: false
-    ForeignKeyConstraint-->>Test: false
+    Test->>+ForeignKeyConstraint: validateReference()
+    ForeignKeyConstraint->>+Table: parentRowExists(value)
+    Table-->>-ForeignKeyConstraint: false
+    ForeignKeyConstraint-->>-Test: false
 ```
 
 ---
@@ -980,10 +980,10 @@ sequenceDiagram
     participant Test
     participant CheckConstraint
 
-    Test->>CheckConstraint: new CheckConstraint("chk_age", "age >= 18")
-    CheckConstraint-->>Test: CheckConstraint Instance
-    Test->>CheckConstraint: evaluate()
-    CheckConstraint-->>Test: true
+    Test->>+CheckConstraint: new CheckConstraint("chk_age", "age >= 18")
+    CheckConstraint-->>-Test: CheckConstraint Instance
+    Test->>+CheckConstraint: evaluate()
+    CheckConstraint-->>-Test: true
 ```
 
 #### TC-18A: `evaluate_ShouldReturnFalse_WhenExpressionIsInvalid`
@@ -993,9 +993,9 @@ sequenceDiagram
     participant Test
     participant CheckConstraint
 
-    Test->>CheckConstraint: evaluate()
-    CheckConstraint->>CheckConstraint: parseExpression("age >= ")
-    CheckConstraint-->>Test: false (Expression invalid)
+    Test->>+CheckConstraint: evaluate()
+    CheckConstraint->>+CheckConstraint: parseExpression("age >= ")
+    CheckConstraint-->>-Test: false (Expression invalid)
 ```
 
 ---
@@ -1012,12 +1012,12 @@ sequenceDiagram
     participant ColumnBuilder
     participant Column
 
-    Test->>ColumnBuilder: new ColumnBuilder("email")
-    Test->>ColumnBuilder: setType(VARCHAR).setNullable(false).setDefaultValue("N/A")
-    Test->>ColumnBuilder: build()
-    ColumnBuilder->>Column: new Column("email", VARCHAR)
-    Column-->>ColumnBuilder: Column instance
-    ColumnBuilder-->>Test: Column instance
+    Test->>+ColumnBuilder: new ColumnBuilder("email")
+    Test->>+ColumnBuilder: setType(VARCHAR).setNullable(false).setDefaultValue("N/A")
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder->>+Column: new Column("email", VARCHAR)
+    Column-->>-ColumnBuilder: Column instance
+    ColumnBuilder-->>-Test: Column instance
 ```
 
 #### TC-19A: `build_ShouldApplyDefaults_WhenOptionalPropertiesOmitted`
@@ -1028,12 +1028,12 @@ sequenceDiagram
     participant ColumnBuilder
     participant Column
 
-    Test->>ColumnBuilder: new ColumnBuilder("id")
-    Test->>ColumnBuilder: setType(INT)
-    Test->>ColumnBuilder: build()
-    ColumnBuilder->>Column: new Column("id", INT)
-    Column-->>ColumnBuilder: Column instance
-    ColumnBuilder-->>Test: Column instance
+    Test->>+ColumnBuilder: new ColumnBuilder("id")
+    Test->>+ColumnBuilder: setType(INT)
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder->>+Column: new Column("id", INT)
+    Column-->>-ColumnBuilder: Column instance
+    ColumnBuilder-->>-Test: Column instance
 ```
 
 #### TC-19B: `build_ShouldThrowException_WhenColumnNameIsNullOrEmpty`
@@ -1044,10 +1044,10 @@ sequenceDiagram
     participant ColumnBuilder
     participant CatalogValidator
 
-    Test->>ColumnBuilder: build()
-    ColumnBuilder->>CatalogValidator: validateIdentifier(null, "Column")
-    CatalogValidator-->>ColumnBuilder: throw IllegalArgumentException ("Value is empty")
-    ColumnBuilder-->>Test: throw IllegalArgumentException
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder->>+CatalogValidator: validateIdentifier(null, "Column")
+    CatalogValidator-->>-ColumnBuilder: throw IllegalArgumentException ("Value is empty")
+    ColumnBuilder-->>-Test: throw IllegalArgumentException
 ```
 
 #### TC-19C: `build_ShouldThrowException_WhenColumnNameContainsInvalidCharacters`
@@ -1058,10 +1058,10 @@ sequenceDiagram
     participant ColumnBuilder
     participant CatalogValidator
 
-    Test->>ColumnBuilder: build()
-    ColumnBuilder->>CatalogValidator: validateIdentifier("invalid#col", "Column")
-    CatalogValidator-->>ColumnBuilder: throw IllegalArgumentException ("Column name contains invalid characters")
-    ColumnBuilder-->>Test: throw IllegalArgumentException
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder->>+CatalogValidator: validateIdentifier("invalid#col", "Column")
+    CatalogValidator-->>-ColumnBuilder: throw IllegalArgumentException ("Column name contains invalid characters")
+    ColumnBuilder-->>-Test: throw IllegalArgumentException
 ```
 
 #### TC-19D: `build_ShouldThrowException_WhenDataTypeIsNull`
@@ -1071,8 +1071,8 @@ sequenceDiagram
     participant Test
     participant ColumnBuilder
 
-    Test->>ColumnBuilder: build()
-    ColumnBuilder-->>Test: throw IllegalArgumentException ("Data type cannot be null")
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder-->>-Test: throw IllegalArgumentException ("Data type cannot be null")
 ```
 
 #### TC-19E: `build_ShouldThrowException_WhenDefaultValueIsInvalidForType`
@@ -1083,10 +1083,10 @@ sequenceDiagram
     participant ColumnBuilder
     participant Column
 
-    Test->>ColumnBuilder: build()
-    ColumnBuilder->>Column: setDefaultValue("not_an_int")
-    Column-->>ColumnBuilder: throw IllegalArgumentException ("Invalid default value")
-    ColumnBuilder-->>Test: throw IllegalArgumentException
+    Test->>+ColumnBuilder: build()
+    ColumnBuilder->>+Column: setDefaultValue("not_an_int")
+    Column-->>-ColumnBuilder: throw IllegalArgumentException ("Invalid default value")
+    ColumnBuilder-->>-Test: throw IllegalArgumentException
 ```
 
 ---
@@ -1103,15 +1103,15 @@ sequenceDiagram
     participant Table
     participant TableMemento
 
-    Test->>Table: createMemento()
-    Table->>TableMemento: new TableMemento(tableName, columnsSnapshot)
-    TableMemento-->>Table: Memento instance
-    Table-->>Test: Memento instance
-    Test->>Table: addColumn("new_col")
-    Test->>Table: restore(memento)
-    Table->>TableMemento: getColumnsSnapshot()
-    TableMemento-->>Table: initialColumns
-    Table-->>Test: void (State restored)
+    Test->>+Table: createMemento()
+    Table->>+TableMemento: new TableMemento(tableName, columnsSnapshot)
+    TableMemento-->>-Table: Memento instance
+    Table-->>-Test: Memento instance
+    Test->>+Table: addColumn("new_col")
+    Test->>+Table: restore(memento)
+    Table->>+TableMemento: getColumnsSnapshot()
+    TableMemento-->>-Table: initialColumns
+    Table-->>-Test: void (State restored)
 ```
 
 #### TC-20A: `restore_ShouldDoNothing_WhenMementoIsNull`
@@ -1121,8 +1121,8 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>Table: restore(null)
-    Table-->>Test: void (State unchanged)
+    Test->>+Table: restore(null)
+    Table-->>-Test: void (State unchanged)
 ```
 
 #### TC-20B: `restore_ShouldRevertTableNameAndColumns_WhenRenamedAndColumnsRemoved`
@@ -1133,16 +1133,16 @@ sequenceDiagram
     participant Table
     participant TableMemento
 
-    Test->>Table: createMemento()
-    Table-->>Test: Memento ("old_users")
-    Test->>Table: rename("new_users")
-    Test->>Table: removeColumn("id")
-    Test->>Table: restore(memento)
-    Table->>TableMemento: getTableName()
-    TableMemento-->>Table: "old_users"
-    Table->>TableMemento: getColumnsSnapshot()
-    TableMemento-->>Table: ["id"]
-    Table-->>Test: void (Restored old_users and id column)
+    Test->>+Table: createMemento()
+    Table-->>-Test: Memento ("old_users")
+    Test->>+Table: rename("new_users")
+    Test->>+Table: removeColumn("id")
+    Test->>+Table: restore(memento)
+    Table->>+TableMemento: getTableName()
+    TableMemento-->>-Table: "old_users"
+    Table->>+TableMemento: getColumnsSnapshot()
+    TableMemento-->>-Table: ["id"]
+    Table-->>-Test: void (Restored old_users and id column)
 ```
 
 #### TC-20C: `createMemento_ShouldMaintainIndependentSnapshot_WhenTableIsModified`
@@ -1153,12 +1153,12 @@ sequenceDiagram
     participant Table
     participant TableMemento
 
-    Test->>Table: createMemento()
-    Table->>TableMemento: new TableMemento(tableName, columns)
-    TableMemento-->>Test: Memento instance
-    Test->>Table: addColumn("total")
-    Test->>TableMemento: getColumnsSnapshot()
-    TableMemento-->>Test: List of 1 Column (Independent)
+    Test->>+Table: createMemento()
+    Table->>+TableMemento: new TableMemento(tableName, columns)
+    TableMemento-->>-Test: Memento instance
+    Test->>+Table: addColumn("total")
+    Test->>+TableMemento: getColumnsSnapshot()
+    TableMemento-->>-Test: List of 1 Column (Independent)
 ```
 
 #### TC-20D: `restore_ShouldRevertToEmptyColumns_WhenSnapshotWasEmpty`
@@ -1169,11 +1169,11 @@ sequenceDiagram
     participant Table
     participant TableMemento
 
-    Test->>Table: createMemento()
-    Table-->>Test: Memento (Empty columns)
-    Test->>Table: addColumn("col1")
-    Test->>Table: restore(memento)
-    Table-->>Test: void (Columns cleared to 0)
+    Test->>+Table: createMemento()
+    Table-->>-Test: Memento (Empty columns)
+    Test->>+Table: addColumn("col1")
+    Test->>+Table: restore(memento)
+    Table-->>-Test: void (Columns cleared to 0)
 ```
 
 ---
@@ -1190,12 +1190,12 @@ sequenceDiagram
     participant ConstraintValidationChain
     participant Constraint
 
-    Test->>ConstraintValidationChain: addConstraint(pkConstraint)
-    Test->>ConstraintValidationChain: addConstraint(checkConstraint)
-    Test->>ConstraintValidationChain: validateAll()
-    ConstraintValidationChain->>Constraint: validate()
-    Constraint-->>ConstraintValidationChain: true
-    ConstraintValidationChain-->>Test: true
+    Test->>+ConstraintValidationChain: addConstraint(pkConstraint)
+    Test->>+ConstraintValidationChain: addConstraint(checkConstraint)
+    Test->>+ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>+Constraint: validate()
+    Constraint-->>-ConstraintValidationChain: true
+    ConstraintValidationChain-->>-Test: true
 ```
 
 #### TC-21A: `validateAll_ShouldReturnFalse_WhenAnyConstraintInChainFails`
@@ -1206,9 +1206,9 @@ sequenceDiagram
     participant ConstraintValidationChain
     participant Constraint
 
-    Test->>ConstraintValidationChain: addConstraint(invalidConstraint)
-    Test->>ConstraintValidationChain: validateAll()
-    ConstraintValidationChain->>Constraint: validate()
-    Constraint-->>ConstraintValidationChain: false
-    ConstraintValidationChain-->>Test: false
+    Test->>+ConstraintValidationChain: addConstraint(invalidConstraint)
+    Test->>+ConstraintValidationChain: validateAll()
+    ConstraintValidationChain->>+Constraint: validate()
+    Constraint-->>-ConstraintValidationChain: false
+    ConstraintValidationChain-->>-Test: false
 ```

@@ -1,62 +1,60 @@
 package query_processor.optimizer;
 
-import query_processor.interfaces.CompilerStage;
+import query_processor.plan.LogicalPlan;
+import query_processor.plan.PhysicalPlan;
 import query_processor.interfaces.OptimizationRule;
-import query_processor.ast.AST;
-import query_processor.planner.PhysicalPlan;
+import query_processor.interfaces.CompilerStage;
 
-/**
- * Bộ tối ưu hóa truy vấn dựa trên chi phí CBO (Cost-Based Optimization).
- * Pattern: Chain of Responsibility, Strategy Context.
- */
 public class QueryOptimizer implements CompilerStage {
 
+    private QueryRewriter queryRewriter;
+    private JoinOptimizer joinOptimizer;
+    private CostEstimator costEstimator;
+    private PlanEnumerator planEnumerator;
     private OptimizationRule optimizationRule;
-    private final CostEstimator costEstimator;
 
-    /**
-     * Khởi tạo QueryOptimizer với Constructor Dependency Injection cho CostEstimator.
-     *
-     * @param costEstimator Bộ ước lượng chi phí CBO.
-     */
-    public QueryOptimizer(CostEstimator costEstimator) {
+    public QueryOptimizer() {
+        this.queryRewriter = new QueryRewriter();
+        this.joinOptimizer = new JoinOptimizer();
+        this.costEstimator = new CostEstimator();
+        this.planEnumerator = new PlanEnumerator();
+    }
+
+    public QueryOptimizer(QueryRewriter queryRewriter,
+                          JoinOptimizer joinOptimizer,
+                          CostEstimator costEstimator,
+                          PlanEnumerator planEnumerator) {
+        this.queryRewriter = queryRewriter;
+        this.joinOptimizer = joinOptimizer;
         this.costEstimator = costEstimator;
-        // TODO: Future DBMS logic implementation
+        this.planEnumerator = planEnumerator;
     }
 
-    /**
-     * Thực thi giai đoạn QueryOptimizer theo giao diện CompilerStage.
-     *
-     * @param input Đối tượng cây AST.
-     * @return Kế hoạch vật lý PhysicalPlan.
-     */
-    @Override
-    public Object process(Object input) {
-        if (input instanceof AST ast) {
-            return process(ast);
+    public PhysicalPlan optimize(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
         }
-        // TODO: Future DBMS logic implementation
-        return null;
+        LogicalPlan rewritten = (queryRewriter != null) ? queryRewriter.rewrite(logicalPlan) : logicalPlan;
+        LogicalPlan joinOptimized = (joinOptimizer != null) ? joinOptimizer.optimize(rewritten) : rewritten;
+        if (costEstimator != null) {
+            costEstimator.estimate(joinOptimized);
+        }
+        return (planEnumerator != null) ? planEnumerator.enumerate(joinOptimized) : new PhysicalPlan();
     }
 
-    /**
-     * Tối ưu cây AST và sinh kế hoạch vật lý tối ưu.
-     *
-     * @param ast Cây AST đầu vào.
-     * @return Kế hoạch vật lý PhysicalPlan.
-     */
-    public PhysicalPlan process(AST ast) {
-        // TODO: Future DBMS logic implementation
-        return null;
-    }
-
-    /**
-     * Thiết lập chiến lược quy tắc tối ưu hóa mới.
-     *
-     * @param rule Chiến lược OptimizationRule.
-     */
     public void setOptimizationRule(OptimizationRule rule) {
         this.optimizationRule = rule;
-        // TODO: Future DBMS logic implementation
+    }
+
+    public OptimizationRule getOptimizationRule() {
+        return optimizationRule;
+    }
+
+    @Override
+    public Object process(Object input) {
+        if (input instanceof LogicalPlan plan) {
+            return optimize(plan);
+        }
+        return null;
     }
 }

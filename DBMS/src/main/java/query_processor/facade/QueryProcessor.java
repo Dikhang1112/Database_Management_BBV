@@ -9,9 +9,9 @@ import query_processor.ast.AST;
 import query_processor.semantic.SemanticAnalyzer;
 import query_processor.optimizer.QueryRewriter;
 import query_processor.optimizer.QueryOptimizer;
-import query_processor.planner.PlanGenerator;
-import query_processor.planner.LogicalPlan;
-import query_processor.planner.PhysicalPlan;
+import query_processor.plan.PlanGenerator;
+import query_processor.plan.LogicalPlan;
+import query_processor.plan.PhysicalPlan;
 
 /**
  * Entry point Facade tập trung cho toàn bộ pipeline biên dịch SQL trong module Query Processor.

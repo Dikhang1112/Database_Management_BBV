@@ -1,4 +1,4 @@
-```mermaid
+﻿```mermaid
 sequenceDiagram
     autonumber
     actor Client as "Client / Application"
@@ -18,138 +18,138 @@ sequenceDiagram
     participant SM as StatisticsManager
     participant EE as ExecutionEngine
 
-    Client->>QP: executeIngestion(sqlText)
+    Client->>+QP: executeIngestion(sqlText)
     activate QP
     
     %% =====================================================
     %% PHASE 1: LEXICAL ANALYSIS
     %% =====================================================
-    QP->>L: tokenize(sqlText)
+    QP->>+L: tokenize(sqlText)
     activate L
     Note over L: Scans identifiers & numbers<br/>(scanIdentifier, scanNumber)
-    L-->>QP: TokenStream
+    L-->>-QP: TokenStream
     deactivate L
 
     %% =====================================================
     %% PHASE 2: SYNTAX ANALYSIS
     %% =====================================================
-    QP->>P: parse(TokenStream)
+    QP->>+P: parse(TokenStream)
     activate P
     Note over P: parseSelectClause()<br/>parseWhereClause()
-    P-->>QP: ParseTree
+    P-->>-QP: ParseTree
     deactivate P
 
     %% =====================================================
     %% PHASE 3: AST CONSTRUCTION
     %% =====================================================
-    QP->>AB: buildAST(ParseTree)
+    QP->>+AB: buildAST(ParseTree)
     activate AB
     Note over AB: mapToLogicalNode(ParseTreeNode)
-    AB-->>QP: AST
+    AB-->>-QP: AST
     deactivate AB
 
     %% =====================================================
     %% PHASE 4: SEMANTIC ANALYSIS
     %% =====================================================
-    QP->>SA: validate(AST)
+    QP->>+SA: validate(AST)
     activate SA
     
-    SA->>AST: getRootASTNode()
+    SA->>+AST: getRootASTNode()
     activate AST
-    AST-->>SA: ASTNode
+    AST-->>-SA: ASTNode
     deactivate AST
 
-    SA->>NR: resolveIdentifiers(ASTNode)
+    SA->>+NR: resolveIdentifiers(ASTNode)
     activate NR
-    NR->>MM: checkTableExists(table)
+    NR->>+MM: checkTableExists(table)
     activate MM
-    MM-->>NR: boolean
+    MM-->>-NR: boolean
     deactivate MM
-    NR->>MM: checkColumnExists(table, col)
+    NR->>+MM: checkColumnExists(table, col)
     activate MM
-    MM-->>NR: boolean
+    MM-->>-NR: boolean
     deactivate MM
-    NR-->>SA: void
+    NR-->>-SA: void
     deactivate NR
 
-    SA->>TC: checkTypeConformity(ASTNode)
+    SA->>+TC: checkTypeConformity(ASTNode)
     activate TC
-    TC->>MM: fetchTableSchema(table)
+    TC->>+MM: fetchTableSchema(table)
     activate MM
-    MM-->>TC: TableSchema
+    MM-->>-TC: TableSchema
     deactivate MM
-    TC-->>SA: void
+    TC-->>-SA: void
     deactivate TC
 
-    SA-->>QP: boolean (isValid)
+    SA-->>-QP: boolean (isValid)
     deactivate SA
 
     alt AST is Invalid
-        QP-->>Client: Throw SemanticException
+        QP-->>-Client: Throw SemanticException
     else AST is Valid
         %% =====================================================
         %% PHASE 5: QUERY OPTIMIZATION (CBO ENGINE)
         %% =====================================================
-        QP->>QO: generateLogicalPlan(AST)
+        QP->>+QO: generateLogicalPlan(AST)
         activate QO
-        QO-->>QP: LogicalPlan
+        QO-->>-QP: LogicalPlan
         deactivate QO
 
-        QP->>QO: optimize(LogicalPlan)
+        QP->>+QO: optimize(LogicalPlan)
         activate QO
         
-        QO->>LP: getLogicalRoot()
+        QO->>+LP: getLogicalRoot()
         activate LP
-        LP-->>QO: LogicalPlanNode
+        LP-->>-QO: LogicalPlanNode
         deactivate LP
 
-        QO->>PG: enumeratePhysicalPlans(LogicalPlan)
+        QO->>+PG: enumeratePhysicalPlans(LogicalPlan)
         activate PG
-        PG-->>QO: List<PhysicalPlan>
+        PG-->>-QO: List<PhysicalPlan>
         deactivate PG
 
         loop For each PhysicalPlan candidate
-            QO->>CE: calculateIoCost(LogicalPlanNode)
+            QO->>+CE: calculateIoCost(LogicalPlanNode)
             activate CE
-            CE->>SM: estimateCardinality(tableName)
+            CE->>+SM: estimateCardinality(tableName)
             activate SM
-            SM-->>CE: cardinality
+            SM-->>-CE: cardinality
             deactivate SM
-            CE-->>QO: ioCost
+            CE-->>-QO: ioCost
             deactivate CE
 
-            QO->>CE: calculateCpuCost(LogicalPlanNode)
+            QO->>+CE: calculateCpuCost(LogicalPlanNode)
             activate CE
-            CE->>SM: estimateSelectivity(column, value)
+            CE->>+SM: estimateSelectivity(column, value)
             activate SM
-            SM-->>CE: selectivity
+            SM-->>-CE: selectivity
             deactivate SM
-            CE-->>QO: cpuCost
+            CE-->>-QO: cpuCost
             deactivate CE
         end
 
-        QO->>MM: fetchTableSchema(table) (Inspect B+ Tree Index configs)
+        QO->>+MM: fetchTableSchema(table) (Inspect B+ Tree Index configs)
         activate MM
-        MM-->>QO: TableSchema (Index configurations)
+        MM-->>-QO: TableSchema (Index configurations)
         deactivate MM
 
-        QO->>PG: selectBestPlan(plans)
+        QO->>+PG: selectBestPlan(plans)
         activate PG
-        PG-->>QO: PhysicalPlan (lowest cost)
+        PG-->>-QO: PhysicalPlan (lowest cost)
         deactivate PG
 
-        QO-->>QP: PhysicalPlan
+        QO-->>-QP: PhysicalPlan
         deactivate QO
         
-        QP-->>Client: PhysicalPlan
+        QP-->>-Client: PhysicalPlan
     end
     deactivate QP
 
     %% =====================================================
     %% PHASE 6: PHYSICAL PLAN EXECUTION
     %% =====================================================
-    Client->>EE: executePhysicalPlan(PhysicalPlan)
+    Client->>+EE: executePhysicalPlan(PhysicalPlan)
     activate EE
-    EE-->>Client: ResultSet
+    EE-->>-Client: ResultSet
     deactivate EE
 ```

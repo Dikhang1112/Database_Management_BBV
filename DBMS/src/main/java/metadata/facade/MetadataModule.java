@@ -55,15 +55,53 @@ public class MetadataModule {
         }
     }
 
-    public boolean tableExists(String tableName) {
-        return true;
+    /**
+     * Kiểm tra sự tồn tại của tên bảng trong toàn bộ Catalog Metadata.
+     * Sử dụng CatalogValidator để thẩm định tính hợp lệ của định danh trước khi tra cứu.
+     *
+     * @param tableName Tên bảng cần tra cứu.
+     * @return true nếu tên hợp lệ và bảng tồn tại trong bất kỳ schema nào.
+     */
+    public boolean containsTable(String tableName) {
+        if (!CatalogValidator.isValidIdentifier(tableName)) {
+            return false;
+        }
+        if (catalogManager == null) {
+            return false;
+        }
+        for (Database db : catalogManager.listDatabases()) {
+            for (Schema schema : db.listSchemas()) {
+                if (schema.containsTable(tableName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    public boolean columnExists(String tableName, String columnName) {
-        return true;
-    }
-
-    public boolean functionExists(String functionName) {
-        return true;
+    /**
+     * Kiểm tra sự tồn tại của cột thuộc một bảng chỉ định trong Catalog Metadata.
+     * Sử dụng CatalogValidator để thẩm định tính hợp lệ của định danh trước khi tra cứu.
+     *
+     * @param tableName Tên bảng chứa cột.
+     * @param columnName Tên cột cần tra cứu.
+     * @return true nếu định danh hợp lệ và cột tồn tại thuộc bảng chỉ định.
+     */
+    public boolean containsColumn(String tableName, String columnName) {
+        if (!CatalogValidator.isValidIdentifier(tableName) || !CatalogValidator.isValidIdentifier(columnName)) {
+            return false;
+        }
+        if (catalogManager == null) {
+            return false;
+        }
+        for (Database db : catalogManager.listDatabases()) {
+            for (Schema schema : db.listSchemas()) {
+                Table table = schema.getTable(tableName);
+                if (table != null && table.containsColumn(columnName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

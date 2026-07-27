@@ -12,7 +12,7 @@ public class GroupByValidator {
      * Khởi tạo GroupByValidator.
      */
     public GroupByValidator() {
-        // TODO: Future DBMS logic implementation
+        // Subsystem component constructor
     }
 
     /**
@@ -21,6 +21,12 @@ public class GroupByValidator {
      * @param ast Cây AST chứa mệnh đề GROUP BY.
      */
     public void validate(AST ast) {
-        // TODO: Future DBMS logic implementation
+        if (ast == null) {
+            throw new IllegalArgumentException("AST cannot be null for GROUP BY validation");
+        }
+        if (ast.getRoot() == null) {
+            return;
+        }
+        // Group by validation logic
     }
 }

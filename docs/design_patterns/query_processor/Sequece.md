@@ -1,4 +1,4 @@
-# Sequence Diagrams for Query Processor Module (By Pattern & By Feature)
+﻿# Sequence Diagrams for Query Processor Module (By Pattern & By Feature)
 
 Tài liệu thể hiện các sơ đồ trình tự (Sequence Diagrams) cho module **Query Processor**, bao gồm 2 phần chính:
 - **Phần I: Sơ Đồ Trình Tự Theo Design Pattern** (Đồng nhất 100% với `ListPattern.md`).
@@ -28,22 +28,22 @@ sequenceDiagram
     participant Optimizer as QueryOptimizer
     participant PG as PlanGenerator
 
-    Client->>QP: compile("SELECT * FROM users WHERE age > 18")
-    QP->>Lexer: process(sqlText)
-    Lexer-->>QP: TokenStream
-    QP->>Parser: process(TokenStream)
-    Parser-->>QP: ParseTree
-    QP->>ASTB: process(ParseTree)
-    ASTB-->>QP: AST
-    QP->>SA: process(AST)
-    SA-->>QP: Validated AST
-    QP->>QR: process(AST)
-    QR-->>QP: Rewritten AST
-    QP->>Optimizer: process(AST)
-    Optimizer-->>QP: PhysicalPlan
-    QP->>PG: createPhysicalPlan(LogicalPlan)
-    PG-->>QP: PhysicalPlan
-    QP-->>Client: PhysicalPlan
+    Client->>+QP: compile("SELECT * FROM users WHERE age > 18")
+    QP->>+Lexer: process(sqlText)
+    Lexer-->>-QP: TokenStream
+    QP->>+Parser: process(TokenStream)
+    Parser-->>-QP: ParseTree
+    QP->>+ASTB: process(ParseTree)
+    ASTB-->>-QP: AST
+    QP->>+SA: process(AST)
+    SA-->>-QP: Validated AST
+    QP->>+QR: process(AST)
+    QR-->>-QP: Rewritten AST
+    QP->>+Optimizer: process(AST)
+    Optimizer-->>-QP: PhysicalPlan
+    QP->>+PG: createPhysicalPlan(LogicalPlan)
+    PG-->>-QP: PhysicalPlan
+    QP-->>-Client: PhysicalPlan
 ```
 
 ---
@@ -64,18 +64,18 @@ sequenceDiagram
     participant QR as QueryRewriter (Stage 5)
     participant Optimizer as QueryOptimizer (Stage 6)
 
-    QP->>Lexer: process(sqlText)
-    Lexer-->>QP: TokenStream
-    QP->>Parser: process(TokenStream)
-    Parser-->>QP: ParseTree
-    QP->>ASTB: process(ParseTree)
-    ASTB-->>QP: AST
-    QP->>SA: process(AST)
-    SA-->>QP: Validated AST
-    QP->>QR: process(AST)
-    QR-->>QP: Rewritten AST
-    QP->>Optimizer: process(AST)
-    Optimizer-->>QP: PhysicalPlan
+    QP->>+Lexer: process(sqlText)
+    Lexer-->>-QP: TokenStream
+    QP->>+Parser: process(TokenStream)
+    Parser-->>-QP: ParseTree
+    QP->>+ASTB: process(ParseTree)
+    ASTB-->>-QP: AST
+    QP->>+SA: process(AST)
+    SA-->>-QP: Validated AST
+    QP->>+QR: process(AST)
+    QR-->>-QP: Rewritten AST
+    QP->>+Optimizer: process(AST)
+    Optimizer-->>-QP: PhysicalPlan
 ```
 
 ---
@@ -95,11 +95,11 @@ sequenceDiagram
     participant RootNode as ASTNode (SelectNode)
     participant ChildNode as ASTNode (WhereNode)
 
-    Visitor->>Tree: traverseTree()
-    Tree->>RootNode: accept(Visitor)
-    RootNode->>Visitor: visit(SelectNode)
-    RootNode->>ChildNode: accept(Visitor)
-    ChildNode->>Visitor: visit(WhereNode)
+    Visitor->>+Tree: traverseTree()
+    Tree->>+RootNode: accept(Visitor)
+    RootNode->>+Visitor: visit(SelectNode)
+    RootNode->>+ChildNode: accept(Visitor)
+    ChildNode->>+Visitor: visit(WhereNode)
 ```
 
 ---
@@ -120,18 +120,18 @@ sequenceDiagram
     participant Node as ASTNode
     participant Meta as MetadataModule
 
-    SA->>AST: analyze(ast)
-    AST->>Node: accept(SA)
-    Node->>SA: visit(TableNode)
-    SA->>Meta: getTable("sales_db", "public", "users")
-    Meta-->>SA: Table instance
-    SA-->>AST: Validation Success
+    SA->>+AST: analyze(ast)
+    AST->>+Node: accept(SA)
+    Node->>+SA: visit(TableNode)
+    SA->>+Meta: getTable("sales_db", "public", "users")
+    Meta-->>-SA: Table instance
+    SA-->>-AST: Validation Success
 
-    QR->>AST: rewrite(ast)
-    AST->>Node: accept(QR)
-    Node->>QR: visit(PredicateNode)
-    QR->>QR: applyPredicatePushdown()
-    QR-->>AST: Rewritten AST
+    QR->>+AST: rewrite(ast)
+    AST->>+Node: accept(QR)
+    Node->>+QR: visit(PredicateNode)
+    QR->>+QR: applyPredicatePushdown()
+    QR-->>-AST: Rewritten AST
 ```
 
 ---
@@ -152,14 +152,14 @@ sequenceDiagram
     participant Cost as CostEstimator
     participant Meta as MetadataModule
 
-    QP->>Optimizer: process(AST)
-    Optimizer->>Optimizer: setOptimizationRule(PredicatePushdownOptimizer)
-    Optimizer->>Rule: optimize(LogicalPlan)
-    Rule->>Meta: estimateSelectivity()
-    Meta-->>Rule: Selectivity metrics
-    Rule-->>Optimizer: Optimized LogicalPlan
-    Optimizer->>Cost: estimate(LogicalPlan)
-    Cost-->>Optimizer: Estimated CPU & I/O Cost
+    QP->>+Optimizer: process(AST)
+    Optimizer->>+Optimizer: setOptimizationRule(PredicatePushdownOptimizer)
+    Optimizer->>+Rule: optimize(LogicalPlan)
+    Rule->>+Meta: estimateSelectivity()
+    Meta-->>-Rule: Selectivity metrics
+    Rule-->>-Optimizer: Optimized LogicalPlan
+    Optimizer->>+Cost: estimate(LogicalPlan)
+    Cost-->>-Optimizer: Estimated CPU & I/O Cost
 ```
 
 ---
@@ -180,16 +180,16 @@ sequenceDiagram
     participant LP as LogicalPlan
     participant PP as PhysicalPlan
 
-    Optimizer->>LPB: build(AST)
-    LPB->>LPB: addLogicalScan()
-    LPB->>LPB: addLogicalFilter()
-    LPB->>LPB: addLogicalProject()
-    LPB-->>Optimizer: LogicalPlan instance
+    Optimizer->>+LPB: build(AST)
+    LPB->>+LPB: addLogicalScan()
+    LPB->>+LPB: addLogicalFilter()
+    LPB->>+LPB: addLogicalProject()
+    LPB-->>-Optimizer: LogicalPlan instance
 
-    Optimizer->>PPB: build(LogicalPlan)
-    PPB->>PPB: addPhysicalSeqScan()
-    PPB->>PPB: addPhysicalHashJoin()
-    PPB-->>Optimizer: PhysicalPlan instance
+    Optimizer->>+PPB: build(LogicalPlan)
+    PPB->>+PPB: addPhysicalSeqScan()
+    PPB->>+PPB: addPhysicalHashJoin()
+    PPB-->>-Optimizer: PhysicalPlan instance
 ```
 
 ---
@@ -207,21 +207,21 @@ sequenceDiagram
     participant PPB as PhysicalPlanBuilder
     participant POF as PhysicalOperatorFactory
 
-    LPB->>LOF: createOperator(ASTNode)
+    LPB->>+LOF: createOperator(ASTNode)
     alt Node type is SELECT
-        LOF->>LOF: instantiate LogicalScan
+        LOF->>+LOF: instantiate LogicalScan
     else Node type is WHERE
-        LOF->>LOF: instantiate LogicalFilter
+        LOF->>+LOF: instantiate LogicalFilter
     end
-    LOF-->>LPB: LogicalOperator instance
+    LOF-->>-LPB: LogicalOperator instance
 
-    PPB->>POF: createOperator(LogicalPlanNode)
+    PPB->>+POF: createOperator(LogicalPlanNode)
     alt Operator type is JOIN
-        POF->>POF: instantiate PhysicalHashJoin
+        POF->>+POF: instantiate PhysicalHashJoin
     else Operator type is SCAN
-        POF->>POF: instantiate PhysicalSeqScan
+        POF->>+POF: instantiate PhysicalSeqScan
     end
-    POF-->>PPB: PhysicalOperator instance
+    POF-->>-PPB: PhysicalOperator instance
 ```
 
 ---
@@ -246,22 +246,22 @@ sequenceDiagram
     participant Optimizer as QueryOptimizer
     participant PG as PlanGenerator
 
-    Client->>QP: compile(sqlText)
-    QP->>Lexer: tokenize(sqlText)
-    Lexer-->>QP: TokenStream
-    QP->>Parser: parse(TokenStream)
-    Parser-->>QP: ParseTree
-    QP->>ASTB: build(ParseTree)
-    ASTB-->>QP: AST
-    QP->>SA: analyze(AST)
-    SA-->>QP: Validated AST
-    QP->>QR: rewrite(AST)
-    QR-->>QP: Rewritten AST
-    QP->>Optimizer: optimize(AST)
-    Optimizer-->>QP: LogicalPlan
-    QP->>PG: build(LogicalPlan)
-    PG-->>QP: PhysicalPlan
-    QP-->>Client: PhysicalPlan
+    Client->>+QP: compile(sqlText)
+    QP->>+Lexer: tokenize(sqlText)
+    Lexer-->>-QP: TokenStream
+    QP->>+Parser: parse(TokenStream)
+    Parser-->>-QP: ParseTree
+    QP->>+ASTB: build(ParseTree)
+    ASTB-->>-QP: AST
+    QP->>+SA: analyze(AST)
+    SA-->>-QP: Validated AST
+    QP->>+QR: rewrite(AST)
+    QR-->>-QP: Rewritten AST
+    QP->>+Optimizer: optimize(AST)
+    Optimizer-->>-QP: LogicalPlan
+    QP->>+PG: build(LogicalPlan)
+    PG-->>-QP: PhysicalPlan
+    QP-->>-Client: PhysicalPlan
 ```
 
 ---
@@ -282,13 +282,13 @@ sequenceDiagram
     participant Schema as Schema
     participant Table as Table
 
-    SA->>Resolver: resolveTable(tableName)
-    Resolver->>Meta: getTable("sales_db", "public", tableName)
-    Meta->>Catalog: getDatabase("sales_db")
-    Catalog->>DB: getSchema("public")
-    DB->>Schema: getTable(tableName)
-    Schema-->>Resolver: Table instance
-    Resolver-->>SA: Table Metadata Success
+    SA->>+Resolver: resolveTable(tableName)
+    Resolver->>+Meta: getTable("sales_db", "public", tableName)
+    Meta->>+Catalog: getDatabase("sales_db")
+    Catalog->>+DB: getSchema("public")
+    DB->>+Schema: getTable(tableName)
+    Schema-->>-Resolver: Table instance
+    Resolver-->>-SA: Table Metadata Success
 ```
 
 ---
@@ -306,12 +306,12 @@ sequenceDiagram
     participant AST as AST
     participant Node as ASTNode
 
-    SA->>QR: rewrite(AST)
-    QR->>AST: accept(QR)
-    AST->>Node: visit(ASTNode)
-    QR->>QR: applyPredicatePushdown()
-    QR->>QR: applyConstantFolding()
-    QR-->>SA: Rewritten AST
+    SA->>+QR: rewrite(AST)
+    QR->>+AST: accept(QR)
+    AST->>+Node: visit(ASTNode)
+    QR->>+QR: applyPredicatePushdown()
+    QR->>+QR: applyConstantFolding()
+    QR-->>-SA: Rewritten AST
 ```
 
 ---
@@ -330,13 +330,13 @@ sequenceDiagram
     participant Cost as CostEstimator
     participant Stats as StatisticsManager
 
-    QP->>Optimizer: optimize(LogicalPlan)
-    Optimizer->>Rule: optimize(LogicalPlan)
-    Rule-->>Optimizer: Optimized LogicalPlan
-    Optimizer->>Cost: estimate(LogicalPlan)
-    Cost->>Stats: estimateCardinality()
-    Stats-->>Cost: Cardinality & Selectivity Metrics
-    Cost-->>Optimizer: Cost Metrics
+    QP->>+Optimizer: optimize(LogicalPlan)
+    Optimizer->>+Rule: optimize(LogicalPlan)
+    Rule-->>-Optimizer: Optimized LogicalPlan
+    Optimizer->>+Cost: estimate(LogicalPlan)
+    Cost->>+Stats: estimateCardinality()
+    Stats-->>-Cost: Cardinality & Selectivity Metrics
+    Cost-->>-Optimizer: Cost Metrics
 ```
 
 ---
@@ -354,11 +354,11 @@ sequenceDiagram
     participant Factory as LogicalOperatorFactory
     participant LP as LogicalPlan
 
-    Optimizer->>Builder: build(AST)
-    Builder->>Factory: createOperator(ASTNode)
-    Factory-->>Builder: LogicalOperator
-    Builder->>Builder: assembleLogicalTree()
-    Builder-->>Optimizer: LogicalPlan instance
+    Optimizer->>+Builder: build(AST)
+    Builder->>+Factory: createOperator(ASTNode)
+    Factory-->>-Builder: LogicalOperator
+    Builder->>+Builder: assembleLogicalTree()
+    Builder-->>-Optimizer: LogicalPlan instance
 ```
 
 ---
@@ -376,9 +376,9 @@ sequenceDiagram
     participant Factory as PhysicalOperatorFactory
     participant PP as PhysicalPlan
 
-    Optimizer->>Builder: build(LogicalPlan)
-    Builder->>Factory: createOperator(LogicalPlanNode)
-    Factory-->>Builder: PhysicalOperator
-    Builder->>Builder: assembleOperatorTree()
-    Builder-->>Optimizer: PhysicalPlan instance
+    Optimizer->>+Builder: build(LogicalPlan)
+    Builder->>+Factory: createOperator(LogicalPlanNode)
+    Factory-->>-Builder: PhysicalOperator
+    Builder->>+Builder: assembleOperatorTree()
+    Builder-->>-Optimizer: PhysicalPlan instance
 ```

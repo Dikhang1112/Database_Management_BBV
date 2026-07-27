@@ -28,6 +28,16 @@ public final class CatalogValidator {
     }
 
     /**
+     * Kiểm tra tính hợp lệ của định danh (Không rỗng và đúng ký tự cho phép).
+     *
+     * @param name Tên định danh cần kiểm tra.
+     * @return true nếu tên hợp lệ.
+     */
+    public static boolean isValidIdentifier(String name) {
+        return name != null && !name.isBlank() && VALID_IDENTIFIER_PATTERN.matcher(name).matches();
+    }
+
+    /**
      * Kiểm tra trùng lặp tên
      */
     public static void ensureUniqueName(String name, Collection<String> existingNames, String entityType) {

@@ -1,4 +1,4 @@
-```mermaid
+﻿```mermaid
 sequenceDiagram
     autonumber
 
@@ -9,32 +9,40 @@ sequenceDiagram
 
     Note over User,Schema: Catalog Metadata Lifecycle
 
-    User->>CatalogManager: createDatabase("SchoolDB")
+    User->>+CatalogManager: createDatabase("SchoolDB")
+    activate CatalogManager
 
-    CatalogManager->>CatalogManager: validateDatabaseName()
-    CatalogManager->>CatalogManager: containsDatabase()
+    CatalogManager->>+CatalogManager: validateDatabaseName()
+    CatalogManager->>+CatalogManager: containsDatabase()
 
     alt Database does not exist
-        CatalogManager->>Database: new Database("SchoolDB")
-        Database-->>CatalogManager: Database
+        CatalogManager->>+Database: new Database("SchoolDB")
+        activate Database
+        Database-->>-CatalogManager: Database
+        deactivate Database
     else Database already exists
-        CatalogManager-->>User: DatabaseAlreadyExistsException
+        CatalogManager-->>-User: DatabaseAlreadyExistsException
     end
 
-    User->>CatalogManager: createSchema("public")
+    User->>+CatalogManager: createSchema("public")
 
-    CatalogManager->>CatalogManager: getDatabase("SchoolDB")
-    CatalogManager->>Database: createSchema("public")
+    CatalogManager->>+CatalogManager: getDatabase("SchoolDB")
+    CatalogManager->>+Database: createSchema("public")
+    activate Database
 
-    Database->>Database: containsSchema()
+    Database->>+Database: containsSchema()
 
     alt Schema does not exist
-        Database->>Schema: new Schema("public")
-        Schema-->>Database: Schema
+        Database->>+Schema: new Schema("public")
+        activate Schema
+        Schema-->>-Database: Schema
+        deactivate Schema
     else Schema already exists
-        Database-->>User: SchemaAlreadyExistsException
+        Database-->>-User: SchemaAlreadyExistsException
     end
 
-    Database-->>CatalogManager: Schema
-    CatalogManager-->>User: Success
+    Database-->>-CatalogManager: Schema
+    deactivate Database
+    CatalogManager-->>-User: Success
+    deactivate CatalogManager
 ```

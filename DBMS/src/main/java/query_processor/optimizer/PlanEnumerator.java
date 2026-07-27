@@ -1,0 +1,21 @@
+package query_processor.optimizer;
+
+import query_processor.plan.LogicalPlan;
+import query_processor.plan.PhysicalPlan;
+
+public class PlanEnumerator {
+
+    public PhysicalPlan enumerate(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return selectAccessPath(logicalPlan);
+    }
+
+    public PhysicalPlan selectAccessPath(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return new PhysicalPlan();
+    }
+}

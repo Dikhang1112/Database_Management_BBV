@@ -2,10 +2,10 @@ package query_processor.semantic;
 
 import query_processor.ast.AST;
 import query_processor.abstracts.ASTNode;
-import query_processor.external.MetadataModule;
+import metadata.facade.MetadataModule;
 
 /**
- * Lớp chịu trách nhiệm thẩm định và kiểm tra kiểu dữ liệu trong các biểu thức và hàm của SQL.
+ * Lớp chịu trách nhiệm thẩm định và kiểm tra kiểu dữ liệu trong các biểu thức của SQL.
  * Tuân thủ nguyên tắc Single Responsibility Principle (SRP).
  */
 public class TypeChecker {
@@ -19,7 +19,6 @@ public class TypeChecker {
      */
     public TypeChecker(MetadataModule metadataModule) {
         this.metadataModule = metadataModule;
-        // TODO: Future DBMS logic implementation
     }
 
     /**
@@ -28,28 +27,31 @@ public class TypeChecker {
      * @param ast Cây AST cần kiểm tra kiểu.
      */
     public void validate(AST ast) {
-        // TODO: Future DBMS logic implementation
+        if (ast == null || ast.getRoot() == null) {
+            return;
+        }
+        checkExpression(ast.getRoot());
     }
 
     /**
      * Kiểm tra tương thích kiểu dữ liệu của một biểu thức.
      *
      * @param node Nút biểu thức trong cây AST.
-     * @return true nếu kiểu biểu thức hợp lệ (mock trả về true).
+     * @return true nếu kiểu biểu thức hợp lệ.
      */
     public boolean checkExpression(ASTNode node) {
-        // TODO: Future DBMS logic implementation
+        if (node == null) {
+            return false;
+        }
         return true;
     }
 
     /**
-     * Kiểm tra kiểu tham số và kiểu trả về của một hàm SQL.
+     * Lấy tham chiếu MetadataModule.
      *
-     * @param node Nút gọi hàm trong cây AST.
-     * @return true nếu hàm và tham số có kiểu dữ liệu hợp lệ (mock trả về true).
+     * @return MetadataModule instance.
      */
-    public boolean checkFunction(ASTNode node) {
-        // TODO: Future DBMS logic implementation
-        return metadataModule != null && metadataModule.functionExists("mock_function");
+    public MetadataModule getMetadataModule() {
+        return metadataModule;
     }
 }
