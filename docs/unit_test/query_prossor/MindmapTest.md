@@ -23,6 +23,14 @@ flowchart LR
     Cat11(["11. StatisticsManagerTest"])
     Cat12(["12. PlanEnumeratorTest"])
     Cat13(["13. QueryOptimizerInteractionTest"])
+    Cat14(["14. PlanGeneratorTest"])
+    Cat15(["15. LogicalPlanBuilderTest"])
+    Cat16(["16. LogicalOperatorFactoryTest"])
+    Cat17(["17. PhysicalPlanBuilderTest"])
+    Cat18(["18. PhysicalOperatorFactoryTest"])
+    Cat19(["19. PlanValidatorTest"])
+    Cat20(["20. PlanNormalizerTest"])
+    Cat21(["21. PlanGeneratorInteractionTest"])
 
     Root --> Cat1
     Root --> Cat2
@@ -37,6 +45,15 @@ flowchart LR
     Root --> Cat11
     Root --> Cat12
     Root --> Cat13
+    Root --> Cat14
+    Root --> Cat15
+    Root --> Cat16
+    Root --> Cat17
+    Root --> Cat18
+    Root --> Cat19
+    Root --> Cat20
+    Root --> Cat21
+
 
     %% =====================================================
     %% 1. SemanticAnalyzerTest (Main Orchestrator & Visitor)
@@ -169,4 +186,92 @@ flowchart LR
     TC13 --> TC13D("TC-13D Pipeline Fail-Fast Behavior Verification")
     TC13 --> TC13E("TC-13E CostEstimator and StatisticsManager Collaboration")
     TC13 --> TC13F("TC-13F Verify Single Execution per Optimization Lifecycle")
+
+    %% =====================================================
+    %% 14. PlanGeneratorTest (Plan Generation Orchestrator)
+    %% =====================================================
+
+    Cat14 --> TC14("TC-14 Generate Logical Plan")
+    TC14 --> TC14A("TC-14A Null AST Handling")
+    TC14 --> TC14B("TC-14B Generate Physical Plan")
+    TC14 --> TC14C("TC-14C Null Logical Plan Handling in PlanGenerator")
+    TC14 --> TC14D("TC-14D Validate Before Build")
+    TC14 --> TC14E("TC-14E Normalize Before Build")
+    TC14 --> TC14F("TC-14F Invoke Physical Plan Builder")
+    TC14 --> TC14G("TC-14G Invoke Logical Plan Builder")
+
+    %% =====================================================
+    %% 15. LogicalPlanBuilderTest (Logical Tree Construction)
+    %% =====================================================
+
+    Cat15 --> TC15("TC-15 Build Logical Plan from AST")
+    TC15 --> TC15A("TC-15A Invoke LogicalOperatorFactory For Each Node")
+    TC15 --> TC15B("TC-15B Null AST Handling in LogicalPlanBuilder")
+    TC15 --> TC15C("TC-15C Empty AST Handling")
+    TC15 --> TC15D("TC-15D AST Traversal Order Verification")
+
+    %% =====================================================
+    %% 16. LogicalOperatorFactoryTest (Logical Operator Instantiation)
+    %% =====================================================
+
+    Cat16 --> TC16("TC-16 Create Logical Scan Operator")
+    TC16 --> TC16A("TC-16A Create Logical Filter Operator")
+    TC16 --> TC16B("TC-16B Create Logical Projection Operator")
+    TC16 --> TC16C("TC-16C Null ASTNode Handling in Factory")
+    TC16 --> TC16D("TC-16D Unsupported AST Node Type Handling")
+
+    %% =====================================================
+    %% 17. PhysicalPlanBuilderTest (Physical Tree Construction)
+    %% =====================================================
+
+    Cat17 --> TC17("TC-17 Build Physical Plan")
+    TC17 --> TC17A("TC-17A Invoke PhysicalOperatorFactory For Each Node")
+    TC17 --> TC17B("TC-17B Null Logical Plan Handling in PhysicalPlanBuilder")
+    TC17 --> TC17C("TC-17C Empty Logical Plan Handling in PhysicalPlanBuilder")
+    TC17 --> TC17D("TC-17D Physical Execution Order Verification")
+
+    %% =====================================================
+    %% 18. PhysicalOperatorFactoryTest (Physical Operator Instantiation)
+    %% =====================================================
+
+    Cat18 --> TC18("TC-18 Create Sequential Scan Physical Operator")
+    TC18 --> TC18A("TC-18A Create Index Scan Physical Operator")
+    TC18 --> TC18B("TC-18B Create Hash Join Physical Operator")
+    TC18 --> TC18C("TC-18C Null LogicalPlanNode Handling in Physical Factory")
+    TC18 --> TC18D("TC-18D Unsupported Physical Operator Type Handling")
+
+    %% =====================================================
+    %% 19. PlanValidatorTest (Logical Plan Validation)
+    %% =====================================================
+
+    Cat19 --> TC19("TC-19 Validate Logical Plan")
+    TC19 --> TC19A("TC-19A Null Logical Plan Handling in PlanValidator")
+    TC19 --> TC19B("TC-19B Detect Invalid Logical Operator")
+    TC19 --> TC19C("TC-19C Detect Disconnected Plan Tree")
+    TC19 --> TC19D("TC-19D Reject Duplicate Root Node")
+
+    %% =====================================================
+    %% 20. PlanNormalizerTest (Logical Plan Normalization)
+    %% =====================================================
+
+    Cat20 --> TC20("TC-20 Normalize Logical Plan")
+    TC20 --> TC20A("TC-20A Null Logical Plan Handling in PlanNormalizer")
+    TC20 --> TC20B("TC-20B Remove Redundant Operators")
+    TC20 --> TC20C("TC-20C Flatten Nested Operators")
+    TC20 --> TC20D("TC-20D Preserve Logical Semantics After Normalization")
+
+    %% =====================================================
+    %% 21. PlanGeneratorInteractionTest (Plan Generation Pipeline)
+    %% =====================================================
+
+    Cat21 --> TC21("TC-21 LogicalPlanBuilder Interaction Verification")
+    TC21 --> TC21A("TC-21A LogicalOperatorFactory Interaction Verification")
+    TC21 --> TC21B("TC-21B PlanValidator Execution Order First")
+    TC21 --> TC21C("TC-21C PlanNormalizer Execution Order After Validation")
+    TC21 --> TC21D("TC-21D PhysicalPlanBuilder Execution Order After Normalization")
+    TC21 --> TC21E("TC-21E PhysicalOperatorFactory Interaction Verification")
+    TC21 --> TC21F("TC-21F Pipeline Fail-Fast Behavior Verification in PlanGenerator")
+    TC21 --> TC21G("TC-21G Verify Single Execution per Generation Lifecycle")
+```
+
 ```

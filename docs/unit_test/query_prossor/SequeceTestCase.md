@@ -1052,3 +1052,641 @@ sequenceDiagram
     QueryOptimizer-->>-Test: physicalPlan (All dependencies invoked exactly once)
 ```
 
+---
+
+## 14. PlanGenerator Unit Tests
+
+### TC-14: `createLogicalPlan` Happy Path
+```mermaid
+sequenceDiagram
+    title TC-14: createLogicalPlan_ShouldGenerateLogicalPlan_WhenASTIsValid
+    participant Test
+    participant PlanGenerator
+    participant LogicalPlanBuilder
+
+    Test->>+PlanGenerator: createLogicalPlan(ast)
+    PlanGenerator->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder-->>-PlanGenerator: logicalPlan
+    PlanGenerator-->>-Test: logicalPlan
+```
+
+#### TC-14A: `createLogicalPlan_ShouldThrowIllegalArgumentException_WhenASTIsNull`
+```mermaid
+sequenceDiagram
+    title TC-14A: createLogicalPlan_ShouldThrowIllegalArgumentException_WhenASTIsNull
+    participant Test
+    participant PlanGenerator
+
+    Test->>+PlanGenerator: createLogicalPlan(null)
+    PlanGenerator-->>-Test: throw IllegalArgumentException ("AST cannot be null")
+```
+
+#### TC-14B: `createPhysicalPlan_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid`
+```mermaid
+sequenceDiagram
+    title TC-14B: createPhysicalPlan_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+    participant PlanNormalizer
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan)
+    PlanValidator-->>-PlanGenerator: true
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator->>+PhysicalPlanBuilder: build(normalizedPlan)
+    PhysicalPlanBuilder-->>-PlanGenerator: physicalPlan
+    PlanGenerator-->>-Test: physicalPlan
+```
+
+#### TC-14C: `createPhysicalPlan_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-14C: createPhysicalPlan_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant PlanGenerator
+
+    Test->>+PlanGenerator: createPhysicalPlan(null)
+    PlanGenerator-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-14D: `createPhysicalPlan_ShouldValidateLogicalPlan_BeforeBuildingPhysicalPlan`
+```mermaid
+sequenceDiagram
+    title TC-14D: createPhysicalPlan_ShouldValidateLogicalPlan_BeforeBuildingPhysicalPlan
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan)
+    PlanValidator-->>-PlanGenerator: true
+    PlanGenerator-->>-Test: physicalPlan
+```
+
+#### TC-14E: `createPhysicalPlan_ShouldNormalizeLogicalPlan_BeforeBuildingPhysicalPlan`
+```mermaid
+sequenceDiagram
+    title TC-14E: createPhysicalPlan_ShouldNormalizeLogicalPlan_BeforeBuildingPhysicalPlan
+    participant Test
+    participant PlanGenerator
+    participant PlanNormalizer
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator-->>-Test: physicalPlan
+```
+
+#### TC-14F: `createPhysicalPlan_ShouldInvokePhysicalPlanBuilder_WhenValidationSucceeds`
+```mermaid
+sequenceDiagram
+    title TC-14F: createPhysicalPlan_ShouldInvokePhysicalPlanBuilder_WhenValidationSucceeds
+    participant Test
+    participant PlanGenerator
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PhysicalPlanBuilder: build(normalizedPlan)
+    PhysicalPlanBuilder-->>-PlanGenerator: physicalPlan
+    PlanGenerator-->>-Test: physicalPlan
+```
+
+#### TC-14G: `createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenASTIsValid`
+```mermaid
+sequenceDiagram
+    title TC-14G: createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenASTIsValid
+    participant Test
+    participant PlanGenerator
+    participant LogicalPlanBuilder
+
+    Test->>+PlanGenerator: createLogicalPlan(ast)
+    PlanGenerator->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder-->>-PlanGenerator: logicalPlan
+    PlanGenerator-->>-Test: logicalPlan
+```
+
+---
+
+## 15. LogicalPlanBuilder Unit Tests
+
+### TC-15: `build` Logical Plan from AST
+```mermaid
+sequenceDiagram
+    title TC-15: build_ShouldGenerateLogicalPlan_WhenASTContainsValidNodes
+    participant Test
+    participant LogicalPlanBuilder
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder->>+LogicalOperatorFactory: createOperator(astNode)
+    LogicalOperatorFactory-->>-LogicalPlanBuilder: logicalOperator
+    LogicalPlanBuilder-->>-Test: logicalPlan
+```
+
+#### TC-15A: `build_ShouldInvokeLogicalOperatorFactory_ForEachASTNode`
+```mermaid
+sequenceDiagram
+    title TC-15A: build_ShouldInvokeLogicalOperatorFactory_ForEachASTNode
+    participant Test
+    participant LogicalPlanBuilder
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalPlanBuilder: build(astWithN-Nodes)
+    loop For each ASTNode in AST
+        LogicalPlanBuilder->>+LogicalOperatorFactory: createOperator(node_i)
+        LogicalOperatorFactory-->>-LogicalPlanBuilder: operator_i
+    end
+    LogicalPlanBuilder-->>-Test: logicalPlan
+```
+
+#### TC-15B: `build_ShouldThrowIllegalArgumentException_WhenASTIsNull`
+```mermaid
+sequenceDiagram
+    title TC-15B: build_ShouldThrowIllegalArgumentException_WhenASTIsNull
+    participant Test
+    participant LogicalPlanBuilder
+
+    Test->>+LogicalPlanBuilder: build(null)
+    LogicalPlanBuilder-->>-Test: throw IllegalArgumentException ("AST cannot be null")
+```
+
+#### TC-15C: `build_ShouldReturnEmptyLogicalPlan_WhenASTContainsNoNodes`
+```mermaid
+sequenceDiagram
+    title TC-15C: build_ShouldReturnEmptyLogicalPlan_WhenASTContainsNoNodes
+    participant Test
+    participant LogicalPlanBuilder
+
+    Test->>+LogicalPlanBuilder: build(emptyAST)
+    LogicalPlanBuilder-->>-Test: emptyLogicalPlan
+```
+
+#### TC-15D: `build_ShouldCreateLogicalOperatorsInTraversalOrder_WhenASTContainsMultipleNodes`
+```mermaid
+sequenceDiagram
+    title TC-15D: build_ShouldCreateLogicalOperatorsInTraversalOrder_WhenASTContainsMultipleNodes
+    participant Test
+    participant LogicalPlanBuilder
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder->>+LogicalOperatorFactory: createOperator(node1)
+    LogicalOperatorFactory-->>-LogicalPlanBuilder: op1
+    LogicalPlanBuilder->>+LogicalOperatorFactory: createOperator(node2)
+    LogicalOperatorFactory-->>-LogicalPlanBuilder: op2
+    LogicalPlanBuilder-->>-Test: logicalPlan (In traversal order node1 -> node2)
+```
+
+---
+
+## 16. LogicalOperatorFactory Unit Tests
+
+### TC-16: `createOperator` Table Node
+```mermaid
+sequenceDiagram
+    title TC-16: createOperator_ShouldCreateLogicalScanOperator_WhenASTNodeIsTableNode
+    participant Test
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalOperatorFactory: createOperator(tableNode)
+    LogicalOperatorFactory-->>-Test: LogicalScanOperator
+```
+
+#### TC-16A: `createOperator_ShouldCreateLogicalFilterOperator_WhenASTNodeIsPredicateNode`
+```mermaid
+sequenceDiagram
+    title TC-16A: createOperator_ShouldCreateLogicalFilterOperator_WhenASTNodeIsPredicateNode
+    participant Test
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalOperatorFactory: createOperator(predicateNode)
+    LogicalOperatorFactory-->>-Test: LogicalFilterOperator
+```
+
+#### TC-16B: `createOperator_ShouldCreateLogicalProjectionOperator_WhenASTNodeIsProjectionNode`
+```mermaid
+sequenceDiagram
+    title TC-16B: createOperator_ShouldCreateLogicalProjectionOperator_WhenASTNodeIsProjectionNode
+    participant Test
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalOperatorFactory: createOperator(projectionNode)
+    LogicalOperatorFactory-->>-Test: LogicalProjectionOperator
+```
+
+#### TC-16C: `createOperator_ShouldThrowIllegalArgumentException_WhenASTNodeIsNull`
+```mermaid
+sequenceDiagram
+    title TC-16C: createOperator_ShouldThrowIllegalArgumentException_WhenASTNodeIsNull
+    participant Test
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalOperatorFactory: createOperator(null)
+    LogicalOperatorFactory-->>-Test: throw IllegalArgumentException ("ASTNode cannot be null")
+```
+
+#### TC-16D: `createOperator_ShouldThrowUnsupportedOperationException_WhenNodeTypeUnsupported`
+```mermaid
+sequenceDiagram
+    title TC-16D: createOperator_ShouldThrowUnsupportedOperationException_WhenNodeTypeUnsupported
+    participant Test
+    participant LogicalOperatorFactory
+
+    Test->>+LogicalOperatorFactory: createOperator(unsupportedNode)
+    LogicalOperatorFactory-->>-Test: throw UnsupportedOperationException ("Unsupported AST node type")
+```
+
+---
+
+## 17. PhysicalPlanBuilder Unit Tests
+
+### TC-17: `build` Physical Plan
+```mermaid
+sequenceDiagram
+    title TC-17: build_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid
+    participant Test
+    participant PhysicalPlanBuilder
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalPlanBuilder: build(logicalPlan)
+    PhysicalPlanBuilder->>+PhysicalOperatorFactory: createOperator(logicalPlanNode)
+    PhysicalOperatorFactory-->>-PhysicalPlanBuilder: physicalOperator
+    PhysicalPlanBuilder-->>-Test: physicalPlan
+```
+
+#### TC-17A: `build_ShouldInvokePhysicalOperatorFactory_ForEachLogicalPlanNode`
+```mermaid
+sequenceDiagram
+    title TC-17A: build_ShouldInvokePhysicalOperatorFactory_ForEachLogicalPlanNode
+    participant Test
+    participant PhysicalPlanBuilder
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalPlanBuilder: build(logicalPlanWithN-Nodes)
+    loop For each LogicalPlanNode in LogicalPlan
+        PhysicalPlanBuilder->>+PhysicalOperatorFactory: createOperator(logicalNode_i)
+        PhysicalOperatorFactory-->>-PhysicalPlanBuilder: physicalOp_i
+    end
+    PhysicalPlanBuilder-->>-Test: physicalPlan
+```
+
+#### TC-17B: `build_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-17B: build_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant PhysicalPlanBuilder
+
+    Test->>+PhysicalPlanBuilder: build(null)
+    PhysicalPlanBuilder-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-17C: `build_ShouldReturnEmptyPhysicalPlan_WhenLogicalPlanContainsNoOperators`
+```mermaid
+sequenceDiagram
+    title TC-17C: build_ShouldReturnEmptyPhysicalPlan_WhenLogicalPlanContainsNoOperators
+    participant Test
+    participant PhysicalPlanBuilder
+
+    Test->>+PhysicalPlanBuilder: build(emptyLogicalPlan)
+    PhysicalPlanBuilder-->>-Test: emptyPhysicalPlan
+```
+
+#### TC-17D: `build_ShouldGenerateOperatorsInExecutionOrder_WhenLogicalPlanContainsMultipleOperators`
+```mermaid
+sequenceDiagram
+    title TC-17D: build_ShouldGenerateOperatorsInExecutionOrder_WhenLogicalPlanContainsMultipleOperators
+    participant Test
+    participant PhysicalPlanBuilder
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalPlanBuilder: build(logicalPlan)
+    PhysicalPlanBuilder->>+PhysicalOperatorFactory: createOperator(scanNode)
+    PhysicalOperatorFactory-->>-PhysicalPlanBuilder: physicalScan
+    PhysicalPlanBuilder->>+PhysicalOperatorFactory: createOperator(filterNode)
+    PhysicalOperatorFactory-->>-PhysicalPlanBuilder: physicalFilter
+    PhysicalPlanBuilder-->>-Test: physicalPlan (In execution order)
+```
+
+---
+
+## 18. PhysicalOperatorFactory Unit Tests
+
+### TC-18: `createOperator` Sequential Scan
+```mermaid
+sequenceDiagram
+    title TC-18: createOperator_ShouldCreateSequentialScan_WhenLogicalNodeIsScan
+    participant Test
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalOperatorFactory: createOperator(scanLogicalNode)
+    PhysicalOperatorFactory-->>-Test: SequentialScanPhysicalOperator
+```
+
+#### TC-18A: `createOperator_ShouldCreateIndexScan_WhenLogicalNodeUsesIndex`
+```mermaid
+sequenceDiagram
+    title TC-18A: createOperator_ShouldCreateIndexScan_WhenLogicalNodeUsesIndex
+    participant Test
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalOperatorFactory: createOperator(indexLogicalNode)
+    PhysicalOperatorFactory-->>-Test: IndexScanPhysicalOperator
+```
+
+#### TC-18B: `createOperator_ShouldCreateHashJoin_WhenLogicalNodeIsHashJoin`
+```mermaid
+sequenceDiagram
+    title TC-18B: createOperator_ShouldCreateHashJoin_WhenLogicalNodeIsHashJoin
+    participant Test
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalOperatorFactory: createOperator(hashJoinLogicalNode)
+    PhysicalOperatorFactory-->>-Test: HashJoinPhysicalOperator
+```
+
+#### TC-18C: `createOperator_ShouldThrowIllegalArgumentException_WhenLogicalPlanNodeIsNull`
+```mermaid
+sequenceDiagram
+    title TC-18C: createOperator_ShouldThrowIllegalArgumentException_WhenLogicalPlanNodeIsNull
+    participant Test
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalOperatorFactory: createOperator(null)
+    PhysicalOperatorFactory-->>-Test: throw IllegalArgumentException ("LogicalPlanNode cannot be null")
+```
+
+#### TC-18D: `createOperator_ShouldThrowUnsupportedOperationException_WhenOperatorTypeUnsupported`
+```mermaid
+sequenceDiagram
+    title TC-18D: createOperator_ShouldThrowUnsupportedOperationException_WhenOperatorTypeUnsupported
+    participant Test
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalOperatorFactory: createOperator(unsupportedLogicalNode)
+    PhysicalOperatorFactory-->>-Test: throw UnsupportedOperationException ("Unsupported logical operator type")
+```
+
+---
+
+## 19. PlanValidator Unit Tests
+
+### TC-19: `validate` Valid Logical Plan
+```mermaid
+sequenceDiagram
+    title TC-19: validate_ShouldReturnTrue_WhenLogicalPlanIsValid
+    participant Test
+    participant PlanValidator
+
+    Test->>+PlanValidator: validate(validLogicalPlan)
+    PlanValidator-->>-Test: void (Valid plan)
+```
+
+#### TC-19A: `validate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-19A: validate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant PlanValidator
+
+    Test->>+PlanValidator: validate(null)
+    PlanValidator-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-19B: `validate_ShouldDetectInvalidLogicalOperator_WhenLogicalPlanContainsInvalidOperator`
+```mermaid
+sequenceDiagram
+    title TC-19B: validate_ShouldDetectInvalidLogicalOperator_WhenLogicalPlanContainsInvalidOperator
+    participant Test
+    participant PlanValidator
+
+    Test->>+PlanValidator: validate(invalidOperatorPlan)
+    PlanValidator-->>-Test: throw PlanValidationException ("Invalid operator detected")
+```
+
+#### TC-19C: `validate_ShouldDetectDisconnectedPlan_WhenLogicalPlanContainsBrokenTree`
+```mermaid
+sequenceDiagram
+    title TC-19C: validate_ShouldDetectDisconnectedPlan_WhenLogicalPlanContainsBrokenTree
+    participant Test
+    participant PlanValidator
+
+    Test->>+PlanValidator: validate(brokenTreePlan)
+    PlanValidator-->>-Test: throw PlanValidationException ("Disconnected plan tree")
+```
+
+#### TC-19D: `validate_ShouldRejectDuplicateRootNode_WhenLogicalPlanContainsMultipleRoots`
+```mermaid
+sequenceDiagram
+    title TC-19D: validate_ShouldRejectDuplicateRootNode_WhenLogicalPlanContainsMultipleRoots
+    participant Test
+    participant PlanValidator
+
+    Test->>+PlanValidator: validate(multipleRootsPlan)
+    PlanValidator-->>-Test: throw PlanValidationException ("Multiple root nodes detected")
+```
+
+---
+
+## 20. PlanNormalizer Unit Tests
+
+### TC-20: `normalize` Valid Logical Plan
+```mermaid
+sequenceDiagram
+    title TC-20: normalize_ShouldReturnNormalizedLogicalPlan_WhenLogicalPlanIsValid
+    participant Test
+    participant PlanNormalizer
+
+    Test->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-Test: normalizedLogicalPlan
+```
+
+#### TC-20A: `normalize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-20A: normalize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant PlanNormalizer
+
+    Test->>+PlanNormalizer: normalize(null)
+    PlanNormalizer-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-20B: `normalize_ShouldRemoveRedundantOperators_WhenDuplicateOperatorsExist`
+```mermaid
+sequenceDiagram
+    title TC-20B: normalize_ShouldRemoveRedundantOperators_WhenDuplicateOperatorsExist
+    participant Test
+    participant PlanNormalizer
+
+    Test->>+PlanNormalizer: normalize(planWithDuplicateFilters)
+    PlanNormalizer->>+PlanNormalizer: removeRedundantFilterNodes()
+    PlanNormalizer-->>-PlanNormalizer: simplifiedPlan
+    PlanNormalizer-->>-Test: simplifiedPlan
+```
+
+#### TC-20C: `normalize_ShouldFlattenNestedOperators_WhenNestedTreeExists`
+```mermaid
+sequenceDiagram
+    title TC-20C: normalize_ShouldFlattenNestedOperators_WhenNestedTreeExists
+    participant Test
+    participant PlanNormalizer
+
+    Test->>+PlanNormalizer: normalize(nestedTreePlan)
+    PlanNormalizer->>+PlanNormalizer: flattenNestedNodes()
+    PlanNormalizer-->>-PlanNormalizer: flattenedPlan
+    PlanNormalizer-->>-Test: flattenedPlan
+```
+
+#### TC-20D: `normalize_ShouldPreserveLogicalSemantics_WhenNormalizationCompletes`
+```mermaid
+sequenceDiagram
+    title TC-20D: normalize_ShouldPreserveLogicalSemantics_WhenNormalizationCompletes
+    participant Test
+    participant PlanNormalizer
+
+    Test->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-Test: normalizedPlan (Semantics preserved 100%)
+```
+
+---
+
+## 21. PlanGeneratorInteraction Unit Tests
+
+### TC-21: `createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenGenerationStarts`
+```mermaid
+sequenceDiagram
+    title TC-21: createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenGenerationStarts
+    participant Test
+    participant PlanGenerator
+    participant LogicalPlanBuilder
+
+    Test->>+PlanGenerator: createLogicalPlan(ast)
+    PlanGenerator->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder-->>-PlanGenerator: logicalPlan
+    PlanGenerator-->>-Test: logicalPlan
+```
+
+#### TC-21A: `createLogicalPlan_ShouldInvokeLogicalOperatorFactory_WhenBuildingLogicalPlan`
+```mermaid
+sequenceDiagram
+    title TC-21A: createLogicalPlan_ShouldInvokeLogicalOperatorFactory_WhenBuildingLogicalPlan
+    participant Test
+    participant PlanGenerator
+    participant LogicalPlanBuilder
+    participant LogicalOperatorFactory
+
+    Test->>+PlanGenerator: createLogicalPlan(ast)
+    PlanGenerator->>+LogicalPlanBuilder: build(ast)
+    LogicalPlanBuilder->>+LogicalOperatorFactory: createOperator(node)
+    LogicalOperatorFactory-->>-LogicalPlanBuilder: operator
+    LogicalPlanBuilder-->>-PlanGenerator: logicalPlan
+    PlanGenerator-->>-Test: logicalPlan
+```
+
+#### TC-21B: `createPhysicalPlan_ShouldInvokePlanValidatorFirst_WhenGenerationStarts`
+```mermaid
+sequenceDiagram
+    title TC-21B: createPhysicalPlan_ShouldInvokePlanValidatorFirst_WhenGenerationStarts
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+    participant PlanNormalizer
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan)
+    PlanValidator-->>-PlanGenerator: true
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator-->>-Test: physicalPlan (Validator invoked first)
+```
+
+#### TC-21C: `createPhysicalPlan_ShouldInvokePlanNormalizerAfterValidation_WhenValidationSucceeds`
+```mermaid
+sequenceDiagram
+    title TC-21C: createPhysicalPlan_ShouldInvokePlanNormalizerAfterValidation_WhenValidationSucceeds
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+    participant PlanNormalizer
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan)
+    PlanValidator-->>-PlanGenerator: true
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator-->>-Test: physicalPlan (Normalizer invoked after validator)
+```
+
+#### TC-21D: `createPhysicalPlan_ShouldInvokePhysicalPlanBuilderAfterNormalization_WhenNormalizationCompletes`
+```mermaid
+sequenceDiagram
+    title TC-21D: createPhysicalPlan_ShouldInvokePhysicalPlanBuilderAfterNormalization_WhenNormalizationCompletes
+    participant Test
+    participant PlanGenerator
+    participant PlanNormalizer
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator->>+PhysicalPlanBuilder: build(normalizedPlan)
+    PhysicalPlanBuilder-->>-PlanGenerator: physicalPlan
+    PlanGenerator-->>-Test: physicalPlan (Builder invoked last)
+```
+
+#### TC-21E: `build_ShouldInvokePhysicalOperatorFactory_WhenBuildingPhysicalPlan`
+```mermaid
+sequenceDiagram
+    title TC-21E: build_ShouldInvokePhysicalOperatorFactory_WhenBuildingPhysicalPlan
+    participant Test
+    participant PhysicalPlanBuilder
+    participant PhysicalOperatorFactory
+
+    Test->>+PhysicalPlanBuilder: build(logicalPlan)
+    PhysicalPlanBuilder->>+PhysicalOperatorFactory: createOperator(logicalPlanNode)
+    PhysicalOperatorFactory-->>-PhysicalPlanBuilder: physicalOperator
+    PhysicalPlanBuilder-->>-Test: physicalPlan
+```
+
+#### TC-21F: `createPhysicalPlan_ShouldStopPipeline_WhenPlanValidationFails`
+```mermaid
+sequenceDiagram
+    title TC-21F: createPhysicalPlan_ShouldStopPipeline_WhenPlanValidationFails
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+    participant PlanNormalizer
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan)
+    PlanValidator-->>-PlanGenerator: throw PlanValidationException
+    note over PlanNormalizer, PhysicalPlanBuilder: PlanNormalizer and PhysicalPlanBuilder are NEVER invoked
+    PlanGenerator-->>-Test: throw PlanValidationException (Fail-Fast)
+```
+
+#### TC-21G: `createPhysicalPlan_ShouldInvokeEachDependencyExactlyOnce_WhenGenerationSucceeds`
+```mermaid
+sequenceDiagram
+    title TC-21G: createPhysicalPlan_ShouldInvokeEachDependencyExactlyOnce_WhenGenerationSucceeds
+    participant Test
+    participant PlanGenerator
+    participant PlanValidator
+    participant PlanNormalizer
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanGenerator: createPhysicalPlan(logicalPlan)
+    PlanGenerator->>+PlanValidator: validate(logicalPlan) (verify 1 time)
+    PlanValidator-->>-PlanGenerator: true
+    PlanGenerator->>+PlanNormalizer: normalize(logicalPlan) (verify 1 time)
+    PlanNormalizer-->>-PlanGenerator: normalizedPlan
+    PlanGenerator->>+PhysicalPlanBuilder: build(normalizedPlan) (verify 1 time)
+    PhysicalPlanBuilder-->>-PlanGenerator: physicalPlan
+    PlanGenerator-->>-Test: physicalPlan (All dependencies invoked exactly once)
+```
+
+

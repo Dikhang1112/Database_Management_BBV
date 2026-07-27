@@ -1,8 +1,39 @@
 package query_processor.optimizer;
 
-public abstract class StatisticsManager {
+public class StatisticsManager {
 
-    public abstract double estimateCardinality();
+    private double defaultCardinality = 10000.0;
+    private double defaultSelectivity = 0.05;
 
-    public abstract double estimateSelectivity();
+    public StatisticsManager() {
+    }
+
+    public StatisticsManager(double defaultCardinality, double defaultSelectivity) {
+        this.defaultCardinality = defaultCardinality;
+        this.defaultSelectivity = defaultSelectivity;
+    }
+
+    public double estimateCardinality() {
+        return defaultCardinality;
+    }
+
+    public double estimateSelectivity() {
+        return defaultSelectivity;
+    }
+
+    public double getDefaultCardinality() {
+        return defaultCardinality;
+    }
+
+    public void setDefaultCardinality(double defaultCardinality) {
+        this.defaultCardinality = defaultCardinality;
+    }
+
+    public double getDefaultSelectivity() {
+        return defaultSelectivity;
+    }
+
+    public void setDefaultSelectivity(double defaultSelectivity) {
+        this.defaultSelectivity = defaultSelectivity;
+    }
 }

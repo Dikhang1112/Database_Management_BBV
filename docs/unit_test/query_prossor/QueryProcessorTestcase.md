@@ -613,3 +613,404 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Tất cả các mock dependency (`QueryRewriter`, `JoinOptimizer`, `CostEstimator`, `PlanEnumerator`) đều ghi nhận đúng 1 lượt gọi (`verify(..., times(1))`).
 
+---
+
+## 14. PlanGenerator Unit Tests
+
+### TC-14. Generate Logical Plan (Happy Path)
+- **Test method:** `createLogicalPlan_ShouldGenerateLogicalPlan_WhenASTIsValid`
+- **Sequence diagram:** `TC-14`
+- **Input:** Đối tượng `AST` hợp lệ đã qua phân tích ngữ nghĩa
+- **Why:** **Giải thích & Lý do:** Kiểm thử quy trình sinh `LogicalPlan` từ cây cú pháp `AST`.
+- **Expected output:**
+  - Trả về đối tượng `LogicalPlan` hợp lệ không `null`.
+
+### TC-14A. Null AST Handling
+- **Test method:** `createLogicalPlan_ShouldThrowIllegalArgumentException_WhenASTIsNull`
+- **Sequence diagram:** `TC-14A`
+- **Input:** `AST = null`
+- **Why:** **Giải thích & Lý do:** Thẩm định an toàn phòng thủ cho `PlanGenerator` khi tham số đầu vào bị `null`.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-14B. Generate Physical Plan (Happy Path)
+- **Test method:** `createPhysicalPlan_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid`
+- **Sequence diagram:** `TC-14B`
+- **Input:** `LogicalPlan` hợp lệ
+- **Why:** **Giải thích & Lý do:** Kiểm thử quy trình biến đổi `LogicalPlan` thành `PhysicalPlan` thực thi vật lý.
+- **Expected output:**
+  - Trả về đối tượng `PhysicalPlan` hợp lệ.
+
+### TC-14C. Null Logical Plan Handling in PlanGenerator
+- **Test method:** `createPhysicalPlan_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+- **Sequence diagram:** `TC-14C`
+- **Input:** `LogicalPlan = null`
+- **Why:** **Giải thích & Lý do:** Đảm bảo hàm ném ngoại lệ khi nhận tham số `null`.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-14D. Validate Before Build
+- **Test method:** `createPhysicalPlan_ShouldValidateLogicalPlan_BeforeBuildingPhysicalPlan`
+- **Sequence diagram:** `TC-14D`
+- **Input:** `LogicalPlan` đầu vào
+- **Why:** **Giải thích & Lý do:** Xác minh bước kiểm tra tính hợp lệ `PlanValidator` được gọi trước khi dựng `PhysicalPlan`.
+- **Expected output:**
+  - `PlanValidator.validate` được kích hoạt trước `PhysicalPlanBuilder.build`.
+
+### TC-14E. Normalize Before Build
+- **Test method:** `createPhysicalPlan_ShouldNormalizeLogicalPlan_BeforeBuildingPhysicalPlan`
+- **Sequence diagram:** `TC-14E`
+- **Input:** `LogicalPlan` chưa chuẩn hóa
+- **Why:** **Giải thích & Lý do:** Xác minh bước chuẩn hóa `PlanNormalizer` được gọi ngay sau bước validation.
+- **Expected output:**
+  - `PlanNormalizer.normalize` được gọi trước bước sinh Physical Plan.
+
+### TC-14F. Invoke Physical Plan Builder
+- **Test method:** `createPhysicalPlan_ShouldInvokePhysicalPlanBuilder_WhenValidationSucceeds`
+- **Sequence diagram:** `TC-14F`
+- **Input:** `LogicalPlan` đã validate và normalize thành công
+- **Why:** **Giải thích & Lý do:** Đảm bảo `PhysicalPlanBuilder` được kích hoạt để dựng đối tượng `PhysicalPlan`.
+- **Expected output:**
+  - `PhysicalPlanBuilder.build` được gọi thành công.
+
+### TC-14G. Invoke Logical Plan Builder
+- **Test method:** `createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenASTIsValid`
+- **Sequence diagram:** `TC-14G`
+- **Input:** `AST` hợp lệ
+- **Why:** **Giải thích & Lý do:** Đảm bảo `LogicalPlanBuilder` được gọi khi sinh kế hoạch logic từ AST.
+- **Expected output:**
+  - `LogicalPlanBuilder.build` được kích hoạt.
+
+---
+
+## 15. LogicalPlanBuilder Unit Tests
+
+### TC-15. Build Logical Plan from AST
+- **Test method:** `build_ShouldGenerateLogicalPlan_WhenASTContainsValidNodes`
+- **Sequence diagram:** `TC-15`
+- **Input:** `AST` chứa các nút cú pháp hợp lệ
+- **Why:** **Giải thích & Lý do:** Kiểm thử tính năng xây dựng cây `LogicalPlan` hoàn chỉnh từ `AST`.
+- **Expected output:**
+  - Trả về `LogicalPlan` chứa các toán tử logic tương ứng.
+
+### TC-15A. Invoke LogicalOperatorFactory For Each Node
+- **Test method:** `build_ShouldInvokeLogicalOperatorFactory_ForEachASTNode`
+- **Sequence diagram:** `TC-15A`
+- **Input:** `AST` chứa danh sách các nút
+- **Why:** **Giải thích & Lý do:** Xác minh `LogicalOperatorFactory` được gọi với mỗi nút `ASTNode` để tạo toán tử logic.
+- **Expected output:**
+  - `createOperator` được gọi đúng số lần tương ứng với số nút trong AST.
+
+### TC-15B. Null AST Handling in LogicalPlanBuilder
+- **Test method:** `build_ShouldThrowIllegalArgumentException_WhenASTIsNull`
+- **Sequence diagram:** `TC-15B`
+- **Input:** `AST = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn tham số đầu vào.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-15C. Empty AST Handling
+- **Test method:** `build_ShouldReturnEmptyLogicalPlan_WhenASTContainsNoNodes`
+- **Sequence diagram:** `TC-15C`
+- **Input:** `AST` rỗng không chứa nút
+- **Why:** **Giải thích & Lý do:** Kiểm thử xử lý biên cho AST rỗng.
+- **Expected output:**
+  - Trả về `LogicalPlan` rỗng.
+
+### TC-15D. AST Traversal Order Verification
+- **Test method:** `build_ShouldCreateLogicalOperatorsInTraversalOrder_WhenASTContainsMultipleNodes`
+- **Sequence diagram:** `TC-15D`
+- **Input:** `AST` phức hợp nhiều nút
+- **Why:** **Giải thích & Lý do:** Đảm bảo các toán tử logic được sinh ra theo đúng thứ tự duyệt cây AST.
+- **Expected output:**
+  - Thứ tự tạo toán tử khớp với thứ tự duyệt AST.
+
+---
+
+## 16. LogicalOperatorFactory Unit Tests
+
+### TC-16. Create Logical Scan Operator
+- **Test method:** `createOperator_ShouldCreateLogicalScanOperator_WhenASTNodeIsTableNode`
+- **Sequence diagram:** `TC-16`
+- **Input:** `ASTNode` loại nút bảng (Table Node)
+- **Why:** **Giải thích & Lý do:** Kiểm thử tạo toán tử `LogicalScan` từ nút truy vấn bảng.
+- **Expected output:**
+  - Trả về đối tượng toán tử `LogicalScan`.
+
+### TC-16A. Create Logical Filter Operator
+- **Test method:** `createOperator_ShouldCreateLogicalFilterOperator_WhenASTNodeIsPredicateNode`
+- **Sequence diagram:** `TC-16A`
+- **Input:** `ASTNode` loại điều kiện (Predicate Node)
+- **Why:** **Giải thích & Lý do:** Kiểm thử tạo toán tử `LogicalFilter` từ mệnh đề lọc `WHERE`.
+- **Expected output:**
+  - Trả về đối tượng toán tử `LogicalFilter`.
+
+### TC-16B. Create Logical Projection Operator
+- **Test method:** `createOperator_ShouldCreateLogicalProjectionOperator_WhenASTNodeIsProjectionNode`
+- **Sequence diagram:** `TC-16B`
+- **Input:** `ASTNode` loại chiếu (Projection Node)
+- **Why:** **Giải thích & Lý do:** Kiểm thử tạo toán tử `LogicalProjection` từ danh sách `SELECT`.
+- **Expected output:**
+  - Trả về đối tượng toán tử `LogicalProjection`.
+
+### TC-16C. Null ASTNode Handling in Factory
+- **Test method:** `createOperator_ShouldThrowIllegalArgumentException_WhenASTNodeIsNull`
+- **Sequence diagram:** `TC-16C`
+- **Input:** `ASTNode = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn tham số cho Factory.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-16D. Unsupported AST Node Type Handling
+- **Test method:** `createOperator_ShouldThrowUnsupportedOperationException_WhenNodeTypeUnsupported`
+- **Sequence diagram:** `TC-16D`
+- **Input:** `ASTNode` không được hỗ trợ
+- **Why:** **Giải thích & Lý do:** Đảm bảo hệ thống từ chối các loại nút không hợp lệ bằng ngoại lệ phù hợp.
+- **Expected output:**
+  - Ném ngoại lệ `UnsupportedOperationException`.
+
+---
+
+## 17. PhysicalPlanBuilder Unit Tests
+
+### TC-17. Build Physical Plan
+- **Test method:** `build_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid`
+- **Sequence diagram:** `TC-17`
+- **Input:** `LogicalPlan` hợp lệ
+- **Why:** **Giải thích & Lý do:** Kiểm thử dựng cây `PhysicalPlan` thực thi vật lý từ cây logic.
+- **Expected output:**
+  - Trả về `PhysicalPlan` đầy đủ các toán tử vật lý.
+
+### TC-17A. Invoke PhysicalOperatorFactory For Each Node
+- **Test method:** `build_ShouldInvokePhysicalOperatorFactory_ForEachLogicalPlanNode`
+- **Sequence diagram:** `TC-17A`
+- **Input:** `LogicalPlan` chứa danh sách nút toán tử logic
+- **Why:** **Giải thích & Lý do:** Xác minh `PhysicalOperatorFactory` được kích hoạt cho mỗi nút logic.
+- **Expected output:**
+  - `createOperator` được gọi đúng số lần tương ứng với số nút logic.
+
+### TC-17B. Null Logical Plan Handling in PhysicalPlanBuilder
+- **Test method:** `build_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+- **Sequence diagram:** `TC-17B`
+- **Input:** `LogicalPlan = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn phòng thủ cho PhysicalPlanBuilder.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-17C. Empty Logical Plan Handling in PhysicalPlanBuilder
+- **Test method:** `build_ShouldReturnEmptyPhysicalPlan_WhenLogicalPlanContainsNoOperators`
+- **Sequence diagram:** `TC-17C`
+- **Input:** `LogicalPlan` rỗng
+- **Why:** **Giải thích & Lý do:** Kiểm thử xử lý biên cho cây logic rỗng.
+- **Expected output:**
+  - Trả về `PhysicalPlan` rỗng.
+
+### TC-17D. Physical Execution Order Verification
+- **Test method:** `build_ShouldGenerateOperatorsInExecutionOrder_WhenLogicalPlanContainsMultipleOperators`
+- **Sequence diagram:** `TC-17D`
+- **Input:** `LogicalPlan` nhiều toán tử
+- **Why:** **Giải thích & Lý do:** Đảm bảo các toán tử vật lý được xếp theo đúng thứ tự thực thi từ nguồn dữ liệu lên top.
+- **Expected output:**
+  - Thứ tự toán tử vật lý khớp với luồng dữ liệu execution.
+
+---
+
+## 18. PhysicalOperatorFactory Unit Tests
+
+### TC-18. Create Sequential Scan Physical Operator
+- **Test method:** `createOperator_ShouldCreateSequentialScan_WhenLogicalNodeIsScan`
+- **Sequence diagram:** `TC-18`
+- **Input:** `LogicalPlanNode` loại Scan không có chỉ mục
+- **Why:** **Giải thích & Lý do:** Kiểm thử sinh toán tử vật lý quét tuần tự `PhysicalSeqScan`.
+- **Expected output:**
+  - Trả về đối tượng toán tử `PhysicalSeqScan`.
+
+### TC-18A. Create Index Scan Physical Operator
+- **Test method:** `createOperator_ShouldCreateIndexScan_WhenLogicalNodeUsesIndex`
+- **Sequence diagram:** `TC-18A`
+- **Input:** `LogicalPlanNode` sử dụng chỉ mục B+ Tree
+- **Why:** **Giải thích & Lý do:** Kiểm thử sinh toán tử vật lý quét chỉ mục `PhysicalIndexScan`.
+- **Expected output:**
+  - Trả về đối tượng toán tử `PhysicalIndexScan`.
+
+### TC-18B. Create Hash Join Physical Operator
+- **Test method:** `createOperator_ShouldCreateHashJoin_WhenLogicalNodeIsHashJoin`
+- **Sequence diagram:** `TC-18B`
+- **Input:** `LogicalPlanNode` loại Join được chọn thuật toán Hash
+- **Why:** **Giải thích & Lý do:** Kiểm thử sinh toán tử vật lý `PhysicalHashJoin`.
+- **Expected output:**
+  - Trả về đối tượng toán tử `PhysicalHashJoin`.
+
+### TC-18C. Null LogicalPlanNode Handling in Physical Factory
+- **Test method:** `createOperator_ShouldThrowIllegalArgumentException_WhenLogicalPlanNodeIsNull`
+- **Sequence diagram:** `TC-18C`
+- **Input:** `LogicalPlanNode = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn tham số cho Physical Factory.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-18D. Unsupported Physical Operator Type Handling
+- **Test method:** `createOperator_ShouldThrowUnsupportedOperationException_WhenOperatorTypeUnsupported`
+- **Sequence diagram:** `TC-18D`
+- **Input:** `LogicalPlanNode` không hỗ trợ chuyển đổi vật lý
+- **Why:** **Giải thích & Lý do:** Đảm bảo từ chối các loại toán tử không hợp lệ.
+- **Expected output:**
+  - Ném ngoại lệ `UnsupportedOperationException`.
+
+---
+
+## 19. PlanValidator Unit Tests
+
+### TC-19. Validate Logical Plan (Happy Path)
+- **Test method:** `validate_ShouldReturnTrue_WhenLogicalPlanIsValid`
+- **Sequence diagram:** `TC-19`
+- **Input:** `LogicalPlan` hợp lệ cấu trúc
+- **Why:** **Giải thích & Lý do:** Kiểm thử thẩm định thành công một `LogicalPlan` chuẩn.
+- **Expected output:**
+  - Trả về kết quả hợp lệ mà không ném ngoại lệ.
+
+### TC-19A. Null Logical Plan Handling in PlanValidator
+- **Test method:** `validate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+- **Sequence diagram:** `TC-19A`
+- **Input:** `LogicalPlan = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn tham số đầu vào.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-19B. Detect Invalid Logical Operator
+- **Test method:** `validate_ShouldDetectInvalidLogicalOperator_WhenLogicalPlanContainsInvalidOperator`
+- **Sequence diagram:** `TC-19B`
+- **Input:** `LogicalPlan` chứa toán tử bị lỗi cấu hình
+- **Why:** **Giải thích & Lý do:** Phát hiện các toán tử logic không hợp lệ.
+- **Expected output:**
+  - Phát hiện lỗi validation và ném ngoại lệ tương ứng.
+
+### TC-19C. Detect Disconnected Plan Tree
+- **Test method:** `validate_ShouldDetectDisconnectedPlan_WhenLogicalPlanContainsBrokenTree`
+- **Sequence diagram:** `TC-19C`
+- **Input:** `LogicalPlan` bị gãy/đứt đọan liên kết các nút
+- **Why:** **Giải thích & Lý do:** Đảm bảo phát hiện cây kế hoạch không liên thông.
+- **Expected output:**
+  - Ném ngoại lệ chỉ ra liên kết cây bị gãy.
+
+### TC-19D. Reject Duplicate Root Node
+- **Test method:** `validate_ShouldRejectDuplicateRootNode_WhenLogicalPlanContainsMultipleRoots`
+- **Sequence diagram:** `TC-19D`
+- **Input:** `LogicalPlan` có nhiều hơn 1 root node
+- **Why:** **Giải thích & Lý do:** Cây kế hoạch hợp lệ chỉ được phép có duy nhất 1 nút gốc.
+- **Expected output:**
+  - Từ chối kế hoạch có nhiều nút gốc.
+
+---
+
+## 20. PlanNormalizer Unit Tests
+
+### TC-20. Normalize Logical Plan (Happy Path)
+- **Test method:** `normalize_ShouldReturnNormalizedLogicalPlan_WhenLogicalPlanIsValid`
+- **Sequence diagram:** `TC-20`
+- **Input:** `LogicalPlan` hợp lệ
+- **Why:** **Giải thích & Lý do:** Kiểm thử chuẩn hóa cấu trúc cây kế hoạch logic.
+- **Expected output:**
+  - Trả về `LogicalPlan` ở dạng chuẩn hóa tối ưu.
+
+### TC-20A. Null Logical Plan Handling in PlanNormalizer
+- **Test method:** `normalize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+- **Sequence diagram:** `TC-20A`
+- **Input:** `LogicalPlan = null`
+- **Why:** **Giải thích & Lý do:** Kiểm thử an toàn tham số cho PlanNormalizer.
+- **Expected output:**
+  - Ném ngoại lệ `IllegalArgumentException`.
+
+### TC-20B. Remove Redundant Operators
+- **Test method:** `normalize_ShouldRemoveRedundantOperators_WhenDuplicateOperatorsExist`
+- **Sequence diagram:** `TC-20B`
+- **Input:** `LogicalPlan` chứa các toán tử dư thừa lặp lại (ví dụ 2 nút Filter liên tiếp giống hệt)
+- **Why:** **Giải thích & Lý do:** Loại bỏ các toán tử trùng lặp không cần thiết.
+- **Expected output:**
+  - Cây kế hoạch được rút gọn bỏ toán tử dư thừa.
+
+### TC-20C. Flatten Nested Operators
+- **Test method:** `normalize_ShouldFlattenNestedOperators_WhenNestedTreeExists`
+- **Sequence diagram:** `TC-20C`
+- **Input:** `LogicalPlan` chứa các toán tử lồng nhau phức tạp
+- **Why:** **Giải thích & Lý do:** Làm phẳng (flatten) các cấu trúc cây lồng nhau để tối ưu hóa truy xuất.
+- **Expected output:**
+  - Cây kế hoạch được làm phẳng cấu trúc.
+
+### TC-20D. Preserve Logical Semantics After Normalization
+- **Test method:** `normalize_ShouldPreserveLogicalSemantics_WhenNormalizationCompletes`
+- **Sequence diagram:** `TC-20D`
+- **Input:** `LogicalPlan` ban đầu và kết quả sau normalize
+- **Why:** **Giải thích & Lý do:** Đảm bảo việc chuẩn hóa không làm thay đổi ngữ nghĩa dữ liệu của câu lệnh SQL.
+- **Expected output:**
+  - Ngữ nghĩa truy vấn giữ nguyên 100%.
+
+---
+
+## 21. PlanGeneratorInteraction Unit Tests
+
+### TC-21. LogicalPlanBuilder Interaction Verification
+- **Test method:** `createLogicalPlan_ShouldInvokeLogicalPlanBuilder_WhenGenerationStarts`
+- **Sequence diagram:** `TC-21`
+- **Input:** `AST` hợp lệ
+- **Why:** **Giải thích & Lý do:** Xác minh `PlanGenerator` tương tác đúng với `LogicalPlanBuilder` khi bắt đầu tạo kế hoạch logic.
+- **Expected output:**
+  - `LogicalPlanBuilder.build` được gọi đầu tiên.
+
+### TC-21A. LogicalOperatorFactory Interaction Verification
+- **Test method:** `createLogicalPlan_ShouldInvokeLogicalOperatorFactory_WhenBuildingLogicalPlan`
+- **Sequence diagram:** `TC-21A`
+- **Input:** Quy trình sinh `LogicalPlan`
+- **Why:** **Giải thích & Lý do:** Đảm bảo `LogicalOperatorFactory` được kích hoạt trong quá trình tạo kế hoạch logic.
+- **Expected output:**
+  - `LogicalOperatorFactory.createOperator` được gọi đúng tần suất.
+
+### TC-21B. PlanValidator Execution Order First
+- **Test method:** `createPhysicalPlan_ShouldInvokePlanValidatorFirst_WhenGenerationStarts`
+- **Sequence diagram:** `TC-21B`
+- **Input:** Quy trình tạo `PhysicalPlan` bắt đầu
+- **Why:** **Giải thích & Lý do:** Đảm bảo `PlanValidator` luôn là bước đầu tiên được gọi trong pipeline tạo kế hoạch vật lý.
+- **Expected output:**
+  - `PlanValidator.validate` được gọi trước các bước khác.
+
+### TC-21C. PlanNormalizer Execution Order After Validation
+- **Test method:** `createPhysicalPlan_ShouldInvokePlanNormalizerAfterValidation_WhenValidationSucceeds`
+- **Sequence diagram:** `TC-21C`
+- **Input:** Bước validate thành công
+- **Why:** **Giải thích & Lý do:** Đảm bảo `PlanNormalizer` được kích hoạt ngay sau khi bước validation vượt qua.
+- **Expected output:**
+  - `PlanNormalizer.normalize` được gọi sau `PlanValidator.validate`.
+
+### TC-21D. PhysicalPlanBuilder Execution Order After Normalization
+- **Test method:** `createPhysicalPlan_ShouldInvokePhysicalPlanBuilderAfterNormalization_WhenNormalizationCompletes`
+- **Sequence diagram:** `TC-21D`
+- **Input:** Bước normalize hoàn tất
+- **Why:** **Giải thích & Lý do:** Đảm bảo `PhysicalPlanBuilder` chạy sau khi cây logic đã chuẩn hóa.
+- **Expected output:**
+  - `PhysicalPlanBuilder.build` chạy ở cuối pipeline.
+
+### TC-21E. PhysicalOperatorFactory Interaction Verification
+- **Test method:** `build_ShouldInvokePhysicalOperatorFactory_WhenBuildingPhysicalPlan`
+- **Sequence diagram:** `TC-21E`
+- **Input:** Quy trình dựng `PhysicalPlan`
+- **Why:** **Giải thích & Lý do:** Đảm bảo `PhysicalOperatorFactory` được kích hoạt khi tạo từng toán tử vật lý.
+- **Expected output:**
+  - `PhysicalOperatorFactory.createOperator` được gọi tương ứng với mỗi nút logic.
+
+### TC-21F. Pipeline Fail-Fast Behavior Verification in PlanGenerator
+- **Test method:** `createPhysicalPlan_ShouldStopPipeline_WhenPlanValidationFails`
+- **Sequence diagram:** `TC-21F`
+- **Input:** `PlanValidator` ném ngoại lệ khi kiểm tra `LogicalPlan`
+- **Why:** **Giải thích & Lý do:** Kiểm thử tính chất Fail-fast: khi bước kiểm tra validation lỗi thì dừng ngay pipeline, không thực thi các bước normalize và physical builder.
+- **Expected output:**
+  - `PlanNormalizer` và `PhysicalPlanBuilder` không được gọi.
+
+### TC-21G. Verify Single Execution per Generation Lifecycle
+- **Test method:** `createPhysicalPlan_ShouldInvokeEachDependencyExactlyOnce_WhenGenerationSucceeds`
+- **Sequence diagram:** `TC-21G`
+- **Input:** Vòng đời sinh kế hoạch vật lý thành công
+- **Why:** **Giải thích & Lý do:** Xác minh mỗi dependency trong pipeline chỉ được gọi đúng 1 lần duy nhất.
+- **Expected output:**
+  - Tất cả các dependency (`PlanValidator`, `PlanNormalizer`, `PhysicalPlanBuilder`) đều ghi nhận đúng 1 lượt gọi (`verify(..., times(1))`).
+
+

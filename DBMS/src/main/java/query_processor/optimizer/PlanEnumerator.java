@@ -3,9 +3,19 @@ package query_processor.optimizer;
 import query_processor.planner.LogicalPlan;
 import query_processor.planner.PhysicalPlan;
 
-public abstract class PlanEnumerator {
+public class PlanEnumerator {
 
-    public abstract PhysicalPlan enumerate(LogicalPlan logicalPlan);
+    public PhysicalPlan enumerate(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return selectAccessPath(logicalPlan);
+    }
 
-    public abstract PhysicalPlan selectAccessPath(LogicalPlan logicalPlan);
+    public PhysicalPlan selectAccessPath(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return new PhysicalPlan();
+    }
 }

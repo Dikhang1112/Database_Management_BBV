@@ -2,13 +2,35 @@ package query_processor.optimizer;
 
 import query_processor.planner.LogicalPlan;
 
-public abstract class QueryRewriter {
+public class QueryRewriter {
 
-    public abstract LogicalPlan rewrite(LogicalPlan logicalPlan);
+    public LogicalPlan rewrite(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        LogicalPlan p1 = predicatePushdown(logicalPlan);
+        LogicalPlan p2 = projectionPushdown(p1);
+        return constantFolding(p2);
+    }
 
-    public abstract LogicalPlan predicatePushdown(LogicalPlan logicalPlan);
+    public LogicalPlan predicatePushdown(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return logicalPlan;
+    }
 
-    public abstract LogicalPlan projectionPushdown(LogicalPlan logicalPlan);
+    public LogicalPlan projectionPushdown(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return logicalPlan;
+    }
 
-    public abstract LogicalPlan constantFolding(LogicalPlan logicalPlan);
+    public LogicalPlan constantFolding(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return logicalPlan;
+    }
 }

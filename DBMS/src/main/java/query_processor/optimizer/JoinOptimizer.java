@@ -2,11 +2,27 @@ package query_processor.optimizer;
 
 import query_processor.planner.LogicalPlan;
 
-public abstract class JoinOptimizer {
+public class JoinOptimizer {
 
-    public abstract LogicalPlan optimize(LogicalPlan logicalPlan);
+    public LogicalPlan optimize(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        LogicalPlan reordered = optimizeJoinOrder(logicalPlan);
+        return selectJoinMethod(reordered);
+    }
 
-    public abstract LogicalPlan optimizeJoinOrder(LogicalPlan logicalPlan);
+    public LogicalPlan optimizeJoinOrder(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return logicalPlan;
+    }
 
-    public abstract LogicalPlan selectJoinMethod(LogicalPlan logicalPlan);
+    public LogicalPlan selectJoinMethod(LogicalPlan logicalPlan) {
+        if (logicalPlan == null) {
+            throw new IllegalArgumentException("Logical plan cannot be null");
+        }
+        return logicalPlan;
+    }
 }
