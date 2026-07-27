@@ -2,27 +2,11 @@ package query_processor.optimizer;
 
 import query_processor.planner.LogicalPlan;
 
-/**
- * Đánh giá chi phí tài nguyên (CPU, I/O) cho các phương án kế hoạch thực thi logic.
- * Áp dụng Pattern Strategy.
- */
-public class CostEstimator {
+public abstract class CostEstimator {
 
-    /**
-     * Khởi tạo CostEstimator.
-     */
-    public CostEstimator() {
-        // TODO: Future DBMS logic implementation
-    }
+    public abstract double estimate(LogicalPlan logicalPlan);
 
-    /**
-     * Ước lượng chi phí cho một kế hoạch logic chỉ định.
-     *
-     * @param plan Kế hoạch thực thi logic.
-     * @return Giá trị chi phí dạng Object.
-     */
-    public Object estimate(LogicalPlan plan) {
-        // TODO: Future DBMS logic implementation
-        return null;
-    }
+    public abstract double estimateCardinality(LogicalPlan logicalPlan);
+
+    public abstract double estimateSelectivity(LogicalPlan logicalPlan);
 }

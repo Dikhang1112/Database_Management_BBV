@@ -364,3 +364,691 @@ sequenceDiagram
     Test->>+AST: getRoot()
     AST-->>-Test: rootNode
 ```
+
+---
+
+## 7. QueryOptimizer Unit Tests
+
+### TC-07: `optimize` Pipeline Execution
+
+#### Happy Path: `optimize_ShouldExecuteOptimizationPipeline_WhenLogicalPlanIsValid`
+```mermaid
+sequenceDiagram
+    title TC-07: optimize_ShouldExecuteOptimizationPipeline_WhenLogicalPlanIsValid
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+    participant CostEstimator
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: rewrittenLogicalPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenLogicalPlan)
+    JoinOptimizer-->>-QueryOptimizer: joinOptimizedLogicalPlan
+    QueryOptimizer->>+CostEstimator: estimate(joinOptimizedLogicalPlan)
+    CostEstimator-->>-QueryOptimizer: estimatedCost (double)
+    QueryOptimizer->>+PlanEnumerator: enumerate(joinOptimizedLogicalPlan)
+    PlanEnumerator-->>-QueryOptimizer: physicalPlan
+    QueryOptimizer-->>-Test: physicalPlan (Complete optimization pipeline)
+```
+
+#### TC-07A: `optimize_ShouldStopPipeline_WhenQueryRewriteFails`
+```mermaid
+sequenceDiagram
+    title TC-07A: optimize_ShouldStopPipeline_WhenQueryRewriteFails
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: throw QueryRewriteException ("Rewrite rule failed")
+    QueryOptimizer-->>-Test: throw QueryRewriteException (Pipeline halted fail-fast)
+```
+
+#### TC-07B: `optimize_ShouldStopPipeline_WhenJoinOptimizationFails`
+```mermaid
+sequenceDiagram
+    title TC-07B: optimize_ShouldStopPipeline_WhenJoinOptimizationFails
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: rewrittenLogicalPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenLogicalPlan)
+    JoinOptimizer-->>-QueryOptimizer: throw RuntimeException ("Join optimization failed")
+    QueryOptimizer-->>-Test: throw RuntimeException (Pipeline halted)
+```
+
+#### TC-07C: `optimize_ShouldStopPipeline_WhenCostEstimationFails`
+```mermaid
+sequenceDiagram
+    title TC-07C: optimize_ShouldStopPipeline_WhenCostEstimationFails
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+    participant CostEstimator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: rewrittenLogicalPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenLogicalPlan)
+    JoinOptimizer-->>-QueryOptimizer: joinOptimizedLogicalPlan
+    QueryOptimizer->>+CostEstimator: estimate(joinOptimizedLogicalPlan)
+    CostEstimator-->>-QueryOptimizer: throw RuntimeException ("Cost estimation failed")
+    QueryOptimizer-->>-Test: throw RuntimeException (PlanEnumerator skipped)
+```
+
+#### TC-07D: `optimize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-07D: optimize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant QueryOptimizer
+
+    Test->>+QueryOptimizer: optimize(null)
+    QueryOptimizer->>+QueryOptimizer: validateNotNull(null)
+    QueryOptimizer-->>-QueryOptimizer: throw IllegalArgumentException
+    QueryOptimizer-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-07E: `optimize_ShouldReturnPhysicalPlan_WhenLogicalPlanIsEmpty`
+```mermaid
+sequenceDiagram
+    title TC-07E: optimize_ShouldReturnPhysicalPlan_WhenLogicalPlanIsEmpty
+    participant Test
+    participant QueryOptimizer
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(emptyLogicalPlan)
+    QueryOptimizer->>+PlanEnumerator: enumerate(emptyLogicalPlan)
+    PlanEnumerator-->>-QueryOptimizer: emptyPhysicalPlan
+    QueryOptimizer-->>-Test: emptyPhysicalPlan
+```
+
+#### TC-07F: `optimize_ShouldInvokeEachDependencyExactlyOnce_WhenOptimizationSucceeds`
+```mermaid
+sequenceDiagram
+    title TC-07F: optimize_ShouldInvokeEachDependencyExactlyOnce_WhenOptimizationSucceeds
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+    participant CostEstimator
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan) (times=1)
+    QueryRewriter-->>-QueryOptimizer: rewrittenPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenPlan) (times=1)
+    JoinOptimizer-->>-QueryOptimizer: joinPlan
+    QueryOptimizer->>+CostEstimator: estimate(joinPlan) (times=1)
+    CostEstimator-->>-QueryOptimizer: cost
+    QueryOptimizer->>+PlanEnumerator: enumerate(joinPlan) (times=1)
+    PlanEnumerator-->>-QueryOptimizer: physicalPlan
+    QueryOptimizer-->>-Test: physicalPlan (Verified 1 call per dependency)
+```
+
+#### TC-07G: `setOptimizationRule_ShouldReplaceOptimizationStrategy_WhenNewRuleProvided`
+```mermaid
+sequenceDiagram
+    title TC-07G: setOptimizationRule_ShouldReplaceOptimizationStrategy_WhenNewRuleProvided
+    participant Test
+    participant QueryOptimizer
+
+    Test->>+QueryOptimizer: setOptimizationRule(newStrategyRule)
+    QueryOptimizer->>+QueryOptimizer: updateStrategy(newStrategyRule)
+    QueryOptimizer-->>-QueryOptimizer: void
+    QueryOptimizer-->>-Test: void (Strategy updated)
+```
+
+---
+
+## 8. QueryRewriter Unit Tests
+
+### TC-08: `rewrite` Rules Execution
+
+#### Happy Path: `rewrite_ShouldApplyAllRewriteRules_WhenLogicalPlanIsValid`
+```mermaid
+sequenceDiagram
+    title TC-08: rewrite_ShouldApplyAllRewriteRules_WhenLogicalPlanIsValid
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter->>+QueryRewriter: predicatePushdown(logicalPlan)
+    QueryRewriter-->>-QueryRewriter: planWithPushdown
+    QueryRewriter->>+QueryRewriter: projectionPushdown(planWithPushdown)
+    QueryRewriter-->>-QueryRewriter: planWithProjection
+    QueryRewriter->>+QueryRewriter: constantFolding(planWithProjection)
+    QueryRewriter-->>-QueryRewriter: fullyRewrittenPlan
+    QueryRewriter-->>-Test: fullyRewrittenPlan
+```
+
+#### TC-08A: `predicatePushdown_ShouldMovePredicatesCloserToScan_WhenFilterExists`
+```mermaid
+sequenceDiagram
+    title TC-08A: predicatePushdown_ShouldMovePredicatesCloserToScan_WhenFilterExists
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: predicatePushdown(logicalPlanWithFilterAboveJoin)
+    QueryRewriter->>+QueryRewriter: pushFilterBelowJoin(filterNode, joinNode)
+    QueryRewriter-->>-QueryRewriter: optimizedFilterPlan
+    QueryRewriter-->>-Test: optimizedFilterPlan
+```
+
+#### TC-08B: `projectionPushdown_ShouldRemoveUnusedColumns_WhenProjectionContainsExtraColumns`
+```mermaid
+sequenceDiagram
+    title TC-08B: projectionPushdown_ShouldRemoveUnusedColumns_WhenProjectionContainsExtraColumns
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: projectionPushdown(logicalPlanWithExtraCols)
+    QueryRewriter->>+QueryRewriter: pruneUnusedColumns(scanNode, unusedColList)
+    QueryRewriter-->>-QueryRewriter: prunedProjectionPlan
+    QueryRewriter-->>-Test: prunedProjectionPlan
+```
+
+#### TC-08C: `constantFolding_ShouldSimplifyConstantExpressions_WhenExpressionIsConstant`
+```mermaid
+sequenceDiagram
+    title TC-08C: constantFolding_ShouldSimplifyConstantExpressions_WhenExpressionIsConstant
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: constantFolding(logicalPlanWithConstantExpr)
+    QueryRewriter->>+QueryRewriter: evaluateConstant("1 + 1")
+    QueryRewriter-->>-QueryRewriter: constantValue(2)
+    QueryRewriter-->>-Test: simplifiedPlan
+```
+
+#### TC-08D: `rewrite_ShouldSkipRewrite_WhenLogicalPlanAlreadyOptimized`
+```mermaid
+sequenceDiagram
+    title TC-08D: rewrite_ShouldSkipRewrite_WhenLogicalPlanAlreadyOptimized
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: rewrite(optimizedLogicalPlan)
+    QueryRewriter->>+QueryRewriter: isAlreadyOptimized(optimizedLogicalPlan)
+    QueryRewriter-->>-QueryRewriter: true
+    QueryRewriter-->>-Test: originalLogicalPlan (Unchanged)
+```
+
+#### TC-08E: `rewrite_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-08E: rewrite_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: rewrite(null)
+    QueryRewriter-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+#### TC-08F: `rewrite_ShouldStopRemainingRewriteRules_WhenPredicatePushdownFails`
+```mermaid
+sequenceDiagram
+    title TC-08F: rewrite_ShouldStopRemainingRewriteRules_WhenPredicatePushdownFails
+    participant Test
+    participant QueryRewriter
+
+    Test->>+QueryRewriter: rewrite(invalidLogicalPlan)
+    QueryRewriter->>+QueryRewriter: predicatePushdown(invalidLogicalPlan)
+    QueryRewriter-->>-QueryRewriter: throw RuntimeException ("Pushdown error")
+    QueryRewriter-->>-Test: throw RuntimeException (Remaining rewrite steps aborted)
+```
+
+---
+
+## 9. JoinOptimizer Unit Tests
+
+### TC-09: `optimize` & Join Selection
+
+#### Happy Path: `optimize_ShouldOptimizeJoinPipeline_WhenLogicalPlanContainsJoin`
+```mermaid
+sequenceDiagram
+    title TC-09: optimize_ShouldOptimizeJoinPipeline_WhenLogicalPlanContainsJoin
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: optimize(joinLogicalPlan)
+    JoinOptimizer->>+JoinOptimizer: optimizeJoinOrder(joinLogicalPlan)
+    JoinOptimizer-->>-JoinOptimizer: reorderedJoinPlan
+    JoinOptimizer->>+JoinOptimizer: selectJoinMethod(reorderedJoinPlan)
+    JoinOptimizer-->>-JoinOptimizer: optimalMethodPlan
+    JoinOptimizer-->>-Test: optimalMethodPlan
+```
+
+#### TC-09A: `optimizeJoinOrder_ShouldReorderJoinSequence_WhenMultipleTablesExist`
+```mermaid
+sequenceDiagram
+    title TC-09A: optimizeJoinOrder_ShouldReorderJoinSequence_WhenMultipleTablesExist
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: optimizeJoinOrder(planWithTables_A_B_C)
+    JoinOptimizer->>+JoinOptimizer: calculateJoinOrderCost(B_JOIN_C_FIRST)
+    JoinOptimizer-->>-JoinOptimizer: optimalOrder [(B JOIN C) JOIN A]
+    JoinOptimizer-->>-Test: reorderedPlan
+```
+
+#### TC-09B: `selectJoinMethod_ShouldChooseHashJoin_WhenHashJoinIsOptimal`
+```mermaid
+sequenceDiagram
+    title TC-09B: selectJoinMethod_ShouldChooseHashJoin_WhenHashJoinIsOptimal
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: selectJoinMethod(equiJoinPlan)
+    JoinOptimizer->>+JoinOptimizer: evaluateJoinCosts(equiJoinPlan)
+    JoinOptimizer-->>-JoinOptimizer: HashJoinMethod
+    JoinOptimizer-->>-Test: planWithHashJoin
+```
+
+#### TC-09C: `selectJoinMethod_ShouldChooseNestedLoopJoin_WhenInputTablesAreSmall`
+```mermaid
+sequenceDiagram
+    title TC-09C: selectJoinMethod_ShouldChooseNestedLoopJoin_WhenInputTablesAreSmall
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: selectJoinMethod(smallTableJoinPlan)
+    JoinOptimizer->>+JoinOptimizer: checkTableRowCounts(smallTableJoinPlan)
+    JoinOptimizer-->>-JoinOptimizer: NestedLoopMethod (Rows < 100)
+    JoinOptimizer-->>-Test: planWithNestedLoopJoin
+```
+
+#### TC-09D: `optimize_ShouldReturnOriginalPlan_WhenLogicalPlanContainsNoJoin`
+```mermaid
+sequenceDiagram
+    title TC-09D: optimize_ShouldReturnOriginalPlan_WhenLogicalPlanContainsNoJoin
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: optimize(singleTablePlan)
+    JoinOptimizer->>+JoinOptimizer: containsJoin(singleTablePlan)
+    JoinOptimizer-->>-JoinOptimizer: false
+    JoinOptimizer-->>-Test: singleTablePlan (Unchanged)
+```
+
+#### TC-09E: `optimize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-09E: optimize_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant JoinOptimizer
+
+    Test->>+JoinOptimizer: optimize(null)
+    JoinOptimizer-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+---
+
+## 10. CostEstimator Unit Tests
+
+### TC-10: `estimate`, `estimateCardinality` & `estimateSelectivity`
+
+#### Happy Path: `estimate_ShouldCalculateExecutionCost_WhenLogicalPlanIsValid`
+```mermaid
+sequenceDiagram
+    title TC-10: estimate_ShouldCalculateExecutionCost_WhenLogicalPlanIsValid
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimate(logicalPlan)
+    CostEstimator->>+CostEstimator: estimateCardinality(logicalPlan)
+    CostEstimator->>+StatisticsManager: estimateCardinality()
+    StatisticsManager-->>-CostEstimator: rowCount (10000.0)
+    CostEstimator-->>-CostEstimator: estimatedCardinality
+    CostEstimator->>+CostEstimator: estimateSelectivity(logicalPlan)
+    CostEstimator->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager-->>-CostEstimator: filterRatio (0.1)
+    CostEstimator-->>-CostEstimator: estimatedSelectivity
+    CostEstimator-->>-Test: totalCost (double > 0.0)
+```
+
+#### TC-10A: `estimateCardinality_ShouldEstimateRowCount_WhenStatisticsAvailable`
+```mermaid
+sequenceDiagram
+    title TC-10A: estimateCardinality_ShouldEstimateRowCount_WhenStatisticsAvailable
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimateCardinality(logicalPlan)
+    CostEstimator->>+StatisticsManager: estimateCardinality()
+    StatisticsManager-->>-CostEstimator: 5000.0
+    CostEstimator-->>-Test: 5000.0 (Cardinality estimated)
+```
+
+#### TC-10B: `estimateSelectivity_ShouldEstimatePredicateSelectivity_WhenFilterExists`
+```mermaid
+sequenceDiagram
+    title TC-10B: estimateSelectivity_ShouldEstimatePredicateSelectivity_WhenFilterExists
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimateSelectivity(filterPlan)
+    CostEstimator->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager-->>-CostEstimator: 0.15
+    CostEstimator-->>-Test: 0.15 (Selectivity in range [0.0, 1.0])
+```
+
+#### TC-10C: `estimate_ShouldInvokeStatisticsManager_WhenCostCalculationStarts`
+```mermaid
+sequenceDiagram
+    title TC-10C: estimate_ShouldInvokeStatisticsManager_WhenCostCalculationStarts
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimate(logicalPlan)
+    CostEstimator->>+StatisticsManager: estimateCardinality()
+    StatisticsManager-->>-CostEstimator: 1000.0
+    CostEstimator->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager-->>-CostEstimator: 0.2
+    CostEstimator-->>-Test: totalCost
+```
+
+#### TC-10D: `estimate_ShouldUseDefaultStatistics_WhenMetadataStatisticsUnavailable`
+```mermaid
+sequenceDiagram
+    title TC-10D: estimate_ShouldUseDefaultStatistics_WhenMetadataStatisticsUnavailable
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimate(newTablePlan)
+    CostEstimator->>+StatisticsManager: estimateCardinality()
+    StatisticsManager-->>-CostEstimator: -1.0 (Missing stats)
+    CostEstimator->>+CostEstimator: applyDefaultHeuristics()
+    CostEstimator-->>-CostEstimator: defaultCost (1000.0)
+    CostEstimator-->>-Test: defaultCost
+```
+
+#### TC-10E: `estimate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-10E: estimate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant CostEstimator
+
+    Test->>+CostEstimator: estimate(null)
+    CostEstimator-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+---
+
+## 11. StatisticsManager Unit Tests
+
+### TC-11: `estimateCardinality` & `estimateSelectivity`
+
+#### Happy Path: `estimateCardinality_ShouldReturnEstimatedRowCount_WhenTableStatisticsExist`
+```mermaid
+sequenceDiagram
+    title TC-11: estimateCardinality_ShouldReturnEstimatedRowCount_WhenTableStatisticsExist
+    participant Test
+    participant StatisticsManager
+    participant MetadataModule
+
+    Test->>+StatisticsManager: estimateCardinality()
+    StatisticsManager->>+MetadataModule: getTableStatistics("users")
+    MetadataModule-->>-StatisticsManager: rowCount = 10000.0
+    StatisticsManager-->>-Test: 10000.0
+```
+
+#### TC-11A: `estimateSelectivity_ShouldReturnEstimatedFilterRatio_WhenColumnStatisticsExist`
+```mermaid
+sequenceDiagram
+    title TC-11A: estimateSelectivity_ShouldReturnEstimatedFilterRatio_WhenColumnStatisticsExist
+    participant Test
+    participant StatisticsManager
+    participant MetadataModule
+
+    Test->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager->>+MetadataModule: getColumnHistogram("age")
+    MetadataModule-->>-StatisticsManager: distinctValues = 20
+    StatisticsManager-->>-Test: 0.05 (1 / 20)
+```
+
+#### TC-11B: `estimateCardinality_ShouldReturnDefaultValue_WhenTableStatisticsMissing`
+```mermaid
+sequenceDiagram
+    title TC-11B: estimateCardinality_ShouldReturnDefaultValue_WhenTableStatisticsMissing
+    participant Test
+    participant StatisticsManager
+    participant MetadataModule
+
+    Test->>+StatisticsManager: estimateCardinality()
+    StatisticsManager->>+MetadataModule: getTableStatistics("unknown_table")
+    MetadataModule-->>-StatisticsManager: null
+    StatisticsManager-->>-Test: 1000.0 (Default table cardinality fallback)
+```
+
+#### TC-11C: `estimateSelectivity_ShouldReturnDefaultValue_WhenColumnStatisticsMissing`
+```mermaid
+sequenceDiagram
+    title TC-11C: estimateSelectivity_ShouldReturnDefaultValue_WhenColumnStatisticsMissing
+    participant Test
+    participant StatisticsManager
+    participant MetadataModule
+
+    Test->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager->>+MetadataModule: getColumnHistogram("unknown_column")
+    MetadataModule-->>-StatisticsManager: null
+    StatisticsManager-->>-Test: 0.1 (Default equality selectivity fallback)
+```
+
+---
+
+## 12. PlanEnumerator Unit Tests
+
+### TC-12: `enumerate` & `selectAccessPath`
+
+#### Happy Path: `enumerate_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid`
+```mermaid
+sequenceDiagram
+    title TC-12: enumerate_ShouldGeneratePhysicalPlan_WhenLogicalPlanIsValid
+    participant Test
+    participant PlanEnumerator
+    participant PhysicalPlanBuilder
+
+    Test->>+PlanEnumerator: enumerate(logicalPlan)
+    PlanEnumerator->>+PlanEnumerator: selectAccessPath(logicalPlan)
+    PlanEnumerator-->>-PlanEnumerator: selectedAccessPath
+    PlanEnumerator->>+PhysicalPlanBuilder: build(selectedAccessPath)
+    PhysicalPlanBuilder-->>-PlanEnumerator: physicalPlan
+    PlanEnumerator-->>-Test: physicalPlan
+```
+
+#### TC-12A: `selectAccessPath_ShouldChooseBestAccessPath_WhenMultipleCandidatesExist`
+```mermaid
+sequenceDiagram
+    title TC-12A: selectAccessPath_ShouldChooseBestAccessPath_WhenMultipleCandidatesExist
+    participant Test
+    participant PlanEnumerator
+
+    Test->>+PlanEnumerator: selectAccessPath(logicalPlan)
+    PlanEnumerator->>+PlanEnumerator: compareAccessPaths(SeqScan, IndexScan)
+    PlanEnumerator-->>-PlanEnumerator: IndexScan (Lower cost)
+    PlanEnumerator-->>-Test: IndexScanAccessPath
+```
+
+#### TC-12B: `enumerate_ShouldGenerateSequentialScan_WhenNoIndexAvailable`
+```mermaid
+sequenceDiagram
+    title TC-12B: enumerate_ShouldGenerateSequentialScan_WhenNoIndexAvailable
+    participant Test
+    participant PlanEnumerator
+
+    Test->>+PlanEnumerator: enumerate(planWithoutIndex)
+    PlanEnumerator->>+PlanEnumerator: selectAccessPath(planWithoutIndex)
+    PlanEnumerator-->>-PlanEnumerator: PhysicalSeqScanNode
+    PlanEnumerator-->>-Test: physicalPlanWithSeqScan
+```
+
+#### TC-12C: `enumerate_ShouldGenerateIndexScan_WhenMatchingIndexExists`
+```mermaid
+sequenceDiagram
+    title TC-12C: enumerate_ShouldGenerateIndexScan_WhenMatchingIndexExists
+    participant Test
+    participant PlanEnumerator
+
+    Test->>+PlanEnumerator: enumerate(planWithBTreeIndex)
+    PlanEnumerator->>+PlanEnumerator: selectAccessPath(planWithBTreeIndex)
+    PlanEnumerator-->>-PlanEnumerator: PhysicalIndexScanNode
+    PlanEnumerator-->>-Test: physicalPlanWithIndexScan
+```
+
+#### TC-12D: `enumerate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull`
+```mermaid
+sequenceDiagram
+    title TC-12D: enumerate_ShouldThrowIllegalArgumentException_WhenLogicalPlanIsNull
+    participant Test
+    participant PlanEnumerator
+
+    Test->>+PlanEnumerator: enumerate(null)
+    PlanEnumerator-->>-Test: throw IllegalArgumentException ("Logical plan cannot be null")
+```
+
+---
+
+## 13. QueryOptimizerInteraction Unit Tests
+
+### TC-13: Pipeline Interaction & Execution Order
+
+#### TC-13: `optimize_ShouldInvokeQueryRewriterFirst_WhenOptimizationPipelineStarts`
+```mermaid
+sequenceDiagram
+    title TC-13: optimize_ShouldInvokeQueryRewriterFirst_WhenOptimizationPipelineStarts
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan) (Step 1 - First)
+    QueryRewriter-->>-QueryOptimizer: rewrittenPlan
+    QueryOptimizer-->>-Test: physicalPlan
+```
+
+#### TC-13A: `optimize_ShouldInvokeJoinOptimizerAfterQueryRewriter_WhenRewriteCompletes`
+```mermaid
+sequenceDiagram
+    title TC-13A: optimize_ShouldInvokeJoinOptimizerAfterQueryRewriter_WhenRewriteCompletes
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: rewrittenPlan (Step 1)
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenPlan) (Step 2 - Next)
+    JoinOptimizer-->>-QueryOptimizer: joinPlan
+    QueryOptimizer-->>-Test: physicalPlan
+```
+
+#### TC-13B: `optimize_ShouldInvokeCostEstimatorAfterJoinOptimizer_WhenJoinOptimizationCompletes`
+```mermaid
+sequenceDiagram
+    title TC-13B: optimize_ShouldInvokeCostEstimatorAfterJoinOptimizer_WhenJoinOptimizationCompletes
+    participant Test
+    participant QueryOptimizer
+    participant JoinOptimizer
+    participant CostEstimator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+JoinOptimizer: optimize(plan)
+    JoinOptimizer-->>-QueryOptimizer: joinPlan (Step 2)
+    QueryOptimizer->>+CostEstimator: estimate(joinPlan) (Step 3 - Next)
+    CostEstimator-->>-QueryOptimizer: cost
+    QueryOptimizer-->>-Test: physicalPlan
+```
+
+#### TC-13C: `optimize_ShouldInvokePlanEnumeratorLast_WhenOptimizationPipelineCompletes`
+```mermaid
+sequenceDiagram
+    title TC-13C: optimize_ShouldInvokePlanEnumeratorLast_WhenOptimizationPipelineCompletes
+    participant Test
+    participant QueryOptimizer
+    participant CostEstimator
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+CostEstimator: estimate(plan)
+    CostEstimator-->>-QueryOptimizer: cost (Step 3)
+    QueryOptimizer->>+PlanEnumerator: enumerate(plan) (Step 4 - Last)
+    PlanEnumerator-->>-QueryOptimizer: physicalPlan
+    QueryOptimizer-->>-Test: physicalPlan
+```
+
+#### TC-13D: `optimize_ShouldStopRemainingStages_WhenAnyOptimizationStageFails`
+```mermaid
+sequenceDiagram
+    title TC-13D: optimize_ShouldStopRemainingStages_WhenAnyOptimizationStageFails
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+    participant CostEstimator
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan)
+    QueryRewriter-->>-QueryOptimizer: rewrittenPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenPlan)
+    JoinOptimizer-->>-QueryOptimizer: throw RuntimeException ("Stage 2 Failed")
+    note over QueryOptimizer, PlanEnumerator: CostEstimator and PlanEnumerator are NEVER invoked
+    QueryOptimizer-->>-Test: throw RuntimeException
+```
+
+#### TC-13E: `estimate_ShouldInvokeStatisticsManager_WhenCostEstimatorCalculatesCost`
+```mermaid
+sequenceDiagram
+    title TC-13E: estimate_ShouldInvokeStatisticsManager_WhenCostEstimatorCalculatesCost
+    participant Test
+    participant CostEstimator
+    participant StatisticsManager
+
+    Test->>+CostEstimator: estimate(logicalPlan)
+    CostEstimator->>+StatisticsManager: estimateCardinality()
+    StatisticsManager-->>-CostEstimator: 1000.0
+    CostEstimator->>+StatisticsManager: estimateSelectivity()
+    StatisticsManager-->>-CostEstimator: 0.1
+    CostEstimator-->>-Test: calculatedCost
+```
+
+#### TC-13F: `optimize_ShouldInvokeEachDependencyExactlyOnce_WhenOptimizationSucceeds`
+```mermaid
+sequenceDiagram
+    title TC-13F: optimize_ShouldInvokeEachDependencyExactlyOnce_WhenOptimizationSucceeds
+    participant Test
+    participant QueryOptimizer
+    participant QueryRewriter
+    participant JoinOptimizer
+    participant CostEstimator
+    participant PlanEnumerator
+
+    Test->>+QueryOptimizer: optimize(logicalPlan)
+    QueryOptimizer->>+QueryRewriter: rewrite(logicalPlan) (verify 1 time)
+    QueryRewriter-->>-QueryOptimizer: rewrittenPlan
+    QueryOptimizer->>+JoinOptimizer: optimize(rewrittenPlan) (verify 1 time)
+    JoinOptimizer-->>-QueryOptimizer: joinPlan
+    QueryOptimizer->>+CostEstimator: estimate(joinPlan) (verify 1 time)
+    CostEstimator-->>-QueryOptimizer: cost
+    QueryOptimizer->>+PlanEnumerator: enumerate(joinPlan) (verify 1 time)
+    PlanEnumerator-->>-QueryOptimizer: physicalPlan
+    QueryOptimizer-->>-Test: physicalPlan (All dependencies invoked exactly once)
+```
+
