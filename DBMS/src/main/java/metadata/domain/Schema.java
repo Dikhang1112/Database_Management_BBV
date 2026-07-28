@@ -65,4 +65,9 @@ public class Schema implements MetadataElement {
     public String getElementName() {
         return schemaName;
     }
+
+    @Override
+    public String getElementType() {
+        return "Schema";
+    }
 }

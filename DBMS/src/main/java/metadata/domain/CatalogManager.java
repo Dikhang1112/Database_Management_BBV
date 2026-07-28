@@ -61,4 +61,9 @@ public class CatalogManager implements MetadataElement {
     public String getElementName() {
         return "CatalogManager";
     }
+
+    @Override
+    public String getElementType() {
+        return "CatalogManager";
+    }
 }

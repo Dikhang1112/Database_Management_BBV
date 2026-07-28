@@ -201,6 +201,14 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Catalog becomes empty (`listDatabases()` returns empty collection).
 
+### TC-05A. Get Element Type
+- **Test method:** `getElementType_ShouldReturnCatalogManager`
+- **Sequence diagram:** `TC-05A`
+- **Input:** `CatalogManager` instance
+- **Why:** Verifies that Composite pattern method `getElementType()` returns `"CatalogManager"`.
+- **Expected output:**
+  - Returns `"CatalogManager"`.
+
 ---
 
 ## 3. DatabaseTest
@@ -254,6 +262,14 @@ Each test scenario follows this standard format:
 - **Why:** Verifies updating operational status properties of a Database instance.
 - **Expected output:**
   - Database status updated to `READ_ONLY`.
+
+### TC-07D. Get Element Type
+- **Test method:** `getElementType_ShouldReturnDatabase`
+- **Sequence diagram:** `TC-07D`
+- **Input:** `Database` instance
+- **Why:** Verifies that Composite pattern method `getElementType()` returns `"Database"`.
+- **Expected output:**
+  - Returns `"Database"`.
 
 ---
 
@@ -316,6 +332,14 @@ Each test scenario follows this standard format:
 - **Why:** Validates table name format during lookup queries from a Schema.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Table name contains invalid characters").
+
+### TC-09C. Get Element Type
+- **Test method:** `getElementType_ShouldReturnSchema`
+- **Sequence diagram:** `TC-09C`
+- **Input:** `Schema` instance
+- **Why:** Verifies that Composite pattern method `getElementType()` returns `"Schema"`.
+- **Expected output:**
+  - Returns `"Schema"`.
 
 ---
 
@@ -435,6 +459,14 @@ Each test scenario follows this standard format:
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Constraint name contains invalid characters").
 
+### TC-11H. Get Element Type
+- **Test method:** `getElementType_ShouldReturnTable`
+- **Sequence diagram:** `TC-11H`
+- **Input:** `Table` instance
+- **Why:** Verifies that Composite pattern method `getElementType()` returns `"Table"`.
+- **Expected output:**
+  - Returns `"Table"`.
+
 ---
 
 ## 6. ColumnTest
@@ -480,6 +512,14 @@ Each test scenario follows this standard format:
 - **Why:** Blocks default values whose format or data type conflicts with the column's data type.
 - **Expected output:**
   - Throws `IllegalArgumentException` ("Invalid default value").
+
+### TC-13D. Get Element Type
+- **Test method:** `getElementType_ShouldReturnColumn`
+- **Sequence diagram:** `TC-13D`
+- **Input:** `Column` instance
+- **Why:** Verifies that Composite pattern method `getElementType()` returns `"Column"`.
+- **Expected output:**
+  - Returns `"Column"`.
 
 ---
 

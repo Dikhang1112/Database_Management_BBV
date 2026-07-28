@@ -65,6 +65,7 @@ flowchart LR
     TC04 --> TC04A("TC-04A Get Database invalid name")
 
     Cat2 --> TC05("TC-05 ClearCatalog")
+    TC05 --> TC05A("TC-05A Get element type")
 
     %% =====================================================
     %% 3. Database (Database Level)
@@ -77,6 +78,7 @@ flowchart LR
     TC06 --> TC06D("TC-06D Special characters")
 
     Cat3 --> TC07("TC-07 DatabaseStatus")
+    TC07 --> TC07D("TC-07D Get element type")
 
     %% =====================================================
     %% 4. Schema (Schema Level)
@@ -90,6 +92,7 @@ flowchart LR
 
     Cat4 --> TC09("TC-09 ListTables")
     TC09 --> TC09B("TC-09B Get Table invalid name")
+    TC09 --> TC09C("TC-09C Get element type")
 
     %% =====================================================
     %% 5. Table (Table Level)
@@ -110,6 +113,7 @@ flowchart LR
     TC11 --> TC11E("TC-11E Get Column invalid name")
     TC11 --> TC11F("TC-11F Get Index invalid name")
     TC11 --> TC11G("TC-11G Get Constraint invalid name")
+    TC11 --> TC11H("TC-11H Get element type")
 
     %% =====================================================
     %% 6. Column (Column Level)
@@ -121,6 +125,7 @@ flowchart LR
 
     Cat6 --> TC13("TC-13 SetDefaultValue")
     TC13 --> TC13A("TC-13A Invalid default value")
+    TC13 --> TC13D("TC-13D Get element type")
 
     %% =====================================================
     %% 7. Index (Index Level)

@@ -63,6 +63,7 @@ class MetadataElement{
 <<Interface>>
 
 +getElementName() String*
++getElementType() String*
 }
 
 %% =====================================================

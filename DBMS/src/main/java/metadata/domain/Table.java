@@ -159,4 +159,9 @@ public class Table implements MetadataElement, Cloneable {
     public String getElementName() {
         return tableName;
     }
+
+    @Override
+    public String getElementType() {
+        return "Table";
+    }
 }

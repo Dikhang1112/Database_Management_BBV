@@ -85,4 +85,11 @@ class DatabaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Schema name contains invalid characters");
     }
+
+    @Test
+    @DisplayName("TC-07D. Get Element Type")
+    void getElementType_ShouldReturnDatabase() {
+        Database database = new Database("app_db");
+        assertThat(database.getElementType()).isEqualTo("Database");
+    }
 }

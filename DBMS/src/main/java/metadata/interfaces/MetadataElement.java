@@ -7,4 +7,5 @@ package metadata.interfaces;
  */
 public interface MetadataElement {
     String getElementName();
+    String getElementType();
 }
