@@ -13,12 +13,6 @@ public class TableEventPublisher {
         }
     }
 
-    public void removeListener(MetadataChangeListener listener) {
-        if (listener != null) {
-            listeners.remove(listener);
-        }
-    }
-
     public void notifyListeners(String eventType, String targetName) {
         for (MetadataChangeListener listener : listeners) {
             if (listener != null) {

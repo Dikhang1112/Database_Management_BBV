@@ -31,9 +31,7 @@ public class DatabaseManager {
 
     public Database get(String databaseName) {
         CatalogValidator.validateIdentifier(databaseName, "Database");
-        if (!contains(databaseName)) {
-            return null;
-        }
+        CatalogValidator.ensureExists(databaseName, databases.keySet(), "Database");
         return databases.get(databaseName.toLowerCase());
     }
 

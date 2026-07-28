@@ -42,8 +42,9 @@ public class MetadataModule {
         CatalogValidator.validateIdentifier(dbName, "Database");
         CatalogValidator.validateIdentifier(schemaName, "Schema");
         CatalogValidator.validateIdentifier(tableName, "Table");
+        if (!catalogManager.containsDatabase(dbName)) return null;
         Database db = catalogManager.getDatabase(dbName);
-        if (db == null) return null;
+        if (db == null || !db.containsSchema(schemaName)) return null;
         Schema schema = db.getSchema(schemaName);
         if (schema == null) return null;
         return schema.getTable(tableName);

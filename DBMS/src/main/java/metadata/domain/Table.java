@@ -8,15 +8,16 @@ import metadata.helpers.IndexManager;
 import metadata.helpers.TableEventPublisher;
 import metadata.interfaces.MetadataChangeListener;
 import metadata.interfaces.MetadataElement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Table implements MetadataElement, Cloneable {
     private String tableName;
     private boolean locked = false;
-    private final ColumnManager columnManager;
-    private final ConstraintManager constraintManager;
-    private final IndexManager indexManager;
-    private final TableEventPublisher eventPublisher;
+    private ColumnManager columnManager;
+    private ConstraintManager constraintManager;
+    private IndexManager indexManager;
+    private TableEventPublisher eventPublisher;
 
     public Table(String tableName) {
         if (tableName == null || tableName.isBlank()) {
@@ -85,9 +86,6 @@ public class Table implements MetadataElement, Cloneable {
         notifyListeners("CONSTRAINT_REMOVED", constraintName);
     }
 
-    public Constraint getConstraint(String constraintName) {
-        return constraintManager.get(constraintName);
-    }
 
     public List<Constraint> listConstraints() {
         return constraintManager.listAll();
@@ -137,7 +135,24 @@ public class Table implements MetadataElement, Cloneable {
     @Override
     public Table clone() {
         try {
-            return (Table) super.clone();
+            Table cloned = (Table) super.clone();
+            cloned.tableName = this.tableName + "_copy";
+
+            ColumnManager newColumnManager = new ColumnManager();
+            List<Column> clonedColumns = new ArrayList<>();
+            if (this.columnManager != null) {
+                for (Column col : this.columnManager.listAll()) {
+                    clonedColumns.add(col.clone());
+                }
+            }
+            newColumnManager.restoreColumns(clonedColumns);
+
+            cloned.columnManager = newColumnManager;
+            cloned.constraintManager = new ConstraintManager();
+            cloned.indexManager = new IndexManager();
+            cloned.eventPublisher = new TableEventPublisher();
+
+            return cloned;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Clone not supported", e);
         }
