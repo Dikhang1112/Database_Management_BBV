@@ -87,6 +87,14 @@ public class Table implements MetadataElement, Cloneable {
     }
 
 
+    public Constraint getConstraint(String constraintName) {
+        return constraintManager.get(constraintName);
+    }
+
+    public boolean containsConstraint(String constraintName) {
+        return constraintManager.contains(constraintName);
+    }
+
     public List<Constraint> listConstraints() {
         return constraintManager.listAll();
     }
