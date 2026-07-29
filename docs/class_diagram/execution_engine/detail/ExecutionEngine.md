@@ -1,79 +1,88 @@
 ```mermaid
 classDiagram
-direction TD
+    direction TD
 
 %% =====================================================
 %% EXECUTION ENGINE
 %% =====================================================
 
-class ExecutionEngine{
-    <<Facade>>
-    +execute(PhysicalPlan) QueryResult
-}
+    class ExecutionEngine{
+        <<Facade>>
+        +execute(PhysicalPlan) QueryResult
+    }
 
-class ExecutionCoordinator{
-    +startExecution()
-    +finishExecution()
-}
+    class ExecutionCoordinator{
+        +startExecution()
+        +finishExecution()
+    }
 
-class OperatorScheduler{
-    +schedule(ExecutionPlanNode)
-}
+    class OperatorScheduler{
+        +schedule(ExecutionPlanNode)
+    }
 
-class ExecutionContext{
-    +setRootNode(ExecutionPlanNode)
-    +getRootNode()
-}
+    class ExecutionContext{
+        +setRootNode(ExecutionPlanNode)
+        +getRootNode()
+    }
 
-class QueryResultBuilder{
-    +append(Tuple)
-    +build()
-}
+%% =====================================================
+%% BUILDER
+%% =====================================================
+
+    class QueryResultBuilder{
+        <<Builder>>
+        +addColumn()
+        +addRow()
+        +addMetadata()
+        +build()
+    }
+
+    class QueryResult
 
 %% =====================================================
 %% OBSERVER
 %% =====================================================
 
-class ExecutionListener{
-    <<Interface>>
-    +onExecutionStarted()
-    +onTupleProcessed()
-    +onExecutionFinished()
-}
+    class ExecutionListener{
+        <<Interface>>
+        +onExecutionStarted()
+        +onTupleProcessed()
+        +onExecutionFinished()
+    }
 
-class StatisticsCollector{
-    +onExecutionFinished()
-}
+    class StatisticsCollector{
+        +onExecutionFinished()
+    }
 
-class ProgressMonitor{
-    +onTupleProcessed()
-}
+    class ProgressMonitor{
+        +onTupleProcessed()
+    }
 
 %% =====================================================
 %% SHARED
 %% =====================================================
 
-class PhysicalPlan
-class QueryResult
-class ExecutionPlanNode
-class Tuple
+    class PhysicalPlan
+    class ExecutionPlanNode
+    class Tuple
 
 %% =====================================================
 %% RELATIONSHIPS
 %% =====================================================
 
-ExecutionEngine --> ExecutionCoordinator
-ExecutionEngine --> OperatorScheduler
-ExecutionEngine --> ExecutionContext
-ExecutionEngine --> QueryResultBuilder
+    ExecutionEngine --> ExecutionCoordinator
+    ExecutionEngine --> OperatorScheduler
+    ExecutionEngine --> ExecutionContext
+    ExecutionEngine --> QueryResultBuilder
 
-ExecutionEngine --> ExecutionListener
+    QueryResultBuilder --> QueryResult
+    QueryResultBuilder --> Tuple
 
-ExecutionListener <|.. StatisticsCollector
-ExecutionListener <|.. ProgressMonitor
+    ExecutionEngine --> ExecutionListener
 
-OperatorScheduler --> ExecutionPlanNode
-ExecutionContext --> ExecutionPlanNode
-QueryResultBuilder --> QueryResult
-QueryResultBuilder --> Tuple
+    ExecutionListener <|.. StatisticsCollector
+    ExecutionListener <|.. ProgressMonitor
+
+    OperatorScheduler --> ExecutionPlanNode
+    ExecutionContext --> ExecutionPlanNode
 ```
