@@ -1,52 +1,52 @@
 # Database Management System - Design Patterns & Sequence Diagrams
 
-Tài liệu này tổng hợp toàn bộ các **Design Pattern** được áp dụng trong hệ thống DBMS (bao gồm phân hệ **Metadata** và phân hệ **Query Processor**), chứa **Bảng tổng hợp ma trận kèm Khung mã Java (Class/Interface & Method signature)** cho từng Pattern và các **Sơ đồ Sequence Diagram** mô tả chi tiết luồng tương tác giữa các đối tượng. Tất cả mã ví dụ đều tương đồng 100% với cấu trúc mã nguồn trong thư mục `DBMS/src/main/java`.
+This document summarizes all **Design Patterns** applied across the DBMS system (including the **Metadata** subsystem and **Query Processor** subsystem). It includes **Summary Matrix Tables with Java Code Skeletons (Class/Interface & Method signature)** for each pattern and **Sequence Diagrams** detailing object interaction flows. All example code 100% matches the codebase structure in the `DBMS/src/main/java` directory.
 
 ---
 
-# PHẦN I: METADATA MODULE
+# PART I: METADATA MODULE
 
-## 1. Implemented Design Patterns Matrix (Dạng Bảng & Khung Mã Java)
+## 1. Implemented Design Patterns Matrix (Summary Table & Java Code Skeleton)
 
-### 1.1. Bảng Tổng Quan Design Patterns
+### 1.1. Design Patterns Summary Table
 
-#### Creational Patterns (Nhóm Khởi Tạo)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Creational Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 1 | **Singleton** | `CatalogManager`<br>`MetadataModule` | `getInstance()` | Đảm bảo duy nhất 1 Quản lý Catalog và 1 điểm truy cập Facade chính cho toàn bộ hệ thống DBMS trong RAM. |
-| 2 | **Factory Method** | `Schema`<br>`ConstraintFactory` | `createTable(...)`<br>`createConstraint(...)` | Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt. |
-| 3 | **Prototype** | `Table`<br>`Column` | `clone()` | Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu. |
-| 4 | **Builder** | `ColumnBuilder` | `setType(...)`<br>`setNullable(...)`<br>`setDefaultValue(...)`<br>`build()` | Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API. |
+| 1 | **Singleton** | `CatalogManager`<br>`MetadataModule` | `getInstance()` | Ensures a single CatalogManager and a single main Facade entry point for the entire DBMS system in RAM. |
+| 2 | **Factory Method** | `Schema`<br>`ConstraintFactory` | `createTable(...)`<br>`createConstraint(...)` | Encapsulates the instantiation logic for child objects (`Table`, `Constraint`) flexibly. |
+| 3 | **Prototype** | `Table`<br>`Column` | `clone()` | Quickly clones the current table or column structure into an independent object without re-initialization. |
+| 4 | **Builder** | `ColumnBuilder` | `setType(...)`<br>`setNullable(...)`<br>`setDefaultValue(...)`<br>`build()` | Instantiates `Column` objects with multiple optional parameters using a Fluent API. |
 
-#### Structural Patterns (Nhóm Cấu Trúc)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Structural Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 5 | **Facade** | `MetadataModule` | `getTable(...)`<br>`executeDDL(...)` | Cung cấp giao diện API cấp cao đơn giản hóa việc tương tác phức tạp giữa CatalogManager, Database, Schema và Table. |
-| 6 | **Composite** | `MetadataElement` (Interface)<br>`CatalogManager`, `Database`, `Schema`, `Table`, `Column` | `getElementName()` | Xây dựng cấu trúc cây phân cấp quản lý đồng nhất cho các thành phần Metadata trong hệ thống. |
+| 5 | **Facade** | `MetadataModule` | `getTable(...)`<br>`executeDDL(...)` | Provides a high-level API simplifying complex interactions between CatalogManager, Database, Schema, and Table. |
+| 6 | **Composite** | `MetadataElement` (Interface)<br>`CatalogManager`, `Database`, `Schema`, `Table`, `Column` | `getElementName()` | Builds a uniform hierarchical tree structure to manage Metadata components in the system. |
 
-#### Behavioral Patterns (Nhóm Hành Vi)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Behavioral Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 7 | **State** | `Database`<br>`DatabaseStatus` | `setStatus(...)`<br>`createSchema(...)` | Quản lý và chặn thao tác thay đổi cấu trúc khi Database ở trạng thái `OFFLINE` hoặc `READ_ONLY`. |
-| 8 | **Command** | `DDLCommand` (Interface)<br>`CreateTableCommand`, `CreateSchemaCommand`, v.v. | `execute()`<br>`undo()` | Đóng gói các thao tác DDL thành các đối tượng lệnh có khả năng Thực thi (`execute`) và Hoàn tác (`undo` / Rollback). |
-| 9 | **Memento** | `TableMemento`<br>`Table` | `createMemento()`<br>`restore(...)` | Chụp ảnh trạng thái (Snapshot) danh sách các cột của Table và hỗ trợ khôi phục về trạng thái trước đó. |
-| 10 | **Observer** | `MetadataChangeListener` (Interface)<br>`Table`<br>`TableEventPublisher` | `registerListener(...)`<br>`notifyListeners(...)`<br>`onMetadataChanged(...)` | `Table` phát thông báo sự kiện thay đổi cấu trúc cho các Observer lắng nghe tự động cập nhật. |
-| 11 | **Template Method** | `Constraint` (Abstract Class) | `validate()` | Định nghĩa thuật toán khung kiểm tra trạng thái `enabled` trước khi tiến hành thẩm định chi tiết. |
-| 12 | **Chain of Responsibility** | `ConstraintValidationChain` | `addConstraint(...)`<br>`validateAll()` | Quản lý chuỗi thẩm định ràng buộc dữ liệu nối tiếp (Fail-Fast: PK ➔ FK ➔ Check). |
-| 13 | **Strategy** | `IndexRebuildStrategy` (Interface)<br>`Index` | `setRebuildStrategy(...)`<br>`rebuild()` | Cho phép gán và thực thi linh hoạt chiến lược rebuild thuật toán cho đối tượng `Index`. |
+| 7 | **State** | `Database`<br>`DatabaseStatus` | `setStatus(...)`<br>`createSchema(...)` | Manages and blocks structural modification operations when the Database is in `OFFLINE` or `READ_ONLY` state. |
+| 8 | **Command** | `DDLCommand` (Interface)<br>`CreateTableCommand`, `CreateSchemaCommand`, etc. | `execute()`<br>`undo()` | Encapsulates DDL operations into command objects capable of Execution (`execute`) and Rollback (`undo`). |
+| 9 | **Memento** | `TableMemento`<br>`Table` | `createMemento()`<br>`restore(...)` | Captures state snapshots of Table column lists and supports restoring to a previous state. |
+| 10 | **Observer** | `MetadataChangeListener` (Interface)<br>`Table`<br>`TableEventPublisher` | `registerListener(...)`<br>`notifyListeners(...)`<br>`onMetadataChanged(...)` | `Table` emits structural change event notifications to listening Observers for automatic updates. |
+| 11 | **Template Method** | `Constraint` (Abstract Class) | `validate()` | Defines the skeleton algorithm checking the `enabled` state before executing detailed validation. |
+| 12 | **Chain of Responsibility** | `ConstraintValidationChain` | `addConstraint(...)`<br>`validateAll()` | Manages sequential data constraint validation chains (Fail-Fast: PK ➔ FK ➔ Check). |
+| 13 | **Strategy** | `IndexRebuildStrategy` (Interface)<br>`Index` | `setRebuildStrategy(...)`<br>`rebuild()` | Allows flexible assignment and execution of algorithm rebuild strategies for `Index` objects. |
 
 ---
 
-### 1.2. Chi Tiết Từng Pattern & Khung Mã Java Code (Class/Interface & Method Signature)
+### 1.2. Detailed Pattern Breakdown & Java Code Skeleton (Class/Interface & Method Signature)
 
-#### Creational Patterns (Nhóm Khởi Tạo)
+#### Creational Patterns
 
 ##### 1. Singleton Pattern
 * **Class / Interface**: `CatalogManager`, `MetadataModule`
 * **Method**: `getInstance()`
-* **Công dụng**: Đảm bảo duy nhất 1 Quản lý Catalog và 1 điểm truy cập Facade chính cho toàn bộ hệ thống DBMS trong RAM.
+* **Purpose**: Ensures a single CatalogManager and a single main Facade entry point for the entire DBMS system in RAM.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.domain;
 
@@ -68,9 +68,9 @@ public class CatalogManager implements MetadataElement {
 ##### 2. Factory Method Pattern
 * **Class / Interface**: `Schema`, `ConstraintFactory`
 * **Method**: `createTable(tableName)`, `createConstraint(type, name, args)`
-* **Công dụng**: Đóng gói logic khởi tạo các đối tượng con (`Table`, `Constraint`) một cách linh hoạt.
+* **Purpose**: Encapsulates the instantiation logic for child objects (`Table`, `Constraint`) flexibly.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.domain;
 
@@ -98,9 +98,9 @@ public class ConstraintFactory {
 ##### 3. Prototype Pattern
 * **Class / Interface**: `Table`, `Column`
 * **Method**: `clone()`
-* **Công dụng**: Nhân bản nhanh cấu trúc bảng hoặc cột hiện tại thành đối tượng độc lập mà không cần khởi tạo lại từ đầu.
+* **Purpose**: Quickly clones the current table or column structure into an independent object without re-initialization.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.domain;
 
@@ -128,9 +128,9 @@ public class Column implements MetadataElement, Cloneable {
 ##### 4. Builder Pattern
 * **Class / Interface**: `ColumnBuilder`
 * **Method**: `setType(...)`, `setNullable(...)`, `setDefaultValue(...)`, `build()`
-* **Công dụng**: Khởi tạo đối tượng `Column` có nhiều tham số tùy chọn bằng giao diện Fluent API.
+* **Purpose**: Instantiates `Column` objects with multiple optional parameters using a Fluent API.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.builders;
 
@@ -145,14 +145,14 @@ public class ColumnBuilder {
 
 ---
 
-#### Structural Patterns (Nhóm Cấu Trúc)
+#### Structural Patterns
 
 ##### 5. Facade Pattern
 * **Class / Interface**: `MetadataModule`
 * **Method**: `getTable(databaseName, schemaName, tableName)`, `executeDDL(command)`
-* **Công dụng**: Cung cấp giao diện API cấp cao đơn giản hóa việc tương tác phức tạp giữa CatalogManager, Database, Schema và Table.
+* **Purpose**: Provides a high-level API simplifying complex interactions between CatalogManager, Database, Schema, and Table.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.facade;
 
@@ -176,15 +176,16 @@ public class MetadataModule {
 
 ##### 6. Composite Pattern
 * **Class / Interface**: `MetadataElement` (Interface), `CatalogManager`, `Database`, `Schema`, `Table`, `Column`
-* **Method**: `getElementName()`
-* **Công dụng**: Xây dựng cấu trúc cây phân cấp quản lý đồng nhất cho các thành phần Metadata trong hệ thống.
+* **Method**: `getElementName()`, `getElementType()`
+* **Purpose**: Builds a uniform hierarchical tree structure to manage Metadata components in the system.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.interfaces;
 
 public interface MetadataElement {
     String getElementName();
+    String getElementType();
 }
 
 package metadata.domain;
@@ -195,6 +196,11 @@ public class Table implements MetadataElement, Cloneable {
         // ...
         return null;
     }
+
+    @Override
+    public String getElementType() {
+        return "Table";
+    }
 }
 
 public class Column implements MetadataElement, Cloneable {
@@ -203,19 +209,24 @@ public class Column implements MetadataElement, Cloneable {
         // ...
         return null;
     }
+
+    @Override
+    public String getElementType() {
+        return "Column";
+    }
 }
 ```
 
 ---
 
-#### Behavioral Patterns (Nhóm Hành Vi)
+#### Behavioral Patterns
 
 ##### 7. State Pattern
 * **Class / Interface**: `Database`, `DatabaseStatus`
 * **Method**: `setStatus(status)`, `createSchema(schemaName)`
-* **Công dụng**: Quản lý và chặn thao tác thay đổi cấu trúc khi Database ở trạng thái `OFFLINE` hoặc `READ_ONLY`.
+* **Purpose**: Manages and blocks structural modification operations when the Database is in `OFFLINE` or `READ_ONLY` state.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.enums;
 
@@ -242,11 +253,11 @@ public class Database implements MetadataElement {
 ---
 
 ##### 8. Command Pattern
-* **Class / Interface**: `DDLCommand` (Interface), `CreateTableCommand`, `DropTableCommand`, `CreateSchemaCommand`, v.v.
+* **Class / Interface**: `DDLCommand` (Interface), `CreateTableCommand`, `DropTableCommand`, `CreateSchemaCommand`, etc.
 * **Method**: `execute()`, `undo()`
-* **Công dụng**: Đóng gói các thao tác DDL thành các đối tượng lệnh có khả năng Thực thi (`execute`) và Hoàn tác (`undo` / Rollback).
+* **Purpose**: Encapsulates DDL operations into command objects capable of Execution (`execute`) and Rollback (`undo`).
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.commands;
 
@@ -273,9 +284,9 @@ public class CreateTableCommand implements DDLCommand {
 ##### 9. Memento Pattern
 * **Class / Interface**: `TableMemento`, `Table`
 * **Method**: `createMemento()`, `restore(memento)`
-* **Công dụng**: Chụp ảnh trạng thái (Snapshot) danh sách các cột của Table và hỗ trợ khôi phục về trạng thái trước đó.
+* **Purpose**: Captures state snapshots of Table column lists and supports restoring to a previous state.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.domain;
 
@@ -301,9 +312,9 @@ public class Table implements MetadataElement, Cloneable {
 ##### 10. Observer Pattern
 * **Class / Interface**: `MetadataChangeListener` (Interface), `Table`, `TableEventPublisher`
 * **Method**: `registerListener(...)`, `notifyListeners(...)`, `onMetadataChanged(...)`
-* **Công dụng**: `Table` phát thông báo sự kiện thay đổi cấu trúc cho các Observer lắng nghe tự động cập nhật.
+* **Purpose**: `Table` emits structural change event notifications to listening Observers for automatic updates.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.interfaces;
 
@@ -332,9 +343,9 @@ public class Table implements MetadataElement, Cloneable {
 ##### 11. Template Method Pattern
 * **Class / Interface**: `Constraint` (Abstract Class)
 * **Method**: `validate()`, `preValidate()`, `doValidate()`, `postValidate()`
-* **Công dụng**: Định nghĩa thuật toán khung kiểm tra trạng thái `enabled` trước khi tiến hành thẩm định chi tiết.
+* **Purpose**: Defines the skeleton algorithm checking the `enabled` state before executing detailed validation.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.abstracts;
 
@@ -355,9 +366,9 @@ public abstract class Constraint {
 ##### 12. Chain of Responsibility Pattern
 * **Class / Interface**: `ConstraintValidationChain`
 * **Method**: `addConstraint(...)`, `validateAll()`
-* **Công dụng**: Quản lý chuỗi thẩm định ràng buộc dữ liệu nối tiếp (Fail-Fast: PK ➔ FK ➔ Check).
+* **Purpose**: Manages sequential data constraint validation chains (Fail-Fast: PK ➔ FK ➔ Check).
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.constraints;
 
@@ -375,9 +386,9 @@ public class ConstraintValidationChain {
 ##### 13. Strategy Pattern
 * **Class / Interface**: `IndexRebuildStrategy` (Interface), `Index`
 * **Method**: `setRebuildStrategy(...)`, `rebuild()`
-* **Công dụng**: Cho phép gán và thực thi linh hoạt chiến lược rebuild thuật toán cho đối tượng `Index`.
+* **Purpose**: Allows flexible assignment and execution of algorithm rebuild strategies for `Index` objects.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package metadata.interfaces;
 
@@ -691,96 +702,96 @@ sequenceDiagram
 
 ---
 
-# PHẦN II: QUERY PROCESSOR MODULE
+# PART II: QUERY PROCESSOR MODULE
 
-## 3. Implemented Design Patterns Matrix (Dạng Bảng & Khung Mã Java)
+## 3. Implemented Design Patterns Matrix (Summary Table & Java Code Skeleton)
 
-### 3.1. Bảng Tổng Quan Design Patterns
+### 3.1. Design Patterns Summary Table
 
-#### Creational Patterns (Nhóm Khởi Tạo)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Creational Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 1 | **Builder** | `LogicalPlanBuilder`<br>`PhysicalPlanBuilder` | `build(ast)`<br>`build(logicalPlan)` | Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu. |
-| 2 | **Factory Method** | `LogicalOperatorFactory`<br>`PhysicalOperatorFactory` | `createOperator(...)` | Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt (`Operator Nodes`). |
+| 1 | **Builder** | `LogicalPlanBuilder`<br>`PhysicalPlanBuilder` | `build(ast)`<br>`build(logicalPlan)` | Builds step-by-step the logical plan tree (`LogicalPlan`) and physical plan tree (`PhysicalPlan`) from the AST tree and optimized plan. |
+| 2 | **Factory Method** | `LogicalOperatorFactory`<br>`PhysicalOperatorFactory` | `createOperator(...)` | Encapsulates the instantiation logic for specialized logical/physical operator objects (`Operator Nodes`). |
 
-#### Structural Patterns (Nhóm Cấu Trúc)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Structural Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 3 | **Facade** | `QueryProcessor` | `compile(sqlText)` | Cung cấp giao diện tập trung duy nhất cho toàn bộ chuỗi biên dịch và tối ưu hóa câu lệnh SQL (Lexer ➔ Parser ➔ AST ➔ Semantic ➔ Optimizer ➔ PlanGenerator). |
-| 4 | **Composite** | `AST`<br>`ASTNode` (Composite Node) | `accept(visitor)` | Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất. |
+| 3 | **Facade** | `QueryProcessor` | `compile(sqlText)` | Provides a single centralized interface for the entire SQL compilation and optimization pipeline (Lexer ➔ Parser ➔ AST ➔ Semantic ➔ Optimizer ➔ PlanGenerator). |
+| 4 | **Composite** | `AST`<br>`ASTNode` (Composite Node) | `accept(visitor)` | Uniformly represents the Abstract Syntax Tree (AST) hierarchical structure. |
 
-#### Behavioral Patterns (Nhóm Hành Vi)
-| # | Design Pattern | Class / Interface | Method | Công dụng (Purpose) |
+#### Behavioral Patterns
+| # | Design Pattern | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 5 | **Chain of Responsibility** | `CompilerStage` (Interface)<br>`Lexer`<br>`SQLParser`<br>`ASTBuilder`<br>`SemanticAnalyzer`<br>`QueryRewriter`<br>`QueryOptimizer` | `process(...)` | Nối chuỗi các công đoạn xử lý SQL tuần tự độc lập (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization). |
-| 6 | **Visitor** | `ASTVisitor` (Interface)<br>`SemanticAnalyzer`<br>`QueryRewriter` | `visit(node)`<br>`analyze(ast)`<br>`rewrite(ast)` | Thao tác duyệt cây AST để kiểm tra ngữ nghĩa và tối ưu hóa logic mà không làm thay đổi cấu trúc nút cây `ASTNode`. |
-| 7 | **Strategy** | `QueryOptimizer` (Strategy Context)<br>`OptimizationRule` (Interface)<br>`CostEstimator`<br>`PredicatePushdownOptimizer`<br>`ProjectionPushdownOptimizer`<br>`ConstantFoldingOptimizer` | `optimize(plan)`<br>`setOptimizationRule(rule)`<br>`estimate(plan)` | Đóng gói linh hoạt các thuật toán tối ưu hóa dựa trên chi phí (CBO) và các quy tắc biến đổi kế hoạch truy vấn độc lập. |
+| 5 | **Chain of Responsibility** | `CompilerStage` (Interface)<br>`Lexer`<br>`SQLParser`<br>`ASTBuilder`<br>`SemanticAnalyzer`<br>`QueryRewriter`<br>`QueryOptimizer` | `process(...)` | Chains independent sequential SQL processing stages (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization). |
+| 6 | **Visitor** | `ASTVisitor` (Interface)<br>`SemanticAnalyzer`<br>`QueryRewriter` | `visit(node)`<br>`analyze(ast)`<br>`rewrite(ast)` | Traverses the AST tree for semantic checks and logic optimizations without modifying the `ASTNode` tree node structure. |
+| 7 | **Strategy** | `QueryOptimizer` (Strategy Context)<br>`OptimizationRule` (Interface)<br>`CostEstimator`<br>`PredicatePushdownOptimizer`<br>`ProjectionPushdownOptimizer`<br>`ConstantFoldingOptimizer` | `optimize(plan)`<br>`setOptimizationRule(rule)`<br>`estimate(plan)` | Encapsulates flexible Cost-Based Optimization (CBO) algorithms and independent query plan transformation rules. |
 
 ---
 
-### 3.2. Subsystem Class Breakdown (Phân Hệ Chi Tiết)
+### 3.2. Detailed Subsystem Class Breakdown
 
 #### Semantic Analysis & Name Resolution
-| # | Pattern / Role | Class / Interface | Method | Công dụng (Purpose) |
+| # | Pattern / Role | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 1 | **Visitor** | `SemanticAnalyzer` | `analyze(ast)`, `visit(node)` | Điều phối quy trình duyệt cây AST thẩm định ngữ nghĩa toàn diện. |
-| 2 | **Visitor Interface** | `ASTVisitor` | `visit(node)` | Định nghĩa giao diện duyệt chuẩn cho tất cả các nút cây AST. |
-| 3 | **SRP Helper** | `NameResolver` | `resolve(ast)` | Phân giải các đối tượng định danh trong SQL (Database, Schema, Table, Column, Alias). |
-| 4 | **SRP Helper** | `TableResolver` | `resolveTable(node)` | Kiểm tra sự tồn tại của bảng dữ liệu trong Catalog Metadata. |
-| 5 | **SRP Helper** | `ColumnResolver` | `resolveColumn(node)` | Phân giải thông tin cột và phát hiện xung đột/mơ hồ tên cột. |
-| 6 | **SRP Helper** | `AliasResolver` | `resolveAlias(node)` | Phân giải và định danh các tên bí danh (Table Alias, Column Alias). |
-| 7 | **SRP Helper** | `TypeChecker` | `validate(ast)` | Thẩm định tính hợp lệ và sự tương thích kiểu dữ liệu toàn hệ thống. |
-| 8 | **SRP Helper** | `ExpressionTypeChecker` | `checkExpression(node)` | Kiểm tra kiểu dữ liệu trong các biểu thức đại số, so sánh và logic. |
-| 9 | **SRP Helper** | `FunctionTypeChecker` | `checkFunction(node)` | Thẩm định tham số đầu vào và kiểu trả về của các hàm SQL. |
-| 10 | **SRP Helper** | `AggregateValidator` | `validate(ast)` | Thẩm định tính hợp lệ của các hàm gom nhóm (SUM, COUNT, AVG, MIN, MAX). |
-| 11 | **SRP Helper** | `GroupByValidator` | `validate(ast)` | Kiểm tra quy tắc ngữ nghĩa và điều kiện ràng buộc của mệnh đề `GROUP BY`. |
-| 12 | **SRP Helper** | `OrderByValidator` | `validate(ast)` | Kiểm tra danh sách cột và biểu thức sắp xếp trong mệnh đề `ORDER BY`. |
+| 1 | **Visitor** | `SemanticAnalyzer` | `analyze(ast)`, `visit(node)` | Orchestrates the AST traversal process for comprehensive semantic analysis. |
+| 2 | **Visitor Interface** | `ASTVisitor` | `visit(node)` | Defines the standard visitor interface for all AST tree nodes. |
+| 3 | **SRP Helper** | `NameResolver` | `resolve(ast)` | Resolves identifier objects in SQL (Database, Schema, Table, Column, Alias). |
+| 4 | **SRP Helper** | `TableResolver` | `resolveTable(node)` | Checks table existence in Catalog Metadata. |
+| 5 | **SRP Helper** | `ColumnResolver` | `resolveColumn(node)` | Resolves column details and detects name ambiguity/conflicts. |
+| 6 | **SRP Helper** | `AliasResolver` | `resolveAlias(node)` | Resolves and identifies alias names (Table Alias, Column Alias). |
+| 7 | **SRP Helper** | `TypeChecker` | `validate(ast)` | Validates system-wide data type correctness and compatibility. |
+| 8 | **SRP Helper** | `ExpressionTypeChecker` | `checkExpression(node)` | Validates data types in algebraic, comparison, and logical expressions. |
+| 9 | **SRP Helper** | `FunctionTypeChecker` | `checkFunction(node)` | Validates input parameters and return types of SQL functions. |
+| 10 | **SRP Helper** | `AggregateValidator` | `validate(ast)` | Validates aggregate functions (SUM, COUNT, AVG, MIN, MAX). |
+| 11 | **SRP Helper** | `GroupByValidator` | `validate(ast)` | Checks semantic rules and constraint conditions of `GROUP BY` clauses. |
+| 12 | **SRP Helper** | `OrderByValidator` | `validate(ast)` | Checks sorting column lists and expressions in `ORDER BY` clauses. |
 
 ---
 
 #### Query Optimization Engine
-| # | Pattern / Role | Class / Interface | Method | Công dụng (Purpose) |
+| # | Pattern / Role | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 1 | **Strategy Context** | `QueryOptimizer` | `optimize(plan)`, `setOptimizationRule(rule)` | Điều phối quy trình tối ưu hóa kế hoạch dựa trên chi phí CBO. |
-| 2 | **Strategy Interface** | `OptimizationRule` | `optimize(plan)` | Định nghĩa giao diện chung cho các thuật toán và quy tắc tối ưu hóa. |
-| 3 | **Strategy Impl** | `PredicatePushdownOptimizer` | `optimize(plan)` | Chiến lược đẩy điều kiện lọc xuống gần nguồn dữ liệu (Scan) để giảm dữ liệu trung gian. |
-| 4 | **Strategy Impl** | `ProjectionPushdownOptimizer` | `optimize(plan)` | Chiến lược loại bỏ các cột không sử dụng ngay từ tầng truy xuất đầu tiên. |
-| 5 | **Strategy Impl** | `ConstantFoldingOptimizer` | `optimize(plan)` | Chiến lược tính toán trước các biểu thức hằng số trong thời gian biên dịch. |
-| 6 | **SRP Helper** | `QueryRewriter` | `rewrite(plan)` | Đóng gói quy trình biến đổi và viết lại truy vấn bảo toàn ngữ nghĩa SQL. |
-| 7 | **SRP Helper** | `JoinOptimizer` | `optimize(plan)` | Quản lý và điều phối các thuật toán tối ưu hóa phép nối Join. |
-| 8 | **SRP Helper** | `JoinOrderOptimizer` | `optimize(plan)` | Tính toán và lựa chọn thứ tự thực hiện phép nối Join tối ưu chi phí. |
-| 9 | **SRP Helper** | `JoinMethodSelector` | `selectJoinMethod(plan)` | Lựa chọn thuật toán Join phù hợp (Nested Loop Join, Hash Join, Merge Join). |
-| 10 | **Strategy / Cost** | `CostEstimator` | `estimate(plan)` | Đánh giá tổng chi phí tài nguyên (CPU & I/O) cho ứng viên kế hoạch thực thi. |
-| 11 | **SRP Helper** | `CardinalityEstimator` | `estimate(plan)` | Ước lượng kích thước dữ liệu và số lượng dòng kết quả trung gian. |
-| 12 | **SRP Helper** | `StatisticsManager` | `estimateCardinality()`, `estimateSelectivity()` | Tra cứu số liệu thống kê dữ liệu (Cardinality, Selectivity) từ Storage Engine. |
-| 13 | **SRP Helper** | `PlanEnumerator` | `enumerate(plan)` | Duyệt và tìm kiếm không gian các ứng viên kế hoạch thực thi khả thi. |
-| 14 | **SRP Helper** | `AccessPathSelector` | `select(plan)` | Lựa chọn đường dẫn truy xuất dữ liệu tối ưu (Table Scan, Index Scan, Index Only Scan). |
+| 1 | **Strategy Context** | `QueryOptimizer` | `optimize(plan)`, `setOptimizationRule(rule)` | Orchestrates CBO cost-based plan optimization. |
+| 2 | **Strategy Interface** | `OptimizationRule` | `optimize(plan)` | Defines a common interface for optimization algorithms and rules. |
+| 3 | **Strategy Impl** | `PredicatePushdownOptimizer` | `optimize(plan)` | Pushes filter predicates closer to data sources (Scan) to reduce intermediate data. |
+| 4 | **Strategy Impl** | `ProjectionPushdownOptimizer` | `optimize(plan)` | Eliminates unused columns at the earliest retrieval layer. |
+| 5 | **Strategy Impl** | `ConstantFoldingOptimizer` | `optimize(plan)` | Pre-calculates constant expressions at compile time. |
+| 6 | **SRP Helper** | `QueryRewriter` | `rewrite(plan)` | Encapsulates query transformation and rewriting while preserving SQL semantics. |
+| 7 | **SRP Helper** | `JoinOptimizer` | `optimize(plan)` | Manages and orchestrates Join optimization algorithms. |
+| 8 | **SRP Helper** | `JoinOrderOptimizer` | `optimize(plan)` | Calculates and selects the cost-optimal Join execution order. |
+| 9 | **SRP Helper** | `JoinMethodSelector` | `selectJoinMethod(plan)` | Selects appropriate Join algorithms (Nested Loop Join, Hash Join, Merge Join). |
+| 10 | **Strategy / Cost** | `CostEstimator` | `estimate(plan)` | Evaluates total resource costs (CPU & I/O) for execution plan candidates. |
+| 11 | **SRP Helper** | `CardinalityEstimator` | `estimate(plan)` | Estimates data size and intermediate result row counts. |
+| 12 | **SRP Helper** | `StatisticsManager` | `estimateCardinality()`, `estimateSelectivity()` | Looks up data statistics (Cardinality, Selectivity) from Storage Engine. |
+| 13 | **SRP Helper** | `PlanEnumerator` | `enumerate(plan)` | Enumerates and explores feasible candidate execution plan spaces. |
+| 14 | **SRP Helper** | `AccessPathSelector` | `select(plan)` | Selects optimal data access paths (Table Scan, Index Scan, Index Only Scan). |
 
 ---
 
 #### Plan Generation & Building
-| # | Pattern / Role | Class / Interface | Method | Công dụng (Purpose) |
+| # | Pattern / Role | Class / Interface | Method | Purpose |
 |:---:|:---|:---|:---|:---|
-| 1 | **Pipeline Helper** | `PlanGenerator` | `createLogicalPlan(ast)`, `createPhysicalPlan(logicalPlan)` | Điều phối quy trình sinh kế hoạch logic và vật lý qua Builder & Factory. |
-| 2 | **Builder** | `LogicalPlanBuilder` | `build(ast)` | Xây dựng từng bước cây kế hoạch logic từ cây cấu trúc AST. |
-| 3 | **Builder** | `PhysicalPlanBuilder` | `build(logicalPlan)` | Chuyển đổi và xây dựng kế hoạch thực thi vật lý từ kế hoạch logic. |
-| 4 | **Factory Method** | `LogicalOperatorFactory` | `createOperator(node)` | Khởi tạo các toán tử logic (LogicalScan, LogicalFilter, LogicalJoin, LogicalAggregate, LogicalSort). |
-| 5 | **Factory Method** | `PhysicalOperatorFactory` | `createOperator(node)` | Khởi tạo các toán tử thực thi vật lý tương ứng chiến lược đã chọn. |
-| 6 | **SRP Helper** | `PlanValidator` | `validate(logicalPlan)` | Thẩm định tính hợp lệ và toàn vẹn của kế hoạch trước khi chuyển giao thực thi. |
-| 7 | **SRP Helper** | `PlanNormalizer` | `normalize(logicalPlan)` | Chuẩn hóa dạng cây kế hoạch về dạng chuẩn trước khi tạo kế hoạch vật lý. |
+| 1 | **Pipeline Helper** | `PlanGenerator` | `createLogicalPlan(ast)`, `createPhysicalPlan(logicalPlan)` | Orchestrates logical and physical plan generation via Builder & Factory. |
+| 2 | **Builder** | `LogicalPlanBuilder` | `build(ast)` | Builds step-by-step the logical plan tree from the AST structure. |
+| 3 | **Builder** | `PhysicalPlanBuilder` | `build(logicalPlan)` | Converts and builds physical execution plans from logical plans. |
+| 4 | **Factory Method** | `LogicalOperatorFactory` | `createOperator(node)` | Instantiates logical operators (LogicalScan, LogicalFilter, LogicalJoin, LogicalAggregate, LogicalSort). |
+| 5 | **Factory Method** | `PhysicalOperatorFactory` | `createOperator(node)` | Instantiates physical execution operators corresponding to chosen strategies. |
+| 6 | **SRP Helper** | `PlanValidator` | `validate(logicalPlan)` | Validates plan correctness and integrity before execution handoff. |
+| 7 | **SRP Helper** | `PlanNormalizer` | `normalize(logicalPlan)` | Normalizes plan tree forms into standard shapes before physical plan creation. |
 
 ---
 
-### 3.3. Chi Tiết Từng Pattern & Khung Mã Java Code (Class/Interface & Method Signature)
+### 3.3. Detailed Pattern Breakdown & Java Code Skeleton (Class/Interface & Method Signature)
 
-#### Creational Patterns (Nhóm Khởi Tạo)
+#### Creational Patterns
 
 ##### 1. Builder Pattern
 * **Class / Interface**: `LogicalPlanBuilder`, `PhysicalPlanBuilder`
 * **Method**: `build(ast)`, `build(logicalPlan)`
-* **Công dụng**: Xây dựng từng bước cây kế hoạch logic (`LogicalPlan`) và kế hoạch vật lý (`PhysicalPlan`) từ cây AST và kế hoạch tối ưu.
+* **Purpose**: Builds step-by-step the logical plan tree (`LogicalPlan`) and physical plan tree (`PhysicalPlan`) from the AST tree and optimized plan.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.planner;
 
@@ -806,9 +817,9 @@ public class PhysicalPlanBuilder {
 ##### 2. Factory Method Pattern
 * **Class / Interface**: `LogicalOperatorFactory`, `PhysicalOperatorFactory`
 * **Method**: `createOperator(node)`
-* **Công dụng**: Đóng gói logic khởi tạo các đối tượng toán tử logic/vật lý chuyên biệt.
+* **Purpose**: Encapsulates the instantiation logic for specialized logical/physical operator objects.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.planner;
 
@@ -831,25 +842,25 @@ public class PhysicalOperatorFactory {
 
 ---
 
-#### Structural Patterns (Nhóm Cấu Trúc)
+#### Structural Patterns
 
 ##### 3. Facade Pattern
 * **Class / Interface**: `QueryProcessor`
 * **Method**: `compile(sqlText)`
-* **Công dụng**: Cung cấp giao diện tập trung duy nhất cho toàn bộ chuỗi biên dịch và tối ưu hóa câu lệnh SQL.
+* **Purpose**: Provides a single centralized interface for the entire SQL compilation and optimization pipeline.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.facade;
 
 public class QueryProcessor {
     public QueryProcessor(Lexer lexer,
-                          SQLParser parser,
-                          ASTBuilder astBuilder,
-                          SemanticAnalyzer semanticAnalyzer,
-                          QueryRewriter queryRewriter,
-                          QueryOptimizer queryOptimizer,
-                          PlanGenerator planGenerator) { }
+                           SQLParser parser,
+                           ASTBuilder astBuilder,
+                           SemanticAnalyzer semanticAnalyzer,
+                           QueryRewriter queryRewriter,
+                           QueryOptimizer queryOptimizer,
+                           PlanGenerator planGenerator) { }
 
     // Pattern: Facade
     public PhysicalPlan compile(String sqlText) {
@@ -864,9 +875,9 @@ public class QueryProcessor {
 ##### 4. Composite Pattern
 * **Class / Interface**: `ASTNode` (Abstract Class), `SelectASTNode`
 * **Method**: `accept(visitor)`
-* **Công dụng**: Biểu diễn cấu trúc phân cấp cây cú pháp trừu tượng AST đồng nhất.
+* **Purpose**: Uniformly represents the Abstract Syntax Tree (AST) hierarchical structure.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.abstracts;
 
@@ -886,14 +897,14 @@ public class SelectASTNode extends ASTNode {
 
 ---
 
-#### Behavioral Patterns (Nhóm Hành Vi)
+#### Behavioral Patterns
 
 ##### 5. Chain of Responsibility Pattern
 * **Class / Interface**: `CompilerStage` (Interface), `AbstractCompilerStage`
 * **Method**: `process(input)`, `setNextStage(nextStage)`
-* **Công dụng**: Nối chuỗi các công đoạn xử lý SQL tuần tự độc lập (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization).
+* **Purpose**: Chains independent sequential SQL processing stages (Tokenize ➔ Parse Tree ➔ AST ➔ Semantic Check ➔ Query Rewrite ➔ Optimization).
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.interfaces;
 
@@ -917,9 +928,9 @@ public abstract class AbstractCompilerStage implements CompilerStage {
 ##### 6. Visitor Pattern
 * **Class / Interface**: `ASTVisitor` (Interface), `SemanticAnalyzer`, `QueryRewriter`
 * **Method**: `visit(node)`, `analyze(ast)`, `rewrite(ast)`
-* **Công dụng**: Thao tác duyệt cây AST để kiểm tra ngữ nghĩa và tối ưu hóa logic mà không làm thay đổi cấu trúc nút cây `ASTNode`.
+* **Purpose**: Traverses the AST tree for semantic checks and logic optimizations without modifying the `ASTNode` tree node structure.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.interfaces;
 
@@ -946,9 +957,9 @@ public class SemanticAnalyzer implements ASTVisitor {
 ##### 7. Strategy Pattern
 * **Class / Interface**: `QueryOptimizer` (Strategy Context), `OptimizationRule` (Interface), `PredicatePushdownOptimizer`
 * **Method**: `optimize(plan)`, `setOptimizationRule(rule)`
-* **Công dụng**: Đóng gói linh hoạt các thuật toán tối ưu hóa dựa trên chi phí (CBO) và các quy tắc biến đổi kế hoạch truy vấn độc lập.
+* **Purpose**: Encapsulates flexible Cost-Based Optimization (CBO) algorithms and independent query plan transformation rules.
 
-**Khung Mã Java:**
+**Java Code Skeleton:**
 ```java
 package query_processor.interfaces;
 
@@ -984,7 +995,7 @@ public class QueryOptimizer implements CompilerStage {
 
 ### 4.1. Sequence Diagrams by Design Pattern
 
-#### Creational Patterns (Nhóm Khởi Tạo)
+#### Creational Patterns
 
 ##### 4.1.1. Builder Pattern
 ```mermaid
@@ -1038,7 +1049,7 @@ sequenceDiagram
 
 ---
 
-#### Structural Patterns (Nhóm Cấu Trúc)
+#### Structural Patterns
 
 ##### 4.1.3. Facade Pattern
 ```mermaid
@@ -1092,7 +1103,7 @@ sequenceDiagram
 
 ---
 
-#### Behavioral Patterns (Nhóm Hành Vi)
+#### Behavioral Patterns
 
 ##### 4.1.5. Chain of Responsibility Pattern
 ```mermaid

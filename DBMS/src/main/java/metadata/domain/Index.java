@@ -61,9 +61,6 @@ public class Index {
         this.enabled = true;
     }
 
-    public void enable() {
-        this.enabled = true;
-    }
 
     public void disable() {
         this.enabled = false;
@@ -71,10 +68,6 @@ public class Index {
 
     public String getIndexName() {
         return indexName;
-    }
-
-    public String getColumnName() {
-        return columnName;
     }
 
     public IndexType getIndexType() {

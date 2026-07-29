@@ -75,6 +75,11 @@ public class Column implements MetadataElement, Cloneable {
         return columnName;
     }
 
+    @Override
+    public String getElementType() {
+        return "Column";
+    }
+
     public DataType getDataType() {
         return dataType;
     }

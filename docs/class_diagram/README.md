@@ -318,6 +318,7 @@ classDiagram
     class MetadataElement{
         <<Interface - Composite>>
         +getElementName() String*
+        +getElementType() String*
     }
 
     class MetadataChangeListener{
@@ -461,6 +462,7 @@ classDiagram
     class MetadataElement{
         <<Interface>>
         +getElementName() String*
+        +getElementType() String*
     }
 
 %% =====================================================
@@ -838,6 +840,7 @@ classDiagram
     class MetadataElement{
         <<Interface>>
         +getElementName() String*
+        +getElementType() String*
     }
 
 %% =====================================================

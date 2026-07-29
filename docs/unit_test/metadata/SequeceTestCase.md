@@ -1,4 +1,4 @@
-﻿# Sequence Diagrams - Metadata Subsystem Unit Test Scenarios
+# Sequence Diagrams - Metadata Subsystem Unit Test Scenarios
 
 This document provides detailed Mermaid sequence diagrams for all positive (happy path) and negative (edge cases / exception) unit test scenarios mapped out in [MindmapTest.md](file:///d:/BBV/Database_Management_BBV/docs/unit_test/metadata/MindmapTest.md).
 
@@ -312,6 +312,17 @@ sequenceDiagram
     CatalogManager-->>-Test: Empty List []
 ```
 
+#### TC-05A: `getElementType_ShouldReturnCatalogManager`
+```mermaid
+sequenceDiagram
+    title TC-05A: getElementType_ShouldReturnCatalogManager
+    participant Test
+    participant CatalogManager
+
+    Test->>+CatalogManager: getElementType()
+    CatalogManager-->>-Test: "CatalogManager"
+```
+
 ---
 
 ## 3. Database Unit Tests
@@ -405,6 +416,17 @@ sequenceDiagram
     Database-->>-Test: void
 ```
 
+#### TC-07D: `getElementType_ShouldReturnDatabase`
+```mermaid
+sequenceDiagram
+    title TC-07D: getElementType_ShouldReturnDatabase
+    participant Test
+    participant Database
+
+    Test->>+Database: getElementType()
+    Database-->>-Test: "Database"
+```
+
 ---
 
 ## 4. Schema Unit Tests
@@ -496,6 +518,17 @@ sequenceDiagram
     Test->>+Schema: createTable("t2")
     Test->>+Schema: listTables()
     Schema-->>-Test: List<Table> ["t1", "t2"]
+```
+
+#### TC-09C: `getElementType_ShouldReturnSchema`
+```mermaid
+sequenceDiagram
+    title TC-09C: getElementType_ShouldReturnSchema
+    participant Test
+    participant Schema
+
+    Test->>+Schema: getElementType()
+    Schema-->>-Test: "Schema"
 ```
 
 ---
@@ -728,6 +761,17 @@ sequenceDiagram
     Column-->>-Test: throw InvalidDefaultValueException
 ```
 
+#### TC-13D: `getElementType_ShouldReturnColumn`
+```mermaid
+sequenceDiagram
+    title TC-13D: getElementType_ShouldReturnColumn
+    participant Test
+    participant Column
+
+    Test->>+Column: getElementType()
+    Column-->>-Test: "Column"
+```
+
 ---
 
 ## 7. Index Unit Tests
@@ -892,8 +936,19 @@ sequenceDiagram
     participant Test
     participant Table
 
-    Test->>+Table: removeConstraint("missing_pk")
-    Table-->>-Test: throw IllegalArgumentException ("Constraint not found")
+    Test->>+Table: getConstraint("invalid#const")
+    Table-->>-Test: throw IllegalArgumentException
+```
+
+#### TC-11H: `getElementType_ShouldReturnTable`
+```mermaid
+sequenceDiagram
+    title TC-11H: getElementType_ShouldReturnTable
+    participant Test
+    participant Table
+
+    Test->>+Table: getElementType()
+    Table-->>-Test: "Table"
 ```
 
 #### TC-16C: `removeConstraint_ShouldThrowException_WhenTableIsLocked`

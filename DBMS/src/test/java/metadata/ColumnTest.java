@@ -64,4 +64,11 @@ class ColumnTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid default value");
     }
+
+    @Test
+    @DisplayName("TC-13D. Get Element Type")
+    void getElementType_ShouldReturnColumn() {
+        Column column = new Column("age", DataType.INT);
+        assertThat(column.getElementType()).isEqualTo("Column");
+    }
 }

@@ -57,12 +57,13 @@ public class Database implements MetadataElement {
         this.status = status;
     }
 
-    public String getDatabaseName() {
+    @Override
+    public String getElementName() {
         return databaseName;
     }
 
     @Override
-    public String getElementName() {
-        return databaseName;
+    public String getElementType() {
+        return "Database";
     }
 }

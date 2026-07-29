@@ -86,4 +86,11 @@ class SchemaTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Table name contains invalid characters");
     }
+
+    @Test
+    @DisplayName("TC-09C. Get Element Type")
+    void getElementType_ShouldReturnSchema() {
+        Schema schema = new Schema("public");
+        assertThat(schema.getElementType()).isEqualTo("Schema");
+    }
 }

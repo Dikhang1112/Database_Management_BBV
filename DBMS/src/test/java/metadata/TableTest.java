@@ -172,4 +172,11 @@ class TableTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Constraint name contains invalid characters");
     }
+
+    @Test
+    @DisplayName("TC-11H. Get Element Type")
+    void getElementType_ShouldReturnTable() {
+        Table table = new Table("orders");
+        assertThat(table.getElementType()).isEqualTo("Table");
+    }
 }

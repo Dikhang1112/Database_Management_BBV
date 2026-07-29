@@ -132,4 +132,10 @@ class CatalogManagerTest {
 
         assertThat(catalogManager.listDatabases()).isEmpty();
     }
+
+    @Test
+    @DisplayName("TC-05A. Get Element Type")
+    void getElementType_ShouldReturnCatalogManager() {
+        assertThat(catalogManager.getElementType()).isEqualTo("CatalogManager");
+    }
 }

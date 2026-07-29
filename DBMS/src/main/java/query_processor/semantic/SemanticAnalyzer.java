@@ -1,5 +1,6 @@
 package query_processor.semantic;
 
+import metadata.facade.MetadataModule;
 import query_processor.ast.AST;
 import query_processor.abstracts.ASTNode;
 import query_processor.interfaces.ASTVisitor;
@@ -32,6 +33,12 @@ public class SemanticAnalyzer implements ASTVisitor {
         this.groupByValidator = groupByValidator;
         this.orderByValidator = orderByValidator;
         // TODO: Future DBMS logic implementation
+    }
+    public SemanticAnalyzer() {
+        this(new NameResolver(MetadataModule.getInstance()),
+             new TypeChecker(MetadataModule.getInstance()),
+             new GroupByValidator(),
+             new OrderByValidator());
     }
 
     /**
@@ -73,6 +80,5 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (node != null) {
             node.accept(this);
         }
-        // TODO: Future DBMS logic implementation
     }
 }

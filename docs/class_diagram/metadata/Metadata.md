@@ -26,6 +26,7 @@ classDiagram
         +containsDatabase(String databaseName) boolean
         +listDatabases() List~Database~
         +getElementName() String
+        +getElementType() String
     }
 
     class Database{
@@ -35,6 +36,7 @@ classDiagram
         +getSchema(String schemaName) Schema
         +setStatus(DatabaseStatus status)
         +getElementName() String
+        +getElementType() String
     }
 
     class Schema{
@@ -43,6 +45,7 @@ classDiagram
         +dropTable(String tableName)
         +getTable(String tableName) Table
         +getElementName() String
+        +getElementType() String
     }
 
     class Table{
@@ -57,6 +60,7 @@ classDiagram
         +registerListener(MetadataChangeListener listener)
         +notifyListeners(String eventType, String targetName)
         +getElementName() String
+        +getElementType() String
     }
 
     class Column{
@@ -65,6 +69,7 @@ classDiagram
         +changeDataType(DataType dataType)
         +clone() Column
         +getElementName() String
+        +getElementType() String
     }
 
     class DataType{
@@ -118,7 +123,8 @@ classDiagram
 
     class MetadataElement{
         <<Interface - Composite>>
-        +getElementName() String*
+        +getElementName() String
+        +getElementType() String
     }
 
     class MetadataChangeListener{
