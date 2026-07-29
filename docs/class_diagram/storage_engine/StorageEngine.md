@@ -7,10 +7,14 @@ classDiagram
 %% =====================================================
 
 class StorageEngine{
-<<Facade>>
-+fetchPage(pageId)
-+allocatePage()
-+freePage()
+    <<Facade>>
+    -BufferPoolManager bufferPoolManager
+    -PageFactory pageFactory
+    -DiskFileManager diskFileManager
+    +fetchPage(long pageId) BufferFrame
+    +allocatePage(PageType pageType) Page
+    +freePage(long pageId)
+    +flushAll()
 }
 
 %% =====================================================
@@ -18,11 +22,16 @@ class StorageEngine{
 %% =====================================================
 
 class BufferPoolManager{
-<<Singleton>>
-+getInstance()
-+fetchPage(pageId)
-+flushPage(pageId)
-+evictPage()
+    <<Singleton>>
+    -BufferPoolManager instance
+    -Map~Long, BufferFrame~ pageTable
+    +getInstance() BufferPoolManager
+    +fetchPage(long pageId) BufferFrame
+    +addPage(long pageId, Page page)
+    +pinPage(long pageId)
+    +unpinPage(long pageId)
+    +flushPage(long pageId)
+    +evictPage()
 }
 
 %% =====================================================
@@ -30,21 +39,27 @@ class BufferPoolManager{
 %% =====================================================
 
 class PageReplacementStrategy{
-<<Strategy>>
-+selectVictim()
+    <<Strategy>>
+    +selectVictim()* int
 }
 
-class LRUReplacementStrategy
-class ClockReplacementStrategy
-class FIFOReplacementStrategy
+class LRUReplacementStrategy{
+    +selectVictim() int
+}
+class ClockReplacementStrategy{
+    +selectVictim() int
+}
+class FIFOReplacementStrategy{
+    +selectVictim() int
+}
 
 %% =====================================================
 %% 4. PAGE CREATION
 %% =====================================================
 
 class PageFactory{
-<<Factory Method>>
-+createPage(pageType)
+    <<Factory Method>>
+    +createPage(PageType pageType) Page
 }
 
 %% =====================================================
@@ -52,28 +67,47 @@ class PageFactory{
 %% =====================================================
 
 class Page{
-<<Template Method>>
-+read()
-+deserialize()
-+modify()
-+serialize()
-+write()
+    <<Template Method>>
+    -PageHeader header
+    -SlotDirectory slotDirectory
+    -List~Record~ records
+    +processPageIO(byte[] rawBytes)
+    +read()
+    +deserialize(byte[] bytes)*
+    +modify()
+    +serialize()* byte[]
+    +write()
+    +iterator() Iterator~Record~
 }
 
-class DataPage
-class IndexPage
-class CatalogPage
+class DataPage{
+    +deserialize(byte[] bytes)
+    +serialize() byte[]
+}
+class IndexPage{
+    +deserialize(byte[] bytes)
+    +serialize() byte[]
+}
+class CatalogPage{
+    +deserialize(byte[] bytes)
+    +serialize() byte[]
+}
 
 %% =====================================================
 %% 6. BUFFER FRAME
 %% =====================================================
 
 class BufferFrame{
-<<State>>
-+pin()
-+unpin()
-+markDirty()
-+setState()
+    <<State>>
+    -Page page
+    -BufferFrameState state
+    -int pinCount
+    +pin()
+    +unpin()
+    +markDirty()
+    +setState(BufferFrameState state)
+    +getState() BufferFrameState
+    +getPage() Page
 }
 
 %% =====================================================
@@ -81,11 +115,17 @@ class BufferFrame{
 %% =====================================================
 
 class PageBuilder{
-<<Builder>>
-+buildHeader()
-+buildSlots()
-+buildRecords()
-+build()
+    <<Builder>>
+    -PageHeader header
+    -SlotDirectory slotDirectory
+    -List~Record~ records
+    -PageType pageType
+    +setPageType(PageType pageType) PageBuilder
+    +buildHeader(int pageId, int lsn) PageBuilder
+    +buildSlots(int initialSlots) PageBuilder
+    +addRecord(Record record) PageBuilder
+    +buildRecords(List~Record~ records) PageBuilder
+    +build() Page
 }
 
 %% =====================================================
@@ -93,9 +133,11 @@ class PageBuilder{
 %% =====================================================
 
 class PageIterator{
-<<Iterator>>
-+hasNext()
-+next()
+    <<Iterator>>
+    -List~Record~ records
+    -int currentIndex
+    +hasNext() boolean
+    +next() Record
 }
 
 %% =====================================================
@@ -103,22 +145,40 @@ class PageIterator{
 %% =====================================================
 
 class BTreeNode{
-<<Composite>>
-+search()
-+insert()
-+split()
+    <<Composite>>
+    +search(Object key)* Object
+    +insert(Object key, Object value)*
+    +split()* BTreeNode
+    +isLeaf() boolean
 }
 
-class InternalNode
-class LeafNode
+class InternalNode{
+    -List~Object~ keys
+    -List~BTreeNode~ children
+    +addChild(Object key, BTreeNode child)
+    +findChild(Object key) BTreeNode
+    +search(Object key) Object
+    +insert(Object key, Object value)
+    +split() BTreeNode
+}
+
+class LeafNode{
+    -Map~Object, Object~ dataEntries
+    +search(Object key) Object
+    +insert(Object key, Object value)
+    +split() BTreeNode
+}
 
 %% =====================================================
 %% 10. DISK ACCESS
 %% =====================================================
 
 class DiskFileManager{
-+readPage(pageId)
-+writePage(page)
+    -StorageAdapter storageAdapter
+    +readPage(long pageId) Page
+    +writePage(Page page)
+    +flush()
+    +setStorageAdapter(StorageAdapter adapter)
 }
 
 %% =====================================================

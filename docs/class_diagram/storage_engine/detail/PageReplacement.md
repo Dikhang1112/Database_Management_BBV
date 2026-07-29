@@ -7,29 +7,39 @@ classDiagram
 %% =====================================================
 
 class PageReplacementStrategy{
-<<Interface>>
-<<Strategy>>
-+selectVictim()
+    <<Interface>>
+    <<Strategy>>
+    +selectVictim()* int
 }
 
 class LRUReplacementStrategy{
-+selectVictim()
+    +selectVictim() int
 }
 
 class ClockReplacementStrategy{
-+selectVictim()
+    +selectVictim() int
 }
 
 class FIFOReplacementStrategy{
-+selectVictim()
+    +selectVictim() int
 }
 
 class ReplacementContext{
-+setStrategy()
-+evict()
+    -PageReplacementStrategy strategy
+    +setStrategy(PageReplacementStrategy strategy)
+    +getStrategy() PageReplacementStrategy
+    +evict() int
 }
 
-class BufferFrame
+class BufferFrame{
+    <<State>>
+    -Page page
+    -BufferFrameState state
+    -int pinCount
+    +pin()
+    +unpin()
+    +markDirty()
+}
 
 %% =====================================================
 %% RELATIONSHIPS

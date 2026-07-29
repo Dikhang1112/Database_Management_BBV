@@ -8,13 +8,19 @@ classDiagram
 
 class QueryOptimizer{
     <<Strategy Context>>
+    -QueryRewriter queryRewriter
+    -JoinOptimizer joinOptimizer
+    -CostEstimator costEstimator
+    -PlanEnumerator planEnumerator
+    -OptimizationRule optimizationRule
     +optimize(LogicalPlan logicalPlan) PhysicalPlan
     +setOptimizationRule(OptimizationRule rule)
+    +getOptimizationRule() OptimizationRule
 }
 
 class OptimizationRule{
     <<Interface>>
-    +optimize(LogicalPlan logicalPlan)*
+    +optimize(LogicalPlan logicalPlan)* LogicalPlan
 }
 
 %% =====================================================
@@ -22,19 +28,22 @@ class OptimizationRule{
 %% =====================================================
 
 class QueryRewriter{
-    +rewrite(LogicalPlan logicalPlan)
+    +rewrite(LogicalPlan logicalPlan) LogicalPlan
+    +predicatePushdown(LogicalPlan logicalPlan) LogicalPlan
+    +projectionPushdown(LogicalPlan logicalPlan) LogicalPlan
+    +constantFolding(LogicalPlan logicalPlan) LogicalPlan
 }
 
 class PredicatePushdownOptimizer{
-    +optimize(LogicalPlan logicalPlan)
+    +optimize(LogicalPlan logicalPlan) LogicalPlan
 }
 
 class ProjectionPushdownOptimizer{
-    +optimize(LogicalPlan logicalPlan)
+    +optimize(LogicalPlan logicalPlan) LogicalPlan
 }
 
 class ConstantFoldingOptimizer{
-    +optimize(LogicalPlan logicalPlan)
+    +optimize(LogicalPlan logicalPlan) LogicalPlan
 }
 
 %% =====================================================
@@ -42,15 +51,17 @@ class ConstantFoldingOptimizer{
 %% =====================================================
 
 class JoinOptimizer{
-    +optimize(LogicalPlan logicalPlan)
+    +optimize(LogicalPlan logicalPlan) LogicalPlan
+    +optimizeJoinOrder(LogicalPlan logicalPlan) LogicalPlan
+    +selectJoinMethod(LogicalPlan logicalPlan) LogicalPlan
 }
 
 class JoinOrderOptimizer{
-    +optimize(LogicalPlan logicalPlan)
+    +optimize(LogicalPlan logicalPlan) LogicalPlan
 }
 
 class JoinMethodSelector{
-    +selectJoinMethod(LogicalPlan logicalPlan)
+    +selectJoinMethod(LogicalPlan logicalPlan) LogicalPlan
 }
 
 %% =====================================================
@@ -58,16 +69,21 @@ class JoinMethodSelector{
 %% =====================================================
 
 class CostEstimator{
-    +estimate(LogicalPlan logicalPlan)
+    -StatisticsManager statisticsManager
+    +estimate(LogicalPlan logicalPlan) double
+    +estimateCardinality(LogicalPlan logicalPlan) double
+    +estimateSelectivity(LogicalPlan logicalPlan) double
 }
 
 class CardinalityEstimator{
-    +estimate(LogicalPlan logicalPlan)
+    +estimate(LogicalPlan logicalPlan) double
 }
 
 class StatisticsManager{
-    +estimateCardinality()
-    +estimateSelectivity()
+    -double defaultCardinality
+    -double defaultSelectivity
+    +estimateCardinality() double
+    +estimateSelectivity() double
 }
 
 %% =====================================================
@@ -75,20 +91,25 @@ class StatisticsManager{
 %% =====================================================
 
 class PlanEnumerator{
-    +enumerate(LogicalPlan logicalPlan)
+    +enumerate(LogicalPlan logicalPlan) PhysicalPlan
+    +selectAccessPath(LogicalPlan logicalPlan) PhysicalPlan
 }
 
 class AccessPathSelector{
-    +select(LogicalPlan logicalPlan)
+    +select(LogicalPlan logicalPlan) PhysicalPlan
 }
 
 %% =====================================================
 %% SHARED OBJECTS
 %% =====================================================
 
-class LogicalPlan
+class LogicalPlan{
+    -LogicalPlanNode root
+}
 
-class PhysicalPlan
+class PhysicalPlan{
+    -PhysicalPlanNode root
+}
 
 %% =====================================================
 %% RELATIONSHIPS

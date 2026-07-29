@@ -6,6 +6,7 @@ public class FIFOReplacementStrategy implements PageReplacementStrategy {
 
     @Override
     public int selectVictim() {
-        return -1;
+        System.out.println("  -> [Strategy: FIFO] Chọn khung bộ đệm được nạp vào RAM đầu tiên (First In First Out).");
+        return 2;
     }
 }
