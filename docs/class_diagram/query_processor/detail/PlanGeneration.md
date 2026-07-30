@@ -7,8 +7,13 @@ classDiagram
 %% =====================================================
 
     class PlanGenerator{
-+createLogicalPlan(AST ast) LogicalPlan
-+createPhysicalPlan(LogicalPlan logicalPlan) PhysicalPlan
+    -LogicalPlanBuilder logicalPlanBuilder
+    -PhysicalPlanBuilder physicalPlanBuilder
+    -PlanValidator planValidator
+    -PlanNormalizer planNormalizer
+    -ExecutionEngine executionEngine
+    +createLogicalPlan(AST ast) LogicalPlan
+    +createPhysicalPlan(LogicalPlan logicalPlan) PhysicalPlan
 }
 
 %% =====================================================
@@ -16,56 +21,72 @@ classDiagram
 %% =====================================================
 
 class LogicalPlanBuilder{
-<<Builder>>
-+build(AST ast)
+    <<Builder>>
+    -LogicalOperatorFactory logicalOperatorFactory
+    +build(AST ast) LogicalPlan
 }
 
 class LogicalOperatorFactory{
-<<Factory Method>>
-+createOperator(ASTNode node) LogicalPlanNode
+    <<Factory Method>>
+    +createOperator(ASTNode node) LogicalPlanNode
 }
 
-class LogicalPlan
+class LogicalPlan{
+    -LogicalPlanNode root
+    +getRoot() LogicalPlanNode
+    +setRoot(LogicalPlanNode root)
+}
 
 %% =====================================================
 %% PHYSICAL PLAN
 %% =====================================================
 
 class PhysicalPlanBuilder{
-<<Builder>>
-+build(LogicalPlan logicalPlan) PhysicalPlan
+    <<Builder>>
+    -PhysicalOperatorFactory physicalOperatorFactory
+    +build(LogicalPlan logicalPlan) PhysicalPlan
 }
 
 class PhysicalOperatorFactory{
-<<Factory Method>>
-+createOperator(LogicalPlanNode node) PhysicalPlanNode
+    <<Factory Method>>
+    +createOperator(LogicalPlanNode node) PhysicalPlanNode
 }
 
-class PhysicalPlan
+class PhysicalPlan{
+    -PhysicalPlanNode root
+    +getRoot() PhysicalPlanNode
+    +setRoot(PhysicalPlanNode root)
+}
 
 %% =====================================================
 %% PLAN VALIDATION
 %% =====================================================
 
 class PlanValidator{
-+validate(LogicalPlan logicalPlan)
+    +validate(LogicalPlan logicalPlan)
 }
 
 class PlanNormalizer{
-+normalize(LogicalPlan logicalPlan)
+    +normalize(LogicalPlan logicalPlan) LogicalPlan
 }
 
 %% =====================================================
 %% SHARED OBJECTS
 %% =====================================================
 
-class AST
+class AST{
+    -ASTNode root
+}
 
 class ASTNode
 
-class LogicalPlanNode
+class LogicalPlanNode{
+    -String operatorType
+}
 
-class PhysicalPlanNode
+class PhysicalPlanNode{
+    -String physicalOperatorType
+}
 
 %% =====================================================
 %% RELATIONSHIPS

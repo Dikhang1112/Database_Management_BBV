@@ -8,6 +8,13 @@ classDiagram
 
 class QueryProcessor{
     <<Facade>>
+    -Lexer lexer
+    -SQLParser parser
+    -ASTBuilder astBuilder
+    -SemanticAnalyzer semanticAnalyzer
+    -QueryRewriter queryRewriter
+    -QueryOptimizer queryOptimizer
+    -PlanGenerator planGenerator
     +compile(String sqlText) PhysicalPlan
 }
 
@@ -37,23 +44,42 @@ class ASTBuilder{
 
 class SemanticAnalyzer{
     <<Visitor>>
+    -NameResolver nameResolver
+    -TypeChecker typeChecker
+    -GroupByValidator groupByValidator
+    -OrderByValidator orderByValidator
+    +analyze(AST ast)
     +process(AST ast) AST
     +visit(ASTNode node)
 }
 
 class QueryRewriter{
     <<Visitor>>
+    +rewrite(LogicalPlan plan) LogicalPlan
     +process(AST ast) AST
     +visit(ASTNode node)
 }
 
 class QueryOptimizer{
     <<Strategy Context>>
+    -QueryRewriter queryRewriter
+    -JoinOptimizer joinOptimizer
+    -CostEstimator costEstimator
+    -PlanEnumerator planEnumerator
+    -OptimizationRule optimizationRule
+    +optimize(LogicalPlan plan) PhysicalPlan
     +process(AST ast) PhysicalPlan
     +setOptimizationRule(OptimizationRule rule)
+    +getOptimizationRule() OptimizationRule
 }
 
 class PlanGenerator{
+    -LogicalPlanBuilder logicalPlanBuilder
+    -PhysicalPlanBuilder physicalPlanBuilder
+    -PlanValidator planValidator
+    -PlanNormalizer planNormalizer
+    -ExecutionEngine executionEngine
+    +createLogicalPlan(AST ast) LogicalPlan
     +createPhysicalPlan(LogicalPlan plan) PhysicalPlan
 }
 
@@ -70,7 +96,9 @@ class ParseTree
 %% =====================================================
 
 class AST{
+    -ASTNode root
     +getRoot() ASTNode
+    +setRoot(ASTNode root)
 }
 
 class ASTNode{
@@ -101,11 +129,13 @@ class PredicateNode{
 
 class LogicalPlanBuilder{
     <<Builder>>
+    -LogicalOperatorFactory logicalOperatorFactory
     +build(AST ast) LogicalPlan
 }
 
 class PhysicalPlanBuilder{
     <<Builder>>
+    -PhysicalOperatorFactory physicalOperatorFactory
     +build(LogicalPlan plan) PhysicalPlan
 }
 
@@ -120,15 +150,25 @@ class OptimizationRule{
 
 class CostEstimator{
     <<Strategy>>
-    +estimate(LogicalPlan plan)
+    -StatisticsManager statisticsManager
+    +estimate(LogicalPlan plan) double
 }
 
 %% =====================================================
 %% PLANS
 %% =====================================================
 
-class LogicalPlan
-class PhysicalPlan
+class LogicalPlan{
+    -LogicalPlanNode root
+    +getRoot() LogicalPlanNode
+    +setRoot(LogicalPlanNode root)
+}
+
+class PhysicalPlan{
+    -PhysicalPlanNode root
+    +getRoot() PhysicalPlanNode
+    +setRoot(PhysicalPlanNode root)
+}
 
 %% =====================================================
 %% EXTERNAL MODULE

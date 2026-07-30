@@ -8,6 +8,10 @@ classDiagram
 
 class SemanticAnalyzer{
     <<Visitor>>
+    -NameResolver nameResolver
+    -TypeChecker typeChecker
+    -GroupByValidator groupByValidator
+    -OrderByValidator orderByValidator
     +analyze(AST ast)
     +visit(ASTNode node)
 }
@@ -22,19 +26,25 @@ class ASTVisitor{
 %% =====================================================
 
 class NameResolver{
+    -MetadataModule metadataModule
+    -Set~String~ registeredAliases
     +resolve(AST ast)
+    +resolveTable(ASTNode node) boolean
+    +resolveColumn(ASTNode node) boolean
+    +resolveAlias(ASTNode node) boolean
+    +getRegisteredAliases() Set~String~
 }
 
 class TableResolver{
-    +resolveTable(ASTNode node)
+    +resolveTable(ASTNode node) boolean
 }
 
 class ColumnResolver{
-    +resolveColumn(ASTNode node)
+    +resolveColumn(ASTNode node) boolean
 }
 
 class AliasResolver{
-    +resolveAlias(ASTNode node)
+    +resolveAlias(ASTNode node) boolean
 }
 
 %% =====================================================
@@ -42,15 +52,18 @@ class AliasResolver{
 %% =====================================================
 
 class TypeChecker{
+    -MetadataModule metadataModule
     +validate(AST ast)
+    +checkExpression(ASTNode node) boolean
+    +getMetadataModule() MetadataModule
 }
 
 class ExpressionTypeChecker{
-    +checkExpression(ASTNode node)
+    +checkExpression(ASTNode node) boolean
 }
 
 class FunctionTypeChecker{
-    +checkFunction(ASTNode node)
+    +checkFunction(ASTNode node) boolean
 }
 
 %% =====================================================
@@ -81,7 +94,9 @@ class MetadataModule{
 %% SHARED OBJECTS
 %% =====================================================
 
-class AST
+class AST{
+    -ASTNode root
+}
 
 class ASTNode
 

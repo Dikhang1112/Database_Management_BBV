@@ -1,13 +1,22 @@
 package query_processor;
 
+import java.util.List;
 import metadata.facade.MetadataModule;
+import org.w3c.dom.ls.LSOutput;
 import query_processor.abstracts.ASTNode;
 import query_processor.ast.AST;
+import query_processor.ast.SelectASTNode;
+import query_processor.ast.TableASTNode;
+import query_processor.ast.WhereASTNode;
 import query_processor.facade.QueryProcessor;
 import query_processor.interfaces.ASTVisitor;
+import query_processor.interfaces.CompilerStage;
+import query_processor.interfaces.OptimizationRule;
 import query_processor.lexical.Lexer;
+import query_processor.optimizer.CostBased;
 import query_processor.optimizer.QueryOptimizer;
 import query_processor.optimizer.QueryRewriter;
+import query_processor.optimizer.RuleBased;
 import query_processor.parser.ASTBuilder;
 import query_processor.parser.SQLParser;
 import query_processor.plan.*;
@@ -45,28 +54,60 @@ public class Main {
 
         // Composite pattern
         System.out.println("--- 4. Composite PATTERN ---");
-        ASTNode rootNode = new ASTNode() {
-            @Override
-            public void accept(ASTVisitor visitor) {
-                System.out.println("ASTNode đã nhận Visitor: " + visitor.getClass().getSimpleName());
-            }
-        };
-
-        //Pack ASTNode into AST
-        AST astTree = new AST(rootNode);
-        System.out.printf("Composite AST Hierarchy Root Node Type: %s\n",
-                astTree.getRoot());
-
+        TableASTNode tableASTNode = new TableASTNode("users");
+        WhereASTNode whereASTNode = new WhereASTNode("age > 18");
+        SelectASTNode astNode = new SelectASTNode(tableASTNode, whereASTNode);
+        AST astTree = new AST(astNode);
+        System.out.printf("Composite AST Hierarchy built with root: %s\n", astTree.getRoot());
         // Visitor pattern
         System.out.println("--- 5. Visitor PATTERN ---");
-        ASTVisitor visitor = new SemanticAnalyzer(
-                new NameResolver(MetadataModule.getInstance()),
-                new TypeChecker(MetadataModule.getInstance()),
-                new GroupByValidator(),
-                new OrderByValidator()
+        ASTVisitor printVisitor = new ASTVisitor() {
+            @Override
+            public void visit(ASTNode node) {
+                if (node instanceof SelectASTNode) {
+                    System.out.println("-> [Visitor] Visiting SelectASTNode (Nút gốc SELECT)");
+                } else if (node instanceof TableASTNode table) {
+                    System.out.println("   -> [Visitor] Visiting TableASTNode: Table = " + table.getTableName());
+                } else if (node instanceof WhereASTNode where) {
+                    System.out.println("   -> [Visitor] Visiting WhereASTNode: Condition = " + where.getCondition());
+                } else if (node != null) {
+                    System.out.println("-> [Visitor] Visiting ASTNode: " + node.getClass().getSimpleName());
+                }
+            }
+        };
+        System.out.println("--- Demo 1: ASTVisitor (PrintVisitor) ---");
+        astTree.getRoot().accept(printVisitor);
+        // Chain of Responsibility pattern
+        List<CompilerStage> compilerPipeline = List.of(
+                new Lexer(),        // Stage 1: String -> TokenStream
+                new SQLParser(),    // Stage 2: TokenStream -> ParseTree
+                new ASTBuilder()    // Stage 3: ParseTree -> AST
         );
-        System.out.println("Sending ASTVisitor to visit and inspect AST nodes...");
-        astTree.getRoot().accept(visitor);
-        System.out.println("AST traversal & semantic validation completed.");
+
+        String sampleSql = "SELECT * FROM users WHERE age > 18";
+        Object inputData = sampleSql;
+        System.out.println("Input SQL Text: " + sampleSql);
+
+        for (CompilerStage stage : compilerPipeline) {
+            System.out.printf("[Pipeline] Executing Stage: %-12s | Input Type: %s\n",
+                    stage.getClass().getSimpleName(),
+                    inputData != null ? inputData.getClass().getSimpleName() : "null");
+            inputData = stage.process(inputData);
+        }
+
+        System.out.println("Chain of Responsibility traversal completed. Final output type: " +
+                (inputData != null ? inputData.getClass().getSimpleName() : "null"));
+        // Chain of Responsibility pattern
+        System.out.println("7. --- Strategy PATTERN ---");
+        QueryOptimizer optimizer = new QueryOptimizer();
+        LogicalPlan logicalPlan1 = new LogicalPlan();
+        // Rule base strategy
+        OptimizationRule ruleBasedStrategy = new RuleBased();
+        optimizer.setOptimizationRule(ruleBasedStrategy);
+        optimizer.getOptimizationRule().optimize(logicalPlan1);
+        // Cost based strategy
+        OptimizationRule costBasedStategy = new CostBased();
+        optimizer.setOptimizationRule(costBasedStategy);
+        optimizer.getOptimizationRule().optimize(logicalPlan1);
     }
 }

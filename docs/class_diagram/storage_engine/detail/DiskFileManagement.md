@@ -7,47 +7,54 @@ classDiagram
 %% =====================================================
 
 class DiskFileManager{
-+readPage(pageId)
-+writePage(page)
-+flush()
-+setStorageAdapter(adapter)
+    -StorageAdapter storageAdapter
+    +readPage(long pageId) Page
+    +writePage(Page page)
+    +flush()
+    +setStorageAdapter(StorageAdapter adapter)
+    +getStorageAdapter() StorageAdapter
 }
 
 class StorageAdapter{
-<<Interface>>
-<<Adapter>>
-+read(pageId)
-+write(page)
-+flush()
+    <<Interface>>
+    <<Adapter>>
+    +read(long pageId)* byte[]
+    +write(Page page)*
+    +flush()*
 }
 
 class LocalDiskAdapter{
-+read(pageId)
-+write(page)
-+flush()
+    +read(long pageId) byte[]
+    +write(Page page)
+    +flush()
 }
 
 class MemoryStorageAdapter{
-+read(pageId)
-+write(page)
-+flush()
+    +read(long pageId) byte[]
+    +write(Page page)
+    +flush()
 }
 
 class CloudStorageAdapter{
-+read(pageId)
-+write(page)
-+flush()
+    +read(long pageId) byte[]
+    +write(Page page)
+    +flush()
 }
 
 class PageSerializer{
-+serialize(page)
+    +serialize(Page page) byte[]
 }
 
 class PageDeserializer{
-+deserialize(bytes)
+    +deserialize(byte[] bytes) Page
 }
 
-class Page
+class Page{
+    <<Template Method>>
+    -PageHeader header
+    -SlotDirectory slotDirectory
+    -List~Record~ records
+}
 
 %% =====================================================
 %% RELATIONSHIPS

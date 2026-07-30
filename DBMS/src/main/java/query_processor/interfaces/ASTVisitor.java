@@ -7,7 +7,6 @@ import query_processor.abstracts.ASTNode;
  * Áp dụng Visitor Pattern để tách bạch thuật toán duyệt/xử lý khỏi cấu trúc nút AST.
  */
 public interface ASTVisitor {
-
     /**
      * Thăm và xử lý một nút trong cây AST.
      *

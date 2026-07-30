@@ -6,57 +6,79 @@ classDiagram
 %% BUFFER POOL MANAGEMENT (Singleton & State Pattern)
 %% =====================================================
 
-class StorageEngine
+class StorageEngine{
+    <<Facade>>
+    -BufferPoolManager bufferPoolManager
+    -PageFactory pageFactory
+    -DiskFileManager diskFileManager
+    +fetchPage(long pageId) BufferFrame
+    +allocatePage(PageType pageType) Page
+    +freePage(long pageId)
+    +flushAll()
+}
 
 class BufferPoolManager{
-<<Singleton>>
-+getInstance()
-+fetchPage(pageId)
-+pinPage(pageId)
-+unpinPage(pageId)
-+flushPage(pageId)
-+evictPage()
+    <<Singleton>>
+    -BufferPoolManager instance
+    -Map~Long, BufferFrame~ pageTable
+    +getInstance() BufferPoolManager
+    +fetchPage(long pageId) BufferFrame
+    +addPage(long pageId, Page page)
+    +pinPage(long pageId)
+    +unpinPage(long pageId)
+    +flushPage(long pageId)
+    +evictPage()
 }
 
 class BufferPool{
-+allocateFrame()
-+releaseFrame()
+    -List~BufferFrame~ frames
+    +allocateFrame() BufferFrame
+    +releaseFrame(BufferFrame frame)
 }
 
 class BufferFrame{
-<<State>>
-+pin()
-+unpin()
-+markDirty()
-+setState()
+    <<State>>
+    -Page page
+    -BufferFrameState state
+    -int pinCount
+    +pin()
+    +unpin()
+    +markDirty()
+    +setState(BufferFrameState state)
+    +getState() BufferFrameState
+    +getPage() Page
 }
 
 class BufferFrameState{
-<<Enumeration>>
-CLEAN
-DIRTY
-PINNED
-UNPINNED
+    <<Enumeration>>
+    CLEAN
+    DIRTY
+    PINNED
+    UNPINNED
 }
 
 class PageTable{
-+lookup(pageId)
-+insert(pageId)
-+remove(pageId)
+    -Map~Long, BufferFrame~ map
+    +lookup(long pageId) BufferFrame
+    +insert(long pageId, BufferFrame frame)
+    +remove(long pageId)
 }
 
 class FreeFrameList{
-+acquireFrame()
-+releaseFrame()
+    -List~Integer~ freeIndices
+    +acquireFrame() int
+    +releaseFrame(int frameNo)
 }
 
 class FlushManager{
-+flushDirtyPages()
+    +flushDirtyPages()
 }
 
 class Page
 
-class DiskFileManager
+class DiskFileManager{
+    -StorageAdapter storageAdapter
+}
 
 %% =====================================================
 %% RELATIONSHIPS

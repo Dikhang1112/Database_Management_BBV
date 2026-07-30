@@ -7,33 +7,46 @@ classDiagram
 %% =====================================================
 
 class BTreeNode{
-<<Abstract>>
-<<Composite>>
-+search()
-+insert()
-+split()
+    <<Abstract>>
+    <<Composite>>
+    +search(Object key)* Object
+    +insert(Object key, Object value)*
+    +split()* BTreeNode
+    +isLeaf() boolean
 }
 
 class InternalNode{
-+findChild()
+    -List~Object~ keys
+    -List~BTreeNode~ children
+    +addChild(Object key, BTreeNode child)
+    +findChild(Object key) BTreeNode
+    +search(Object key) Object
+    +insert(Object key, Object value)
+    +split() BTreeNode
 }
 
 class LeafNode{
-+insertEntry()
+    -Map~Object, Object~ dataEntries
+    +search(Object key) Object
+    +insert(Object key, Object value)
+    +split() BTreeNode
 }
 
 class KeyComparator{
-+compare()
+    +compare(Object k1, Object k2) int
 }
 
 class BTreeCursor{
-+seek()
+    -BTreeNode root
+    +seek(Object key) LeafNode
 }
 
 class BTreeIterator{
-<<Iterator>>
-+hasNext()
-+next()
+    <<Iterator>>
+    -List~Object~ entries
+    -int currentIndex
+    +hasNext() boolean
+    +next() Object
 }
 
 %% =====================================================

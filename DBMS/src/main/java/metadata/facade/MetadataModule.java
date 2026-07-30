@@ -19,11 +19,12 @@ public class MetadataModule {
     }
 
     public static MetadataModule getInstance() {
-        if (instance == null) {
-            synchronized (MetadataModule.class) {
-                if (instance == null) {
-                    instance = new MetadataModule();
-                }
+        if (instance != null) {
+            throw new IllegalStateException("Lỗi (400 Bad Request): MetadataModule Singleton Instance đã tồn tại trong hệ thống! Không thể tạo thêm instance mới.");
+        }
+        synchronized (MetadataModule.class) {
+            if (instance == null) {
+                instance = new MetadataModule();
             }
         }
         return instance;
