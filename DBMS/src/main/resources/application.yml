@@ -2,7 +2,7 @@
 # 1. CẤU HÌNH SERVER WEB (Tomcat nhúng mặc định)
 # ===================================================================
 server:
-  port: 8080 # Cổng chạy ứng dụng
+  port: 8081 # Cổng chạy ứng dụng
   servlet:
     context-path: /
   error:
@@ -18,10 +18,12 @@ spring:
 
   main:
     web-application-type: servlet
-    autoconfigure:
-      exclude:
-        - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-        - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
+  # Sửa lại độ thụt lề (indent) thẳng hàng với 'main' hoặc 'jackson' để tránh lỗi cú pháp YAML
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 
   # Cấu hình chuẩn hóa định dạng JSON trả về từ REST API
   jackson:
