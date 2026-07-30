@@ -28,7 +28,7 @@ spring:
   # Cấu hình chuẩn hóa định dạng JSON trả về từ REST API
   jackson:
     default-property-inclusion: non_null # Tự động loại bỏ các field bị null khỏi JSON Response
-    date-format: "yyyy-MM-dd HH:mm:ss" # Format ngày giờ chuẩn
+    date-format: "dd-MM-yyyy HH:mm:ss" # Format ngày giờ chuẩn (dd-MM-yyyy HH:mm:ss)
     time-zone: "Asia/Ho_Chi_Minh" # Múi giờ Việt Nam
     serialization:
       write-dates-as-timestamps: false

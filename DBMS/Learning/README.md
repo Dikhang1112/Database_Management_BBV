@@ -19,3 +19,12 @@ Dưới đây là các sơ đồ tư duy (Mindmap) học tập Spring Framework 
 
 ## 6. Dependency Injection (DI)
 ![Dependency Injection](../Mindmap/SpringRoadmap/DI.png)
+
+## 7. Bean Lifecycle
+![Bean Lifecycle](../Mindmap/SpringRoadmap/BeanLC.png)
+
+## 8. OAuth2 & JWT
+![OAuth2 & JWT](../Mindmap/SpringRoadmap/Outh2JWT.png)
+
+## 9. ORM & GraphQL
+![ORM & GraphQL](../Mindmap/SpringRoadmap/OrmGrappql.png)
