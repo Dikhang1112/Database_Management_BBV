@@ -79,7 +79,7 @@ public class Main {
                 System.out.printf(" -> [OBSERVER NOTIFICATION] Event: %s | Target: %s\n", eventType, targetName));
 
         System.out.println("Adding new column to trigger Observer...");
-        Column colAge = new ColumnBuilder("age").setType(DataType.INT).build();
+        Column colAge = new ColumnBuilder("age_col").setType(DataType.INT).build();
         table1.addColumn(colAge); // Will trigger listener
         System.out.println();
 
