@@ -1,0 +1,22 @@
+[
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "users",
+    "indexName": "idx_users_username",
+    "columnName": "username",
+    "indexType": "BTREE",
+    "enabled": true,
+    "corrupted": false
+  },
+  {
+    "databaseName": "inventory_db",
+    "schemaName": "public",
+    "tableName": "products",
+    "indexName": "idx_product_name",
+    "columnName": "product_name",
+    "indexType": "BTREE",
+    "enabled": true,
+    "corrupted": false
+  }
+]

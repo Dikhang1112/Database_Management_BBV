@@ -1,0 +1,101 @@
+[
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "users",
+    "columnName": "id",
+    "dataType": "INT",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "users",
+    "columnName": "username",
+    "dataType": "VARCHAR",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "users",
+    "columnName": "email",
+    "dataType": "VARCHAR",
+    "isNullable": true,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "orders",
+    "columnName": "order_id",
+    "dataType": "INT",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "orders",
+    "columnName": "user_id",
+    "dataType": "INT",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "orders",
+    "columnName": "amount",
+    "dataType": "DECIMAL",
+    "isNullable": false,
+    "defaultValue": "0.00"
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "audit",
+    "tableName": "logs",
+    "columnName": "log_id",
+    "dataType": "BIGINT",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "audit",
+    "tableName": "logs",
+    "columnName": "action",
+    "dataType": "VARCHAR",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "inventory_db",
+    "schemaName": "public",
+    "tableName": "products",
+    "columnName": "product_id",
+    "dataType": "INT",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "inventory_db",
+    "schemaName": "public",
+    "tableName": "products",
+    "columnName": "product_name",
+    "dataType": "VARCHAR",
+    "isNullable": false,
+    "defaultValue": null
+  },
+  {
+    "databaseName": "inventory_db",
+    "schemaName": "public",
+    "tableName": "products",
+    "columnName": "stock_quantity",
+    "dataType": "INT",
+    "isNullable": false,
+    "defaultValue": "0"
+  }
+]

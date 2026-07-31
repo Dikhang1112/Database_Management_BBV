@@ -1,0 +1,8 @@
+package entity.metadata.enums;
+
+public enum IndexType {
+    BTREE,
+    HASH,
+    GIN,
+    GIST
+}
