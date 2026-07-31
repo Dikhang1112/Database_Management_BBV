@@ -74,6 +74,10 @@ public class Index {
         return indexType;
     }
 
+    public String getColumnName() {
+        return columnName;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

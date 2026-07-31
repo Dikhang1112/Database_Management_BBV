@@ -1,9 +1,7 @@
 package controllers.metadata;
 
 import dto.ApiResponse;
-import entity.metadata.domain.CatalogManager;
 import entity.metadata.domain.Index;
-import entity.metadata.domain.Table;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,18 +9,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import services.IndexService;
 
 @RestController
 @RequestMapping("/api/v1/metadata/indexes")
 @Tag(name = "8. Index Management (Strategy Pattern)", description = "REST APIs for Rebuilding Indexes using the Strategy Pattern")
 public class IndexController {
 
-    private Table findTable(String dbName, String schemaName, String tableName) {
-        if (!CatalogManager.getInstance().containsDatabase(dbName)) return null;
-        var db = CatalogManager.getInstance().getDatabase(dbName);
-        if (db == null || !db.containsSchema(schemaName)) return null;
-        var schema = db.getSchema(schemaName);
-        return schema != null ? schema.getTable(tableName) : null;
+    private final IndexService indexService;
+
+    public IndexController(IndexService indexService) {
+        this.indexService = indexService;
     }
 
     /** Strategy Pattern: Rebuild Index (POST -> 201 Created) */
@@ -40,14 +37,13 @@ public class IndexController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> rebuildIndex(
+    public ResponseEntity<ApiResponse<Void>> rebuildIndex(
         @PathVariable String dbName, @PathVariable String schemaName, @PathVariable String tableName, @PathVariable String indexName
     ) {
-        Table table = findTable(dbName, schemaName, tableName);
-        if (table == null) return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Table does not exist"));
-        Index index = table.getIndex(indexName);
-        if (index != null) index.rebuild();
-        return ResponseEntity.status(201).body(dto.ApiResponse.success("Index '" + indexName + "' rebuilt successfully using Strategy Pattern", null));
+        Index index = indexService.findIndex(dbName, schemaName, tableName, indexName);
+        if (index == null) return ResponseEntity.status(404).body(ApiResponse.error(404, "Index does not exist"));
+        indexService.rebuildIndex(dbName, schemaName, tableName, indexName);
+        return ResponseEntity.status(201).body(ApiResponse.success("Index '" + indexName + "' rebuilt successfully using Strategy Pattern", null));
     }
 
     /** Disable Index */
@@ -65,13 +61,12 @@ public class IndexController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> disableIndex(
+    public ResponseEntity<ApiResponse<Void>> disableIndex(
         @PathVariable String dbName, @PathVariable String schemaName, @PathVariable String tableName, @PathVariable String indexName
     ) {
-        Table table = findTable(dbName, schemaName, tableName);
-        if (table == null) return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Table does not exist"));
-        Index index = table.getIndex(indexName);
-        if (index != null) index.disable();
-        return ResponseEntity.ok(dto.ApiResponse.success("Index '" + indexName + "' disabled successfully", null));
+        Index index = indexService.findIndex(dbName, schemaName, tableName, indexName);
+        if (index == null) return ResponseEntity.status(404).body(ApiResponse.error(404, "Index does not exist"));
+        indexService.disableIndex(dbName, schemaName, tableName, indexName);
+        return ResponseEntity.ok(ApiResponse.success("Index '" + indexName + "' disabled successfully", null));
     }
 }
