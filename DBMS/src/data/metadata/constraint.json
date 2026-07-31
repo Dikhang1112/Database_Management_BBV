@@ -1,0 +1,49 @@
+[
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "users",
+    "constraintName": "pk_users",
+    "constraintType": "PRIMARY_KEY",
+    "columns": ["id"],
+    "enabled": true
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "orders",
+    "constraintName": "pk_orders",
+    "constraintType": "PRIMARY_KEY",
+    "columns": ["order_id"],
+    "enabled": true
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "public",
+    "tableName": "orders",
+    "constraintName": "fk_orders_users",
+    "constraintType": "FOREIGN_KEY",
+    "columns": ["user_id"],
+    "referencedTable": "users",
+    "referencedColumn": "id",
+    "enabled": true
+  },
+  {
+    "databaseName": "sales_db",
+    "schemaName": "audit",
+    "tableName": "logs",
+    "constraintName": "pk_logs",
+    "constraintType": "PRIMARY_KEY",
+    "columns": ["log_id"],
+    "enabled": true
+  },
+  {
+    "databaseName": "inventory_db",
+    "schemaName": "public",
+    "tableName": "products",
+    "constraintName": "pk_products",
+    "constraintType": "PRIMARY_KEY",
+    "columns": ["product_id"],
+    "enabled": true
+  }
+]

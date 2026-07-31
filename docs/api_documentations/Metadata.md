@@ -1,126 +1,103 @@
-# Metadata Module - REST API Documentation
+# Metadata Subsystem - REST API Documentation & Design Pattern Mapping
 
-Tài liệu danh sách chi tiết các REST API thuộc **Metadata Subsystem** của hệ thống DBMS, tuân thủ định dạng phản hồi chuẩn `ApiResponse`.
+This document provides a comprehensive specification of the core REST APIs for the **Metadata Subsystem** of the DBMS engine. All endpoints are mapped to underlying **Design Patterns** (Facade, Singleton, Command, Memento, Observer, Strategy) and follow the standardized `ApiResponse` wrapper.
 
 ---
 
-## 1. Cấu Trúc Phản Hồi Chuẩn (Standard Response Format)
+## 1. Standard Response Format
 
-Tất cả các API bên dưới đều trả về cấu trúc JSON thống nhất:
+All REST endpoints return a unified JSON response envelope:
 
 ```json
 {
   "status": 200,
-  "message": "Thông điệp mô tả kết quả xử lý",
+  "message": "Human readable response description",
   "data": { ... },
-  "timestamp": "31-07-2026 10:08:00"
+  "timestamp": "31-07-2026 15:00:00"
 }
 ```
 
-* **`status`**: Mã HTTP Status Code (`200 OK`, `201 Created`, `400 Bad Request`, `403 Forbidden`, `404 Not Found`, `405 Method Not Allowed`, `500 Internal Error`).
-* **`message`**: Thông điệp thông báo kết quả hoặc nội dung chi tiết ngoại lệ lỗi.
-* **`data`**: Dữ liệu Payload (trả về `null` khi có lỗi hoặc khi gọi các thao tác khởi tạo/xóa/thực thi DDL).
-* **`timestamp`**: Định dạng ngày giờ `dd-MM-yyyy HH:mm:ss`.
+* **`status`**: HTTP Status Code (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `405 Method Not Allowed`, `500 Internal Error`).
+* **`message`**: Result message or exception detail.
+* **`data`**: Payload data object (returns `null` on errors or DDL/deletion operations).
+* **`timestamp`**: Datetime string formatted as `dd-MM-yyyy HH:mm:ss`.
 
 ---
 
-## 2. Bảng Danh Sách REST APIs theo Cấu Trúc Lớp Domain
+## 2. REST API List Grouped by Management Domains & Design Patterns
 
-### 2.1. Facade & Singleton APIs (`MetadataModule`)
+### 2.1. Metadata Subsystem (Facade & Singleton Pattern)
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | `GET` | `/api/v1/metadata/get-instance` | *Không có* | `200 OK`, `500` | `500 Internal Error` (Khởi tạo Singleton thất bại) | Lấy / Khởi tạo MetadataModule Singleton Instance (Thread-safe DCL) |
-| **2** | `GET` | `/api/v1/metadata/catalog-manager` | *Không có* | `200 OK`, `500` | `500 Internal Error` (CatalogManager chưa khởi tạo) | Lấy thông tin đối tượng CatalogManager gốc (trả về `totalDatabases`) |
-| **3** | `GET` | `/api/v1/metadata/databases/{dbName}` | **Path:** `dbName` | `200 OK`, `404` | `404 Not Found` (Database not found) | Lấy thông tin chi tiết một Database theo tên |
-| **4** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table/Schema/Database not found) | Lấy thông tin Table phân cấp theo Database, Schema và Table Name |
-| **5** | `POST` | `/api/v1/metadata/ddl/execute` | **Body:** `commandType`, `databaseName`, ... | `200 OK`, `400` | `400 Bad Request` (Invalid/Null DDL command) | Thực thi câu lệnh DDL Command (Tạo / Xóa Database, Schema, Table) |
-| **6** | `GET` | `/api/v1/metadata/tables/check?tableName={tableName}` | **Query:** `tableName` | `200 OK`, `400` | `400 Bad Request` (Invalid identifier format) | Kiểm tra sự tồn tại của Table trong toàn bộ Catalog Metadata (`containsTable`) |
-| **7** | `GET` | `/api/v1/metadata/columns/check?tableName={tableName}&columnName={columnName}` | **Query:** `tableName`, `columnName` | `200 OK`, `400` | `400 Bad Request` (Invalid identifier format) | Kiểm tra sự tồn tại của Cột thuộc Bảng chỉ định (`containsColumn`) |
+| # | Method | REST API URL | Parameters | Status Code | Design Pattern / Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | `GET` | `/api/v1/metadata/get-instance` | *None* | `200 OK`, `500` | **Singleton Pattern:** Get / Initialize `MetadataModule` Singleton Instance (DCL) |
+| **2** | `GET` | `/api/v1/metadata/catalog-manager` | *None* | `200 OK` | **Facade Pattern:** Query the root `CatalogManager` object via Facade |
+| **3** | `POST` | `/api/v1/metadata/ddl/execute` | **Body:** DDLRequestDTO | `201 Created`, `400` | **Command Pattern:** Encapsulate and execute DDL Command Objects |
 
 ---
 
-### 2.2. Catalog Operations (`CatalogManager`)
+### 2.2. Catalog Management
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **8** | `POST` | `/api/v1/metadata/catalog/databases` | **Body:** `databaseName` | `201`, `400`, `403` | `400 Bad Request` (Database exists), `403 Forbidden` (Permission denied) | Tạo một Database mới trong Catalog (`createDatabase`) |
-| **9** | `DELETE` | `/api/v1/metadata/catalog/databases/{databaseName}` | **Path:** `databaseName` | `200`, `404`, `405` | `404 Not Found` (DB not found), `405 Method Not Allowed` (DB not empty) | Xóa một Database khỏi Catalog (`dropDatabase`) |
-| **10** | `GET` | `/api/v1/metadata/catalog/databases/{databaseName}` | **Path:** `databaseName` | `200 OK`, `404` | `404 Not Found` (Database not found) | Tra cứu Database theo tên (`getDatabase`) |
-| **11** | `GET` | `/api/v1/metadata/catalog/databases/check?databaseName={databaseName}` | **Query:** `databaseName` | `200 OK`, `400` | `400 Bad Request` (Invalid database identifier) | Kiểm tra sự tồn tại của Database (`containsDatabase`) |
-| **12** | `GET` | `/api/v1/metadata/catalog/databases` | *Không có* | `200 OK` | *Không có* | Danh sách tất cả các Database trong Catalog (`listDatabases`) |
-| **13** | `DELETE` | `/api/v1/metadata/catalog/clear` | *Không có* | `200 OK` | *Không có* | Xóa sạch toàn bộ dữ liệu lưu trữ trong Catalog (`clear`) |
+| # | Method | REST API URL | Parameters | Status Code | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **4** | `POST` | `/api/v1/metadata/catalog/databases` | **Body:** `databaseName` | `201 Created`, `400` | Create a new Database in CatalogManager |
+| **5** | `DELETE` | `/api/v1/metadata/catalog/databases/{databaseName}` | **Path:** `databaseName` | `200 OK`, `404`, `405` | Drop a Database from CatalogManager |
+| **6** | `GET` | `/api/v1/metadata/catalog/databases` | *None* | `200 OK` | List all Databases contained in CatalogManager |
 
 ---
 
-### 2.3. Database Management (`Database`)
+### 2.3. Database Management
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **14** | `POST` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName`, **Body:** `schemaName` | `201`, `400`, `405` | `405 Method Not Allowed` (Database offline), `400 Bad Request` (Schema exists) | Tạo một Schema mới trong Database (`createSchema`) |
-| **15** | `DELETE` | `/api/v1/metadata/databases/{dbName}/schemas/{schemaName}` | **Path:** `dbName`, `schemaName` | `200`, `404`, `405` | `404 Not Found` (Schema not found), `405 Method Not Allowed` (DB offline) | Xóa một Schema khỏi Database (`dropSchema`) |
-| **16** | `GET` | `/api/v1/metadata/databases/{dbName}/schemas/{schemaName}` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | `404 Not Found` (Schema or Database not found) | Tra cứu Schema theo tên trong DB (`getSchema`) |
-| **17** | `GET` | `/api/v1/metadata/databases/{dbName}/schemas/check?schemaName={schemaName}` | **Path:** `dbName`, **Query:** `schemaName` | `200 OK`, `404` | `404 Not Found` (Database not found) | Kiểm tra sự tồn tại của Schema (`containsSchema`) |
-| **18** | `GET` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName` | `200 OK`, `404` | `404 Not Found` (Database not found) | Danh sách tất cả các Schema thuộc Database (`listSchemas`) |
-| **19** | `GET` | `/api/v1/metadata/databases/{dbName}/status` | **Path:** `dbName` | `200 OK`, `404` | `404 Not Found` (Database not found) | Truy vấn trạng thái của Database (`getStatus`) |
-| **20** | `PUT` | `/api/v1/metadata/databases/{dbName}/status` | **Path:** `dbName`, **Body:** `status` | `200 OK`, `400` | `400 Bad Request` (Invalid DatabaseStatus value) | Cập nhật trạng thái `ONLINE` / `OFFLINE` cho Database (`setStatus`) |
+| # | Method | REST API URL | Parameters | Status Code | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **7** | `POST` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName`, **Body:** `schemaName` | `201 Created`, `400`, `405` | Create a new Schema in Database |
+| **8** | `DELETE` | `/api/v1/metadata/databases/{dbName}/schemas/{schemaName}` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | Drop a Schema from Database |
+| **9** | `GET` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName` | `200 OK`, `404` | List all Schemas contained in Database |
 
 ---
 
-### 2.4. Schema Management (`Schema`)
+### 2.4. Schema Management
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **21** | `POST` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName`, **Body:** `tableName` | `201`, `400`, `405` | `405 Method Not Allowed` (Schema read-only), `400 Bad Request` (Table exists) | Tạo một Table mới trong Schema (`createTable`) |
-| **22** | `DELETE` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `200`, `404`, `405` | `404 Not Found` (Table not found), `405 Method Not Allowed` (Schema read-only) | Xóa một Table khỏi Schema (`dropTable`) |
-| **23** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table/Schema/DB not found) | Tra cứu thông tin Table theo tên (`getTable`) |
-| **24** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/check?tableName={tableName}` | **Path:** `dbName`, `schemaName`, **Query:** `tableName` | `200 OK`, `404` | `404 Not Found` (Schema or DB not found) | Kiểm tra sự tồn tại của Table trong Schema (`containsTable`) |
-| **25** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | `404 Not Found` (Schema or DB not found) | Danh sách tất cả các Table thuộc Schema (`listTables`) |
-| **26** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/read-only` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | `404 Not Found` (Schema not found) | Kiểm tra chế độ Read-Only của Schema (`isReadOnly`) |
-| **27** | `PUT` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/read-only` | **Path:** `dbName`, `schemaName`, **Body:** `readOnly` | `200 OK`, `400` | `400 Bad Request` (Invalid boolean format) | Bật/tắt chế độ Chỉ đọc (Read-Only) của Schema (`setReadOnly`) |
+| # | Method | REST API URL | Parameters | Status Code | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **10** | `POST` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName`, **Body:** `tableName` | `201 Created`, `400`, `405` | Create a new Table in Schema |
+| **11** | `DELETE` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | Drop a Table from Schema |
+| **12** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | List all Tables contained in Schema |
 
 ---
 
-### 2.5. Table Management (`Table`)
+### 2.5. Table Management (Memento & Observer Pattern)
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **28** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Column | `201`, `400`, `405` | `405 Method Not Allowed` (Table locked), `400 Bad Request` (Column exists) | Thêm Cột mới vào Bảng (`addColumn`) |
-| **29** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/{columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName` | `200`, `404`, `405` | `405 Method Not Allowed` (Column referenced by constraint / Table locked) | Xóa Cột khỏi Bảng (`removeColumn`) |
-| **30** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/{columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName` | `200 OK`, `404` | `404 Not Found` (Column not found) | Lấy thông tin Cột theo tên (`getColumn`) |
-| **31** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/check?columnName={columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, **Query:** `columnName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Kiểm tra tồn tại Cột (`containsColumn`) |
-| **32** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Danh sách tất cả Cột của Bảng (`listColumns`) |
-| **33** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/constraints` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Constraint | `201`, `400`, `405` | `405 Method Not Allowed` (Table locked), `400 Bad Request` (Invalid constraint) | Thêm Constraint (Ràng buộc) vào Bảng (`addConstraint`) |
-| **34** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/constraints/{constraintName}` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200`, `404`, `405` | `404 Not Found` (Constraint not found), `405 Method Not Allowed` (Table locked) | Xóa Constraint khỏi Bảng (`removeConstraint`) |
-| **35** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/constraints/{constraintName}` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200 OK`, `404` | `404 Not Found` (Constraint not found) | Lấy thông tin Constraint (`getConstraint`) |
-| **36** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/constraints/check?constraintName={constraintName}` | **Path:** `dbName`, `schemaName`, `tableName`, **Query:** `constraintName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Kiểm tra tồn tại Constraint (`containsConstraint`) |
-| **37** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/constraints` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Danh sách tất cả Constraint của Bảng (`listConstraints`) |
-| **38** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/indexes` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Index | `201`, `400`, `405` | `400 Bad Request` (Indexed column not found), `405 Method Not Allowed` (Table locked) | Thêm Index mới vào Bảng (`addIndex`) |
-| **39** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/indexes/{indexName}` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `200`, `404`, `405` | `404 Not Found` (Index not found), `405 Method Not Allowed` (Table locked) | Xóa Index khỏi Bảng (`removeIndex`) |
-| **40** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/indexes/{indexName}` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `200 OK`, `404` | `404 Not Found` (Index not found) | Lấy thông tin Index (`getIndex`) |
-| **41** | `GET` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/indexes` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Danh sách tất cả Index của Bảng (`listIndexes`) |
-| **42** | `PUT` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/lock` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** `locked` | `200 OK`, `400` | `400 Bad Request` (Invalid boolean format) | Khóa / Mở khóa Bảng (`setLocked`) |
-| **43** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/snapshot` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | `404 Not Found` (Table not found) | Tạo bản chụp Memento trạng thái Bảng (`createMemento`) |
-| **44** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/restore` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Memento Object | `200 OK`, `400` | `400 Bad Request` (Restore null/invalid memento) | Khôi phục trạng thái Bảng từ Memento (`restore`) |
+| # | Method | REST API URL | Parameters | Status Code | Design Pattern / Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **13** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/snapshot` | **Path:** `dbName`, `schemaName`, `tableName` | `201 Created`, `404` | **Memento Pattern:** Create Memento Snapshot saving Column states |
+| **14** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/restore` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Memento | `201 Created`, `400` | **Memento Pattern:** Restore Column states from TableMemento object |
+| **15** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Column | `201 Created`, `400` | **Observer Pattern:** Add Column & publish COLUMN_ADDED event |
+| **16** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/{columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName` | `200 OK`, `404` | **Observer Pattern:** Remove Column & publish COLUMN_REMOVED event |
 
 ---
 
-### 2.6. Column Operations (`Column`)
+### 2.6. Column Management
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **45** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/rename` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `newName` | `200 OK`, `400` | `400 Bad Request` (Invalid new identifier format) | Đổi tên Cột (`rename`) |
-| **46** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/data-type` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `newType` | `200 OK`, `400` | `400 Bad Request` (Unsupported data type conversion) | Thay đổi kiểu dữ liệu Cột (`changeDataType`) |
-| **47** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/nullable` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `nullable` | `200 OK`, `400` | `400 Bad Request` (Invalid boolean format) | Thiết lập thuộc tính Nullable cho Cột (`setNullable`) |
-| **48** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/default-value` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `defaultValue` | `200 OK`, `400` | `400 Bad Request` (Invalid default value for column type) | Thiết lập giá trị mặc định cho Cột (`setDefaultValue`) |
+| # | Method | REST API URL | Parameters | Status Code | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **17** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/rename` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `newName` | `200 OK`, `400` | Rename a Column (`rename`) |
+| **18** | `PUT` | `/api/v1/metadata/columns/{dbName}/{schemaName}/{tableName}/{columnName}/data-type` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName`, **Body:** `newType` | `200 OK`, `400` | Change Column Data Type (`changeDataType`) |
 
 ---
 
-### 2.7. Constraint & Index Management (`Constraint` / `Index`)
+### 2.7. Constraint Management
 
-| STT | Method | REST API URL (kèm Parameter) | Parameters | Status Code | Error (Ngoại lệ & Mã lỗi) | Mô Tả (Description) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **49** | `PUT` | `/api/v1/metadata/constraints/{dbName}/{schemaName}/{tableName}/{constraintName}/enable` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200 OK`, `404` | `404 Not Found` (Constraint not found) | Kích hoạt Ràng buộc Constraint (`enable`) |
-| **50** | `PUT` | `/api/v1/metadata/constraints/{dbName}/{schemaName}/{tableName}/{constraintName}/disable` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200 OK`, `404` | `404 Not Found` (Constraint not found) | Tắt Ràng buộc Constraint (`disable`) |
-| **51** | `POST` | `/api/v1/metadata/indexes/{dbName}/{schemaName}/{tableName}/{indexName}/rebuild` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `200 OK`, `405` | `405 Method Not Allowed` (Index is corrupted) | Tái cấu trúc lại Index (`rebuild`) |
-| **52** | `PUT` | `/api/v1/metadata/indexes/{dbName}/{schemaName}/{tableName}/{indexName}/disable` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `200 OK`, `404` | `404 Not Found` (Index not found) | Vô hiệu hóa Index (`disable`) |
+| # | Method | REST API URL | Parameters | Status Code | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **19** | `PUT` | `/api/v1/metadata/constraints/{dbName}/{schemaName}/{tableName}/{constraintName}/enable` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200 OK`, `404` | Re-enable a disabled Constraint |
+| **20** | `PUT` | `/api/v1/metadata/constraints/{dbName}/{schemaName}/{tableName}/{constraintName}/disable` | **Path:** `dbName`, `schemaName`, `tableName`, `constraintName` | `200 OK`, `404` | Disable a Constraint |
+
+---
+
+### 2.8. Index Management (Strategy Pattern)
+
+| # | Method | REST API URL | Parameters | Status Code | Design Pattern / Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **21** | `POST` | `/api/v1/metadata/indexes/{dbName}/{schemaName}/{tableName}/{indexName}/rebuild` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `201 Created`, `404` | **Strategy Pattern:** Rebuild Index using `IndexRebuildStrategy` |
+| **22** | `PUT` | `/api/v1/metadata/indexes/{dbName}/{schemaName}/{tableName}/{indexName}/disable` | **Path:** `dbName`, `schemaName`, `tableName`, `indexName` | `200 OK`, `404` | Disable an Index |
