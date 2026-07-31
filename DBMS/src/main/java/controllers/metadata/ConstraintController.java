@@ -2,8 +2,6 @@ package controllers.metadata;
 
 import dto.ApiResponse;
 import entity.metadata.abstracts.Constraint;
-import entity.metadata.domain.CatalogManager;
-import entity.metadata.domain.Table;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,18 +9,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import services.ConstraintService;
 
 @RestController
 @RequestMapping("/api/v1/metadata/constraints")
 @Tag(name = "7. Constraint Management", description = "REST APIs for managing Data Constraints (Enable / Disable)")
 public class ConstraintController {
 
-    private Table findTable(String dbName, String schemaName, String tableName) {
-        if (!CatalogManager.getInstance().containsDatabase(dbName)) return null;
-        var db = CatalogManager.getInstance().getDatabase(dbName);
-        if (db == null || !db.containsSchema(schemaName)) return null;
-        var schema = db.getSchema(schemaName);
-        return schema != null ? schema.getTable(tableName) : null;
+    private final ConstraintService constraintService;
+
+    public ConstraintController(ConstraintService constraintService) {
+        this.constraintService = constraintService;
     }
 
     /** Enable Constraint */
@@ -40,14 +37,13 @@ public class ConstraintController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> enableConstraint(
+    public ResponseEntity<ApiResponse<Void>> enableConstraint(
         @PathVariable String dbName, @PathVariable String schemaName, @PathVariable String tableName, @PathVariable String constraintName
     ) {
-        Table table = findTable(dbName, schemaName, tableName);
-        if (table == null) return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Table does not exist"));
-        Constraint constraint = table.getConstraint(constraintName);
-        if (constraint != null) constraint.enable();
-        return ResponseEntity.ok(dto.ApiResponse.success("Constraint '" + constraintName + "' enabled successfully", null));
+        Constraint constraint = constraintService.findConstraint(dbName, schemaName, tableName, constraintName);
+        if (constraint == null) return ResponseEntity.status(404).body(ApiResponse.error(404, "Constraint does not exist"));
+        constraintService.enableConstraint(dbName, schemaName, tableName, constraintName);
+        return ResponseEntity.ok(ApiResponse.success("Constraint '" + constraintName + "' enabled successfully", null));
     }
 
     /** Disable Constraint */
@@ -65,13 +61,12 @@ public class ConstraintController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> disableConstraint(
+    public ResponseEntity<ApiResponse<Void>> disableConstraint(
         @PathVariable String dbName, @PathVariable String schemaName, @PathVariable String tableName, @PathVariable String constraintName
     ) {
-        Table table = findTable(dbName, schemaName, tableName);
-        if (table == null) return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Table does not exist"));
-        Constraint constraint = table.getConstraint(constraintName);
-        if (constraint != null) constraint.disable();
-        return ResponseEntity.ok(dto.ApiResponse.success("Constraint '" + constraintName + "' disabled successfully", null));
+        Constraint constraint = constraintService.findConstraint(dbName, schemaName, tableName, constraintName);
+        if (constraint == null) return ResponseEntity.status(404).body(ApiResponse.error(404, "Constraint does not exist"));
+        constraintService.disableConstraint(dbName, schemaName, tableName, constraintName);
+        return ResponseEntity.ok(ApiResponse.success("Constraint '" + constraintName + "' disabled successfully", null));
     }
 }

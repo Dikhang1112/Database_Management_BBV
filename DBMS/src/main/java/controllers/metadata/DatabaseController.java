@@ -74,17 +74,11 @@ public class DatabaseController {
     }
 
     @DeleteMapping("/{dbName}/schemas/{schemaName}")
-    @Operation(summary = "Drop a Schema from Database", description = "Removes a Schema from the specified Database")
+    @Operation(summary = "Drop a Schema from Database", description = "Removes a Schema from the specified Database (Returns HTTP 204 No Content)")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Deleted successfully",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = "{\n  \"status\": 200,\n  \"message\": \"Schema 'public' dropped successfully\",\n  \"data\": null,\n  \"timestamp\": \"31-07-2026 15:00:00\"\n}"
-                )
-            )
+            responseCode = "204",
+            description = "Deleted successfully (204 No Content)"
         ),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "404",
@@ -97,12 +91,12 @@ public class DatabaseController {
             )
         )
     })
-    public ResponseEntity<ApiResponse<Void>> dropSchema(
+    public ResponseEntity<Void> dropSchema(
         @PathVariable String dbName,
         @PathVariable String schemaName
     ) {
         databaseService.dropSchema(dbName, schemaName);
-        return ResponseEntity.ok(ApiResponse.success("Schema '" + schemaName + "' dropped successfully", null));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{dbName}/schemas")

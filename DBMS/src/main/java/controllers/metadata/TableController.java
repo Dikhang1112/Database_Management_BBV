@@ -104,23 +104,17 @@ public class TableController {
 
     /** Observer Pattern: Remove Column */
     @DeleteMapping("/{dbName}/{schemaName}/{tableName}/columns/{columnName}")
-    @Operation(summary = "Remove Column from Table (Observer Pattern: Publishes event)", description = "Removes Column and publishes COLUMN_REMOVED event to registered Listeners")
+    @Operation(summary = "Remove Column from Table (Observer Pattern: Publishes event)", description = "Removes Column and publishes COLUMN_REMOVED event to registered Listeners (Returns HTTP 204 No Content)")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Column removed successfully",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = "{\n  \"status\": 200,\n  \"message\": \"Column 'email' removed successfully\",\n  \"data\": null,\n  \"timestamp\": \"31-07-2026 15:00:00\"\n}"
-                )
-            )
+            responseCode = "204",
+            description = "Column removed successfully (204 No Content)"
         )
     })
-    public ResponseEntity<ApiResponse<Void>> removeColumn(
+    public ResponseEntity<Void> removeColumn(
         @PathVariable String dbName, @PathVariable String schemaName, @PathVariable String tableName, @PathVariable String columnName
     ) {
         tableService.removeColumn(dbName, schemaName, tableName, columnName);
-        return ResponseEntity.ok(ApiResponse.success("Column '" + columnName + "' removed successfully", null));
+        return ResponseEntity.noContent().build();
     }
 }

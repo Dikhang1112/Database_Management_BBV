@@ -17,9 +17,9 @@ All REST endpoints return a unified JSON response envelope:
 }
 ```
 
-* **`status`**: HTTP Status Code (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `405 Method Not Allowed`, `500 Internal Error`).
+* **`status`**: HTTP Status Code (`200 OK`, `201 Created`, `204 No Content`, `400 Bad Request`, `404 Not Found`, `405 Method Not Allowed`, `500 Internal Error`).
 * **`message`**: Result message or exception detail.
-* **`data`**: Payload data object (returns `null` on errors or DDL/deletion operations).
+* **`data`**: Payload data object (returns `null` or 204 No Content on errors or DDL/deletion operations).
 * **`timestamp`**: Datetime string formatted as `dd-MM-yyyy HH:mm:ss`.
 
 ---
@@ -41,7 +41,7 @@ All REST endpoints return a unified JSON response envelope:
 | # | Method | REST API URL | Parameters | Status Code | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **4** | `POST` | `/api/v1/metadata/catalog/databases` | **Body:** `databaseName` | `201 Created`, `400` | Create a new Database in CatalogManager |
-| **5** | `DELETE` | `/api/v1/metadata/catalog/databases/{databaseName}` | **Path:** `databaseName` | `200 OK`, `404`, `405` | Drop a Database from CatalogManager |
+| **5** | `DELETE` | `/api/v1/metadata/catalog/databases/{databaseName}` | **Path:** `databaseName` | `204 No Content`, `404`, `405` | Drop a Database from CatalogManager |
 | **6** | `GET` | `/api/v1/metadata/catalog/databases` | *None* | `200 OK` | List all Databases contained in CatalogManager |
 
 ---
@@ -51,7 +51,7 @@ All REST endpoints return a unified JSON response envelope:
 | # | Method | REST API URL | Parameters | Status Code | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **7** | `POST` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName`, **Body:** `schemaName` | `201 Created`, `400`, `405` | Create a new Schema in Database |
-| **8** | `DELETE` | `/api/v1/metadata/databases/{dbName}/schemas/{schemaName}` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | Drop a Schema from Database |
+| **8** | `DELETE` | `/api/v1/metadata/databases/{dbName}/schemas/{schemaName}` | **Path:** `dbName`, `schemaName` | `204 No Content`, `404` | Drop a Schema from Database |
 | **9** | `GET` | `/api/v1/metadata/databases/{dbName}/schemas` | **Path:** `dbName` | `200 OK`, `404` | List all Schemas contained in Database |
 
 ---
@@ -61,7 +61,7 @@ All REST endpoints return a unified JSON response envelope:
 | # | Method | REST API URL | Parameters | Status Code | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **10** | `POST` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName`, **Body:** `tableName` | `201 Created`, `400`, `405` | Create a new Table in Schema |
-| **11** | `DELETE` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `200 OK`, `404` | Drop a Table from Schema |
+| **11** | `DELETE` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables/{tableName}` | **Path:** `dbName`, `schemaName`, `tableName` | `204 No Content`, `404` | Drop a Table from Schema |
 | **12** | `GET` | `/api/v1/metadata/schemas/{dbName}/{schemaName}/tables` | **Path:** `dbName`, `schemaName` | `200 OK`, `404` | List all Tables contained in Schema |
 
 ---
@@ -73,7 +73,7 @@ All REST endpoints return a unified JSON response envelope:
 | **13** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/snapshot` | **Path:** `dbName`, `schemaName`, `tableName` | `201 Created`, `404` | **Memento Pattern:** Create Memento Snapshot saving Column states |
 | **14** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/memento/restore` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Memento | `201 Created`, `400` | **Memento Pattern:** Restore Column states from TableMemento object |
 | **15** | `POST` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns` | **Path:** `dbName`, `schemaName`, `tableName`, **Body:** Column | `201 Created`, `400` | **Observer Pattern:** Add Column & publish COLUMN_ADDED event |
-| **16** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/{columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName` | `200 OK`, `404` | **Observer Pattern:** Remove Column & publish COLUMN_REMOVED event |
+| **16** | `DELETE` | `/api/v1/metadata/tables/{dbName}/{schemaName}/{tableName}/columns/{columnName}` | **Path:** `dbName`, `schemaName`, `tableName`, `columnName` | `204 No Content`, `404` | **Observer Pattern:** Remove Column & publish COLUMN_REMOVED event |
 
 ---
 
