@@ -1,9 +1,7 @@
 package controllers.metadata;
 
 import dto.ApiResponse;
-import entity.metadata.domain.CatalogManager;
 import entity.metadata.domain.Database;
-import entity.metadata.domain.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import services.DatabaseService;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,12 @@ import java.util.Map;
 @RequestMapping("/api/v1/metadata/databases")
 @Tag(name = "3. Database Management", description = "REST APIs for managing Schemas and Database Status")
 public class DatabaseController {
+
+    private final DatabaseService databaseService;
+
+    public DatabaseController(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
 
     @PostMapping("/{dbName}/schemas")
     @Operation(summary = "Create a new Schema in Database", description = "Adds a new Schema to the specified Database (Returns HTTP 201 Created)")
@@ -55,17 +60,17 @@ public class DatabaseController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<String>> createSchema(
+    public ResponseEntity<ApiResponse<String>> createSchema(
         @Parameter(description = "Database Name") @PathVariable String dbName,
         @RequestBody Map<String, String> request
     ) {
-        Database db = CatalogManager.getInstance().getDatabase(dbName);
+        Database db = databaseService.findDatabase(dbName);
         if (db == null) {
-            return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Database '" + dbName + "' does not exist"));
+            return ResponseEntity.status(404).body(ApiResponse.error(404, "Database '" + dbName + "' does not exist"));
         }
         String schemaName = request.get("schemaName");
-        Schema schema = db.createSchema(schemaName);
-        return ResponseEntity.status(201).body(dto.ApiResponse.success("Schema '" + schemaName + "' created successfully", schema.getSchemaName()));
+        String createdSchema = databaseService.createSchema(dbName, schemaName);
+        return ResponseEntity.status(201).body(ApiResponse.success("Schema '" + createdSchema + "' created successfully", createdSchema));
     }
 
     @DeleteMapping("/{dbName}/schemas/{schemaName}")
@@ -92,15 +97,12 @@ public class DatabaseController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> dropSchema(
+    public ResponseEntity<ApiResponse<Void>> dropSchema(
         @PathVariable String dbName,
         @PathVariable String schemaName
     ) {
-        Database db = CatalogManager.getInstance().getDatabase(dbName);
-        if (db != null) {
-            db.dropSchema(schemaName);
-        }
-        return ResponseEntity.ok(dto.ApiResponse.success("Schema '" + schemaName + "' dropped successfully", null));
+        databaseService.dropSchema(dbName, schemaName);
+        return ResponseEntity.ok(ApiResponse.success("Schema '" + schemaName + "' dropped successfully", null));
     }
 
     @GetMapping("/{dbName}/schemas")
@@ -117,12 +119,12 @@ public class DatabaseController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<List<String>>> listSchemas(@PathVariable String dbName) {
-        Database db = CatalogManager.getInstance().getDatabase(dbName);
+    public ResponseEntity<ApiResponse<List<String>>> listSchemas(@PathVariable String dbName) {
+        Database db = databaseService.findDatabase(dbName);
         if (db == null) {
-            return ResponseEntity.status(404).body(dto.ApiResponse.error(404, "Database '" + dbName + "' does not exist"));
+            return ResponseEntity.status(404).body(ApiResponse.error(404, "Database '" + dbName + "' does not exist"));
         }
-        List<String> list = db.listSchemas().stream().map(Schema::getSchemaName).toList();
-        return ResponseEntity.ok(dto.ApiResponse.success("Schemas retrieved successfully", list));
+        List<String> list = databaseService.listSchemas(dbName);
+        return ResponseEntity.ok(ApiResponse.success("Schemas retrieved successfully", list));
     }
 }

@@ -9,61 +9,53 @@ import entity.metadata.domain.*;
 import entity.metadata.enums.DataType;
 import entity.metadata.enums.DatabaseStatus;
 import entity.metadata.enums.IndexType;
-import entity.metadata.facade.MetadataModule;
 import org.springframework.stereotype.Repository;
 
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
- * Persistence Storage Repository reading and writing Metadata between 
- * JSON files (src/data/metadata/metadata.json) and RAM (CatalogManager Singleton Domain).
+ * Repository responsible for reading and persisting Catalog data between 
+ * the JSON storage file (src/data/metadata/catalog.json) and the CatalogManager domain.
+ * Managed by Spring Dependency Injection (@Repository).
  */
 @Repository
-public class MetadataModuleRepository {
+public class CatalogRepository {
 
-    private final String primaryJsonPath = "src/data/metadata/metadata.json";
+    private final String primaryJsonPath = "src/data/metadata/catalog.json";
     private final ObjectMapper objectMapper;
 
-    public MetadataModuleRepository() {
+    public CatalogRepository() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    /**
-     * Automatically loads metadata from JSON file into CatalogManager Singleton upon Bean initialization.
-     */
     @PostConstruct
     public void init() {
         loadCatalogManager();
     }
 
-    private File getMetadataFile() {
+    private File getCatalogFile() {
         File file = new File(primaryJsonPath);
         if (!file.exists()) {
-            file = Paths.get("DBMS", "src", "data", "metadata", "metadata.json").toFile();
-        }
-        if (!file.exists()) {
-            file = new File("src/data/metadata.json");
-        }
-        if (!file.exists()) {
-            file = Paths.get("DBMS", "src", "data", "metadata.json").toFile();
+            file = Paths.get("DBMS", "src", "data", "metadata", "catalog.json").toFile();
         }
         return file;
     }
 
     /**
-     * Loads JSON file and populates the CatalogManager Singleton instance.
+     * Reads data from catalog.json and populates the CatalogManager Singleton instance.
      *
-     * @return CatalogManager Singleton instance populated with domain objects.
+     * @return The populated CatalogManager instance.
      */
     public synchronized CatalogManager loadCatalogManager() {
         CatalogManager catalogManager = CatalogManager.getInstance();
         catalogManager.clear();
 
-        File file = getMetadataFile();
+        File file = getCatalogFile();
         if (!file.exists()) {
             return catalogManager;
         }
@@ -98,7 +90,7 @@ public class MetadataModuleRepository {
                                     Table table = schema.createTable(tableName);
                                     boolean locked = tableNode.path("locked").asBoolean(false);
 
-                                    // 1. Columns Parsing
+                                    // Columns
                                     JsonNode columnsNode = tableNode.path("columns");
                                     if (columnsNode.isArray()) {
                                         for (JsonNode colNode : columnsNode) {
@@ -120,7 +112,7 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // 2. Constraints Parsing
+                                    // Constraints
                                     JsonNode constraintsNode = tableNode.path("constraints");
                                     if (constraintsNode.isArray()) {
                                         for (JsonNode cNode : constraintsNode) {
@@ -142,7 +134,7 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // 3. Indexes Parsing
+                                    // Indexes
                                     JsonNode indexesNode = tableNode.path("indexes");
                                     if (indexesNode.isArray()) {
                                         for (JsonNode idxNode : indexesNode) {
@@ -159,7 +151,7 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // Set table lock state AFTER adding child elements
+                                    // Set table lock state AFTER adding columns, constraints, and indexes
                                     table.setLocked(locked);
                                 }
                             }
@@ -176,36 +168,34 @@ public class MetadataModuleRepository {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading metadata.json: " + e.getMessage());
+            System.err.println("Error reading catalog.json: " + e.getMessage());
         }
 
         return catalogManager;
     }
 
     /**
-     * Persists the live CatalogManager Singleton domain memory state back to metadata.json.
+     * Persists the live CatalogManager Singleton memory state back to catalog.json.
      */
     public synchronized void saveCatalogManager() {
-        File file = getMetadataFile();
+        File file = getCatalogFile();
         try {
             CatalogManager cm = CatalogManager.getInstance();
             objectMapper.writeValue(file, cm);
         } catch (IOException e) {
-            System.err.println("Error persisting metadata.json: " + e.getMessage());
+            System.err.println("Error persisting catalog.json: " + e.getMessage());
         }
     }
 
-    /**
-     * Returns the CatalogManager Singleton instance.
-     */
     public CatalogManager getCatalogManager() {
         return CatalogManager.getInstance();
     }
 
-    /**
-     * Returns the MetadataModule Facade Singleton instance.
-     */
-    public MetadataModule getMetadataModule() {
-        return MetadataModule.getInstance();
+    public List<Database> listDatabases() {
+        return CatalogManager.getInstance().listDatabases();
+    }
+
+    public Database findDatabase(String databaseName) {
+        return CatalogManager.getInstance().getDatabase(databaseName);
     }
 }

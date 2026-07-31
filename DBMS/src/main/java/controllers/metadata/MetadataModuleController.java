@@ -3,8 +3,6 @@ package controllers.metadata;
 import dto.ApiResponse;
 import dto.CatalogManagerDTO;
 import dto.DDLRequestDTO;
-import entity.metadata.domain.CatalogManager;
-import entity.metadata.facade.MetadataModule;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -42,7 +40,7 @@ public class MetadataModuleController {
             description = "successful operation",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = dto.ApiResponse.class),
+                schema = @Schema(implementation = ApiResponse.class),
                 examples = @ExampleObject(
                     value = "{\n  \"status\": 200,\n  \"message\": \"MetadataModule Singleton Instance retrieved successfully\",\n  \"data\": null,\n  \"timestamp\": \"31-07-2026 15:00:00\"\n}"
                 )
@@ -54,9 +52,9 @@ public class MetadataModuleController {
             content = @Content(mediaType = "application/json")
         )
     })
-    public ResponseEntity<dto.ApiResponse<Map<String, Object>>> getInstance() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getInstance() {
         Map<String, Object> simulationData = metadataService.GetInstance();
-        return ResponseEntity.ok(dto.ApiResponse.success("MetadataModule Singleton Instance retrieved successfully", simulationData));
+        return ResponseEntity.ok(ApiResponse.success("MetadataModule Singleton Instance retrieved successfully", simulationData));
     }
 
     /**
@@ -80,9 +78,9 @@ public class MetadataModuleController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<CatalogManagerDTO>> getCatalogManager() {
-        CatalogManager catalogManager = MetadataModule.getInstance().getCatalogManager();
-        return ResponseEntity.ok(dto.ApiResponse.success("CatalogManager information retrieved successfully", new CatalogManagerDTO(catalogManager)));
+    public ResponseEntity<ApiResponse<CatalogManagerDTO>> getCatalogManager() {
+        CatalogManagerDTO catalogManagerDTO = metadataService.getCatalogManager();
+        return ResponseEntity.ok(ApiResponse.success("CatalogManager information retrieved successfully", catalogManagerDTO));
     }
 
     /**
@@ -110,7 +108,8 @@ public class MetadataModuleController {
             content = @Content(mediaType = "application/json")
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> executeDDL(@RequestBody DDLRequestDTO request) {
-        return ResponseEntity.status(201).body(dto.ApiResponse.success("DDL Command '" + request.getCommandType() + "' executed successfully", null));
+    public ResponseEntity<ApiResponse<Void>> executeDDL(@RequestBody DDLRequestDTO request) {
+        metadataService.executeDDL(request);
+        return ResponseEntity.status(201).body(ApiResponse.success("DDL Command '" + request.getCommandType() + "' executed successfully", null));
     }
 }

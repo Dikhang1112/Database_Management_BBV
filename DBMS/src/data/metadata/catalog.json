@@ -1,11 +1,9 @@
 {
   "catalogName": "MainCatalogManager",
-  "totalDatabases": 2,
   "databases": [
     {
       "databaseName": "sales_db",
       "status": "ONLINE",
-      "schemaCount": 2,
       "schemas": [
         {
           "schemaName": "public",
@@ -65,7 +63,6 @@
     {
       "databaseName": "inventory_db",
       "status": "ONLINE",
-      "schemaCount": 1,
       "schemas": [
         {
           "schemaName": "public",

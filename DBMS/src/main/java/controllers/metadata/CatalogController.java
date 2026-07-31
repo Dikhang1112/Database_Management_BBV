@@ -2,8 +2,6 @@ package controllers.metadata;
 
 import dto.ApiResponse;
 import dto.DatabaseDTO;
-import entity.metadata.domain.CatalogManager;
-import entity.metadata.domain.Database;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,8 +9,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import services.CatalogService;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +21,13 @@ import java.util.Map;
 @RequestMapping("/api/v1/metadata/catalog")
 @Tag(name = "2. Catalog Management", description = "REST APIs for managing the root CatalogManager and Databases")
 public class CatalogController {
+
+    @Autowired
+    private final CatalogService catalogService;
+
+    public CatalogController(CatalogService catalogService) {
+        this.catalogService = catalogService;
+    }
 
     @PostMapping("/databases")
     @Operation(summary = "Create a new Database in Catalog", description = "Adds a new Database to CatalogManager (Returns HTTP 201 Created)")
@@ -47,10 +54,10 @@ public class CatalogController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<DatabaseDTO>> createDatabase(@RequestBody Map<String, String> request) {
+    public ResponseEntity<ApiResponse<DatabaseDTO>> createDatabase(@RequestBody Map<String, String> request) {
         String databaseName = request.get("databaseName");
-        Database db = CatalogManager.getInstance().createDatabase(databaseName);
-        return ResponseEntity.status(201).body(dto.ApiResponse.success("Database '" + databaseName + "' created successfully", new DatabaseDTO(db)));
+        DatabaseDTO databaseDTO = catalogService.createDatabase(databaseName);
+        return ResponseEntity.status(201).body(ApiResponse.success("Database '" + databaseName + "' created successfully", databaseDTO));
     }
 
     @DeleteMapping("/databases/{databaseName}")
@@ -87,11 +94,11 @@ public class CatalogController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<Void>> dropDatabase(
+    public ResponseEntity<ApiResponse<Void>> dropDatabase(
         @Parameter(description = "Target Database Name") @PathVariable String databaseName
     ) {
-        CatalogManager.getInstance().dropDatabase(databaseName);
-        return ResponseEntity.ok(dto.ApiResponse.success("Database '" + databaseName + "' dropped successfully", null));
+        catalogService.dropDatabase(databaseName);
+        return ResponseEntity.ok(ApiResponse.success("Database '" + databaseName + "' dropped successfully", null));
     }
 
     @GetMapping("/databases")
@@ -108,9 +115,8 @@ public class CatalogController {
             )
         )
     })
-    public ResponseEntity<dto.ApiResponse<List<DatabaseDTO>>> listDatabases() {
-        List<Database> dbs = CatalogManager.getInstance().listDatabases();
-        List<DatabaseDTO> dtos = dbs != null ? dbs.stream().map(DatabaseDTO::new).toList() : List.of();
-        return ResponseEntity.ok(dto.ApiResponse.success("Databases retrieved successfully", dtos));
+    public ResponseEntity<ApiResponse<List<DatabaseDTO>>> listDatabases() {
+        List<DatabaseDTO> dtos = catalogService.listDatabases();
+        return ResponseEntity.ok(ApiResponse.success("Databases retrieved successfully", dtos));
     }
 }

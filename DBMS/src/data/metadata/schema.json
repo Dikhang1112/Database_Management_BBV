@@ -3,12 +3,10 @@
     "databaseName": "sales_db",
     "schemaName": "public",
     "readOnly": false,
-    "tableCount": 2,
     "tables": [
       {
         "tableName": "users",
         "locked": false,
-        "columnCount": 3,
         "columns": [
           { "columnName": "id", "dataType": "INT", "isNullable": false, "defaultValue": null },
           { "columnName": "username", "dataType": "VARCHAR", "isNullable": false, "defaultValue": null },
@@ -24,7 +22,6 @@
       {
         "tableName": "orders",
         "locked": false,
-        "columnCount": 3,
         "columns": [
           { "columnName": "order_id", "dataType": "INT", "isNullable": false, "defaultValue": null },
           { "columnName": "user_id", "dataType": "INT", "isNullable": false, "defaultValue": null },
@@ -42,12 +39,10 @@
     "databaseName": "sales_db",
     "schemaName": "audit",
     "readOnly": true,
-    "tableCount": 1,
     "tables": [
       {
         "tableName": "logs",
         "locked": false,
-        "columnCount": 2,
         "columns": [
           { "columnName": "log_id", "dataType": "BIGINT", "isNullable": false, "defaultValue": null },
           { "columnName": "action", "dataType": "VARCHAR", "isNullable": false, "defaultValue": null }
@@ -63,12 +58,10 @@
     "databaseName": "inventory_db",
     "schemaName": "public",
     "readOnly": false,
-    "tableCount": 1,
     "tables": [
       {
         "tableName": "products",
         "locked": false,
-        "columnCount": 3,
         "columns": [
           { "columnName": "product_id", "dataType": "INT", "isNullable": false, "defaultValue": null },
           { "columnName": "product_name", "dataType": "VARCHAR", "isNullable": false, "defaultValue": null },

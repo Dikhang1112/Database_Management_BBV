@@ -1,11 +1,9 @@
 {
   "catalogName": "MainCatalogManager",
-  "totalDatabases": 2,
   "databases": [
     {
       "databaseName": "sales_db",
       "status": "ONLINE",
-      "schemaCount": 2,
       "schemas": [
         {
           "schemaName": "public",
@@ -14,7 +12,6 @@
             {
               "tableName": "users",
               "locked": false,
-              "columnCount": 3,
               "columns": [
                 {
                   "columnName": "id",
@@ -39,7 +36,8 @@
                 {
                   "constraintName": "pk_users",
                   "constraintType": "PRIMARY_KEY",
-                  "columns": ["id"]
+                  "columns": ["id"],
+                  "enabled": true
                 }
               ],
               "indexes": [
@@ -54,7 +52,6 @@
             {
               "tableName": "orders",
               "locked": false,
-              "columnCount": 3,
               "columns": [
                 {
                   "columnName": "order_id",
@@ -79,7 +76,16 @@
                 {
                   "constraintName": "pk_orders",
                   "constraintType": "PRIMARY_KEY",
-                  "columns": ["order_id"]
+                  "columns": ["order_id"],
+                  "enabled": true
+                },
+                {
+                  "constraintName": "fk_orders_users",
+                  "constraintType": "FOREIGN_KEY",
+                  "columns": ["user_id"],
+                  "referencedTable": "users",
+                  "referencedColumn": "id",
+                  "enabled": true
                 }
               ],
               "indexes": []
@@ -93,7 +99,6 @@
             {
               "tableName": "logs",
               "locked": false,
-              "columnCount": 2,
               "columns": [
                 {
                   "columnName": "log_id",
@@ -108,7 +113,14 @@
                   "defaultValue": null
                 }
               ],
-              "constraints": [],
+              "constraints": [
+                {
+                  "constraintName": "pk_logs",
+                  "constraintType": "PRIMARY_KEY",
+                  "columns": ["log_id"],
+                  "enabled": true
+                }
+              ],
               "indexes": []
             }
           ]
@@ -118,7 +130,6 @@
     {
       "databaseName": "inventory_db",
       "status": "ONLINE",
-      "schemaCount": 1,
       "schemas": [
         {
           "schemaName": "public",
@@ -127,7 +138,6 @@
             {
               "tableName": "products",
               "locked": false,
-              "columnCount": 3,
               "columns": [
                 {
                   "columnName": "product_id",
@@ -152,7 +162,8 @@
                 {
                   "constraintName": "pk_products",
                   "constraintType": "PRIMARY_KEY",
-                  "columns": ["product_id"]
+                  "columns": ["product_id"],
+                  "enabled": true
                 }
               ],
               "indexes": [

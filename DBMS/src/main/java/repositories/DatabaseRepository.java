@@ -9,75 +9,68 @@ import entity.metadata.domain.*;
 import entity.metadata.enums.DataType;
 import entity.metadata.enums.DatabaseStatus;
 import entity.metadata.enums.IndexType;
-import entity.metadata.facade.MetadataModule;
 import org.springframework.stereotype.Repository;
 
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
- * Persistence Storage Repository reading and writing Metadata between 
- * JSON files (src/data/metadata/metadata.json) and RAM (CatalogManager Singleton Domain).
+ * Repository responsible for reading and persisting Database & Schema data between 
+ * the JSON storage file (src/data/metadata/database.json) and the CatalogManager domain.
+ * Managed by Spring Dependency Injection (@Repository).
  */
 @Repository
-public class MetadataModuleRepository {
+public class DatabaseRepository {
 
-    private final String primaryJsonPath = "src/data/metadata/metadata.json";
+    private final String primaryJsonPath = "src/data/metadata/database.json";
     private final ObjectMapper objectMapper;
 
-    public MetadataModuleRepository() {
+    public DatabaseRepository() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    /**
-     * Automatically loads metadata from JSON file into CatalogManager Singleton upon Bean initialization.
-     */
     @PostConstruct
     public void init() {
-        loadCatalogManager();
+        loadDatabases();
     }
 
-    private File getMetadataFile() {
+    private File getDatabaseFile() {
         File file = new File(primaryJsonPath);
         if (!file.exists()) {
-            file = Paths.get("DBMS", "src", "data", "metadata", "metadata.json").toFile();
-        }
-        if (!file.exists()) {
-            file = new File("src/data/metadata.json");
-        }
-        if (!file.exists()) {
-            file = Paths.get("DBMS", "src", "data", "metadata.json").toFile();
+            file = Paths.get("DBMS", "src", "data", "metadata", "database.json").toFile();
         }
         return file;
     }
 
     /**
-     * Loads JSON file and populates the CatalogManager Singleton instance.
+     * Reads data from database.json and populates the CatalogManager Singleton instance.
      *
-     * @return CatalogManager Singleton instance populated with domain objects.
+     * @return The populated CatalogManager instance.
      */
-    public synchronized CatalogManager loadCatalogManager() {
+    public synchronized CatalogManager loadDatabases() {
         CatalogManager catalogManager = CatalogManager.getInstance();
-        catalogManager.clear();
 
-        File file = getMetadataFile();
+        File file = getDatabaseFile();
         if (!file.exists()) {
             return catalogManager;
         }
 
         try {
-            JsonNode rootNode = objectMapper.readTree(file);
-            JsonNode databasesNode = rootNode.path("databases");
+            JsonNode databasesNode = objectMapper.readTree(file);
 
             if (databasesNode.isArray()) {
                 for (JsonNode dbNode : databasesNode) {
                     String dbName = dbNode.path("databaseName").asText();
                     if (dbName == null || dbName.isBlank()) continue;
 
-                    Database database = catalogManager.createDatabase(dbName);
+                    Database database = catalogManager.containsDatabase(dbName) 
+                            ? catalogManager.getDatabase(dbName) 
+                            : catalogManager.createDatabase(dbName);
+                    
                     String statusStr = dbNode.path("status").asText("ONLINE");
 
                     JsonNode schemasNode = dbNode.path("schemas");
@@ -86,7 +79,10 @@ public class MetadataModuleRepository {
                             String schemaName = schemaNode.path("schemaName").asText();
                             if (schemaName == null || schemaName.isBlank()) continue;
 
-                            Schema schema = database.createSchema(schemaName);
+                            Schema schema = database.containsSchema(schemaName) 
+                                    ? database.getSchema(schemaName) 
+                                    : database.createSchema(schemaName);
+                            
                             boolean readOnly = schemaNode.path("readOnly").asBoolean(false);
 
                             JsonNode tablesNode = schemaNode.path("tables");
@@ -95,14 +91,19 @@ public class MetadataModuleRepository {
                                     String tableName = tableNode.path("tableName").asText();
                                     if (tableName == null || tableName.isBlank()) continue;
 
-                                    Table table = schema.createTable(tableName);
+                                    Table table = schema.containsTable(tableName) 
+                                            ? schema.getTable(tableName) 
+                                            : schema.createTable(tableName);
+                                    
                                     boolean locked = tableNode.path("locked").asBoolean(false);
 
-                                    // 1. Columns Parsing
+                                    // Columns
                                     JsonNode columnsNode = tableNode.path("columns");
                                     if (columnsNode.isArray()) {
                                         for (JsonNode colNode : columnsNode) {
                                             String colName = colNode.path("columnName").asText();
+                                            if (table.containsColumn(colName)) continue;
+
                                             String dataTypeStr = colNode.path("dataType").asText("VARCHAR");
                                             DataType dataTypeEnum;
                                             try {
@@ -120,11 +121,13 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // 2. Constraints Parsing
+                                    // Constraints
                                     JsonNode constraintsNode = tableNode.path("constraints");
                                     if (constraintsNode.isArray()) {
                                         for (JsonNode cNode : constraintsNode) {
                                             String cName = cNode.path("constraintName").asText();
+                                            if (table.containsConstraint(cName)) continue;
+
                                             String cType = cNode.path("constraintType").asText("PRIMARY_KEY");
                                             boolean enabled = cNode.path("enabled").asBoolean(true);
 
@@ -142,11 +145,13 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // 3. Indexes Parsing
+                                    // Indexes
                                     JsonNode indexesNode = tableNode.path("indexes");
                                     if (indexesNode.isArray()) {
                                         for (JsonNode idxNode : indexesNode) {
                                             String indexName = idxNode.path("indexName").asText();
+                                            if (table.getIndex(indexName) != null) continue;
+
                                             String colName = idxNode.path("columnName").asText();
                                             String idxTypeStr = idxNode.path("indexType").asText("BTREE");
                                             IndexType indexType = "HASH".equalsIgnoreCase(idxTypeStr) ? IndexType.HASH : IndexType.BTREE;
@@ -159,53 +164,44 @@ public class MetadataModuleRepository {
                                         }
                                     }
 
-                                    // Set table lock state AFTER adding child elements
                                     table.setLocked(locked);
                                 }
                             }
 
-                            // Set schema readOnly state AFTER creating all tables
                             schema.setReadOnly(readOnly);
                         }
                     }
 
-                    // Set database status
                     if ("OFFLINE".equalsIgnoreCase(statusStr)) {
                         database.setStatus(DatabaseStatus.OFFLINE);
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading metadata.json: " + e.getMessage());
+            System.err.println("Error reading database.json: " + e.getMessage());
         }
 
         return catalogManager;
     }
 
     /**
-     * Persists the live CatalogManager Singleton domain memory state back to metadata.json.
+     * Persists the live Database list from CatalogManager back to database.json.
      */
-    public synchronized void saveCatalogManager() {
-        File file = getMetadataFile();
+    public synchronized void saveDatabases() {
+        File file = getDatabaseFile();
         try {
-            CatalogManager cm = CatalogManager.getInstance();
-            objectMapper.writeValue(file, cm);
+            List<Database> databases = CatalogManager.getInstance().listDatabases();
+            objectMapper.writeValue(file, databases);
         } catch (IOException e) {
-            System.err.println("Error persisting metadata.json: " + e.getMessage());
+            System.err.println("Error persisting database.json: " + e.getMessage());
         }
     }
 
-    /**
-     * Returns the CatalogManager Singleton instance.
-     */
-    public CatalogManager getCatalogManager() {
-        return CatalogManager.getInstance();
+    public Database findDatabase(String databaseName) {
+        return CatalogManager.getInstance().getDatabase(databaseName);
     }
 
-    /**
-     * Returns the MetadataModule Facade Singleton instance.
-     */
-    public MetadataModule getMetadataModule() {
-        return MetadataModule.getInstance();
+    public List<Database> listDatabases() {
+        return CatalogManager.getInstance().listDatabases();
     }
 }
