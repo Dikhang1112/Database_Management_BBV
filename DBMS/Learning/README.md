@@ -28,3 +28,10 @@ Dưới đây là các sơ đồ tư duy (Mindmap) học tập Spring Framework 
 
 ## 9. ORM & GraphQL
 ![ORM & GraphQL](../Mindmap/SpringRoadmap/OrmGrappql.png)
+
+## 10. Clean Code
+![Clean Code](../Mindmap/SpringRoadmap/CleanCode.png)
+
+## 11. SOLID Principles
+![SOLID Principles](../Mindmap/SpringRoadmap/Solid.png)
+
