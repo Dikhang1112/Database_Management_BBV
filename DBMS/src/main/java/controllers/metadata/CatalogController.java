@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import services.CatalogService;
@@ -22,7 +21,6 @@ import java.util.Map;
 @Tag(name = "2. Catalog Management", description = "REST APIs for managing the root CatalogManager and Databases")
 public class CatalogController {
 
-    @Autowired
     private final CatalogService catalogService;
 
     public CatalogController(CatalogService catalogService) {
@@ -37,7 +35,7 @@ public class CatalogController {
             description = "Created successfully",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = dto.ApiResponse.class),
+                schema = @Schema(implementation = ApiResponse.class),
                 examples = @ExampleObject(
                     value = "{\n  \"status\": 201,\n  \"message\": \"Database 'sales_db' created successfully\",\n  \"data\": {\n    \"databaseName\": \"sales_db\",\n    \"status\": \"ONLINE\",\n    \"schemaCount\": 0,\n    \"schemas\": []\n  },\n  \"timestamp\": \"31-07-2026 15:00:00\"\n}"
                 )
@@ -61,17 +59,11 @@ public class CatalogController {
     }
 
     @DeleteMapping("/databases/{databaseName}")
-    @Operation(summary = "Drop a Database from Catalog", description = "Removes a Database from CatalogManager")
+    @Operation(summary = "Drop a Database from Catalog", description = "Removes a Database from CatalogManager (Returns HTTP 204 No Content)")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Deleted successfully",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = "{\n  \"status\": 200,\n  \"message\": \"Database 'sales_db' dropped successfully\",\n  \"data\": null,\n  \"timestamp\": \"31-07-2026 15:00:00\"\n}"
-                )
-            )
+            responseCode = "204",
+            description = "Deleted successfully (204 No Content)"
         ),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "404",
@@ -94,11 +86,11 @@ public class CatalogController {
             )
         )
     })
-    public ResponseEntity<ApiResponse<Void>> dropDatabase(
+    public ResponseEntity<Void> dropDatabase(
         @Parameter(description = "Target Database Name") @PathVariable String databaseName
     ) {
         catalogService.dropDatabase(databaseName);
-        return ResponseEntity.ok(ApiResponse.success("Database '" + databaseName + "' dropped successfully", null));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/databases")

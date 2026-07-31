@@ -2,8 +2,10 @@ package services;
 
 import dto.CatalogManagerDTO;
 import dto.DDLRequestDTO;
+import entity.metadata.commands.*;
 import entity.metadata.domain.CatalogManager;
 import entity.metadata.facade.MetadataModule;
+import entity.metadata.interfaces.DDLCommand;
 import org.springframework.stereotype.Service;
 import repositories.MetadataModuleRepository;
 
@@ -56,7 +58,8 @@ public class MetadataService {
     }
 
     /**
-     * 3. Command Pattern: Encapsulates and executes DDL Commands and persists state to metadata.json.
+     * 3. Command Pattern: Instantiates concrete DDLCommand objects from request string,
+     * executes them via MetadataModule Facade, and persists state to metadata.json.
      */
     public void executeDDL(DDLRequestDTO request) {
         if (request == null || request.getCommandType() == null) {
@@ -65,14 +68,38 @@ public class MetadataService {
 
         String commandType = request.getCommandType();
         String dbName = request.getDatabaseName();
+        String schemaName = request.getSchemaName();
+        String tableName = request.getTableName();
 
-        if ("CREATE_DATABASE".equalsIgnoreCase(commandType) && dbName != null) {
-            metadataModuleRepository.getCatalogManager().createDatabase(dbName);
-        } else if ("DROP_DATABASE".equalsIgnoreCase(commandType) && dbName != null) {
-            metadataModuleRepository.getCatalogManager().dropDatabase(dbName);
+        DDLCommand command;
+
+        switch (commandType.toUpperCase()) {
+            case "CREATE_DATABASE":
+                command = new CreateDatabaseCommand(dbName);
+                break;
+            case "DROP_DATABASE":
+                command = new DropDatabaseCommand(dbName);
+                break;
+            case "CREATE_SCHEMA":
+                command = new CreateSchemaCommand(dbName, schemaName);
+                break;
+            case "DROP_SCHEMA":
+                command = new DropSchemaCommand(dbName, schemaName);
+                break;
+            case "CREATE_TABLE":
+                command = new CreateTableCommand(dbName, schemaName, tableName);
+                break;
+            case "DROP_TABLE":
+                command = new DropTableCommand(dbName, schemaName, tableName);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported DDL command type: " + commandType);
         }
 
-        // Persist memory state to metadata.json
+        // Execute concrete Command object via MetadataModule Facade
+        MetadataModule.getInstance().executeDDL(command);
+
+        // Persist memory state back to metadata.json
         metadataModuleRepository.saveCatalogManager();
     }
 }
