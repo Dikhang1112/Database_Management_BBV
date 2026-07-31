@@ -1,19 +1,19 @@
 package dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class DDLRequestDTO {
+    @Schema(description = "Loại lệnh DDL (CREATE_DATABASE, DROP_DATABASE, CREATE_SCHEMA, DROP_SCHEMA, CREATE_TABLE, DROP_TABLE)", example = "CREATE_DATABASE")
     private String commandType;
+
+    @Schema(description = "Tên Database", example = "sales_db")
     private String databaseName;
+
+    @Schema(description = "Tên Schema", example = "public")
     private String schemaName;
+
+    @Schema(description = "Tên Table", example = "users")
     private String tableName;
-
-    public DDLRequestDTO() {}
-
-    public DDLRequestDTO(String commandType, String databaseName, String schemaName, String tableName) {
-        this.commandType = commandType;
-        this.databaseName = databaseName;
-        this.schemaName = schemaName;
-        this.tableName = tableName;
-    }
 
     public String getCommandType() {
         return commandType;

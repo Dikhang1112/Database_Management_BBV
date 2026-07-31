@@ -1,16 +1,25 @@
 package dto;
 
 import entity.metadata.domain.Column;
+import entity.metadata.enums.DataType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class ColumnDTO {
+    @Schema(description = "Tên Cột", example = "username")
     private final String columnName;
-    private final String dataType;
+
+    @Schema(description = "Kiểu dữ liệu của Cột", example = "VARCHAR")
+    private final DataType dataType;
+
+    @Schema(description = "Cho phép nhận giá trị Null hay không", example = "false")
     private final boolean isNullable;
+
+    @Schema(description = "Giá trị mặc định", example = "null")
     private final String defaultValue;
 
     public ColumnDTO(Column column) {
         this.columnName = column.getColumnName();
-        this.dataType = column.getDataType() != null ? column.getDataType().name() : "UNKNOWN";
+        this.dataType = column.getDataType();
         this.isNullable = column.isNullable();
         this.defaultValue = column.getDefaultValue();
     }
@@ -19,7 +28,7 @@ public class ColumnDTO {
         return columnName;
     }
 
-    public String getDataType() {
+    public DataType getDataType() {
         return dataType;
     }
 

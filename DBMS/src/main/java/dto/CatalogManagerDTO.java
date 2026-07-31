@@ -2,13 +2,22 @@ package dto;
 
 import entity.metadata.domain.CatalogManager;
 import entity.metadata.domain.Database;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
 public class CatalogManagerDTO {
+
+    @Schema(description = "Tên thành phần Metadata Element", example = "CatalogManager")
     private final String elementName;
+
+    @Schema(description = "Loại thành phần Metadata", example = "CatalogManager")
     private final String elementType;
+
+    @Schema(description = "Tổng số Database trong Catalog", example = "2")
     private final int totalDatabases;
+
+    @Schema(description = "Danh sách các Database hiện có", example = "[\"sales_db\", \"inventory_db\"]")
     private final List<String> databases;
 
     public CatalogManagerDTO(CatalogManager catalogManager) {

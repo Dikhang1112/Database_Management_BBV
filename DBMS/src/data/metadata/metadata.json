@@ -1,0 +1,172 @@
+{
+  "catalogName": "MainCatalogManager",
+  "totalDatabases": 2,
+  "databases": [
+    {
+      "databaseName": "sales_db",
+      "status": "ONLINE",
+      "schemaCount": 2,
+      "schemas": [
+        {
+          "schemaName": "public",
+          "readOnly": false,
+          "tables": [
+            {
+              "tableName": "users",
+              "locked": false,
+              "columnCount": 3,
+              "columns": [
+                {
+                  "columnName": "id",
+                  "dataType": "INT",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "username",
+                  "dataType": "VARCHAR",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "email",
+                  "dataType": "VARCHAR",
+                  "isNullable": true,
+                  "defaultValue": null
+                }
+              ],
+              "constraints": [
+                {
+                  "constraintName": "pk_users",
+                  "constraintType": "PRIMARY_KEY",
+                  "columns": ["id"]
+                }
+              ],
+              "indexes": [
+                {
+                  "indexName": "idx_users_username",
+                  "indexType": "BTREE",
+                  "columnName": "username",
+                  "enabled": true
+                }
+              ]
+            },
+            {
+              "tableName": "orders",
+              "locked": false,
+              "columnCount": 3,
+              "columns": [
+                {
+                  "columnName": "order_id",
+                  "dataType": "INT",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "user_id",
+                  "dataType": "INT",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "amount",
+                  "dataType": "DECIMAL",
+                  "isNullable": false,
+                  "defaultValue": "0.00"
+                }
+              ],
+              "constraints": [
+                {
+                  "constraintName": "pk_orders",
+                  "constraintType": "PRIMARY_KEY",
+                  "columns": ["order_id"]
+                }
+              ],
+              "indexes": []
+            }
+          ]
+        },
+        {
+          "schemaName": "audit",
+          "readOnly": true,
+          "tables": [
+            {
+              "tableName": "logs",
+              "locked": false,
+              "columnCount": 2,
+              "columns": [
+                {
+                  "columnName": "log_id",
+                  "dataType": "BIGINT",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "action",
+                  "dataType": "VARCHAR",
+                  "isNullable": false,
+                  "defaultValue": null
+                }
+              ],
+              "constraints": [],
+              "indexes": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "databaseName": "inventory_db",
+      "status": "ONLINE",
+      "schemaCount": 1,
+      "schemas": [
+        {
+          "schemaName": "public",
+          "readOnly": false,
+          "tables": [
+            {
+              "tableName": "products",
+              "locked": false,
+              "columnCount": 3,
+              "columns": [
+                {
+                  "columnName": "product_id",
+                  "dataType": "INT",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "product_name",
+                  "dataType": "VARCHAR",
+                  "isNullable": false,
+                  "defaultValue": null
+                },
+                {
+                  "columnName": "stock_quantity",
+                  "dataType": "INT",
+                  "isNullable": false,
+                  "defaultValue": "0"
+                }
+              ],
+              "constraints": [
+                {
+                  "constraintName": "pk_products",
+                  "constraintType": "PRIMARY_KEY",
+                  "columns": ["product_id"]
+                }
+              ],
+              "indexes": [
+                {
+                  "indexName": "idx_product_name",
+                  "indexType": "BTREE",
+                  "columnName": "product_name",
+                  "enabled": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

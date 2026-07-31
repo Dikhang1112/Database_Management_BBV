@@ -1,6 +1,8 @@
 package services;
 
-import metadata.facade.MetadataModule;
+import entity.metadata.facade.MetadataModule;
+import repositories.MetadataModuleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
