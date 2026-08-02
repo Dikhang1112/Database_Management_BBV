@@ -2,9 +2,9 @@
 # 1. CẤU HÌNH SERVER WEB (Tomcat nhúng mặc định)
 # ===================================================================
 server:
-  port: 8081 # Cổng chạy ứng dụng
+  port: 8000 # Cổng chạy ứng dụng
   servlet:
-    context-path: /
+    context-path: /online-store
   error:
     include-message: always
     include-binding-errors: always

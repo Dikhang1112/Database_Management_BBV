@@ -1,0 +1,112 @@
+[
+    {
+        "id": 1,
+        "companyName": "Figma",
+        "website": "https://figma.com",
+        "industry": "Design Tools",
+        "description": "Collaborative interface design platform.",
+        "subscriptionPlan": "ENTERPRISE",
+        "status": "ACTIVE",
+        "createdAt": "2026-01-15T09:00:00",
+        "updatedAt": "2026-07-20T15:30:00"
+    },
+    {
+        "id": 2,
+        "companyName": "Stripe",
+        "website": "https://stripe.com",
+        "industry": "Financial Services",
+        "description": "Online payment platform.",
+        "subscriptionPlan": "ENTERPRISE",
+        "status": "ACTIVE",
+        "createdAt": "2026-01-20T10:00:00",
+        "updatedAt": "2026-07-18T14:20:00"
+    },
+    {
+        "id": 3,
+        "companyName": "Slack",
+        "website": "https://slack.com",
+        "industry": "Communication",
+        "description": "Business communication platform.",
+        "subscriptionPlan": "PROFESSIONAL",
+        "status": "ACTIVE",
+        "createdAt": "2026-02-01T08:30:00",
+        "updatedAt": "2026-07-17T09:10:00"
+    },
+    {
+        "id": 4,
+        "companyName": "Notion",
+        "website": "https://notion.so",
+        "industry": "Productivity",
+        "description": "All-in-one workspace.",
+        "subscriptionPlan": "PROFESSIONAL",
+        "status": "ACTIVE",
+        "createdAt": "2026-02-15T11:00:00",
+        "updatedAt": "2026-07-19T12:00:00"
+    },
+    {
+        "id": 5,
+        "companyName": "GitHub",
+        "website": "https://github.com",
+        "industry": "Software Development",
+        "description": "Code hosting platform.",
+        "subscriptionPlan": "ENTERPRISE",
+        "status": "ACTIVE",
+        "createdAt": "2026-03-01T09:15:00",
+        "updatedAt": "2026-07-21T10:00:00"
+    },
+    {
+        "id": 6,
+        "companyName": "Dropbox",
+        "website": "https://dropbox.com",
+        "industry": "Cloud Storage",
+        "description": "Cloud file storage service.",
+        "subscriptionPlan": "STARTER",
+        "status": "ACTIVE",
+        "createdAt": "2026-03-20T13:00:00",
+        "updatedAt": "2026-07-16T08:45:00"
+    },
+    {
+        "id": 7,
+        "companyName": "Zoom",
+        "website": "https://zoom.us",
+        "industry": "Video Conferencing",
+        "description": "Video meetings platform.",
+        "subscriptionPlan": "PROFESSIONAL",
+        "status": "ACTIVE",
+        "createdAt": "2026-04-10T10:30:00",
+        "updatedAt": "2026-07-22T09:20:00"
+    },
+    {
+        "id": 8,
+        "companyName": "Canva",
+        "website": "https://canva.com",
+        "industry": "Graphic Design",
+        "description": "Online graphic design platform.",
+        "subscriptionPlan": "STARTER",
+        "status": "ACTIVE",
+        "createdAt": "2026-04-25T14:20:00",
+        "updatedAt": "2026-07-20T16:10:00"
+    },
+    {
+        "id": 9,
+        "companyName": "Atlassian",
+        "website": "https://atlassian.com",
+        "industry": "Software Tools",
+        "description": "Developer productivity tools.",
+        "subscriptionPlan": "ENTERPRISE",
+        "status": "ACTIVE",
+        "createdAt": "2026-05-05T09:40:00",
+        "updatedAt": "2026-07-18T11:50:00"
+    },
+    {
+        "id": 10,
+        "companyName": "Linear",
+        "website": "https://linear.app",
+        "industry": "Project Management",
+        "description": "Issue tracking software.",
+        "subscriptionPlan": "PROFESSIONAL",
+        "status": "INACTIVE",
+        "createdAt": "2026-05-20T15:00:00",
+        "updatedAt": "2026-07-10T10:30:00"
+    }
+]
