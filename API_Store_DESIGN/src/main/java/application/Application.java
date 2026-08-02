@@ -3,7 +3,7 @@ package application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"controllers", "services", "repositories", "pojo"})
+@SpringBootApplication(scanBasePackages = {"application", "configs", "controllers", "services", "repositories", "pojo", "dto"})
 public class Application {
 
     public static void main(String[] args) {
