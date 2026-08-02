@@ -1,0 +1,50 @@
+# ===================================================================
+# 1. CẤU HÌNH SERVER WEB (Tomcat nhúng mặc định)
+# ===================================================================
+server:
+  port: 8000 # Cổng chạy ứng dụng
+  servlet:
+    context-path: /online-store
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ===================================================================
+# CẤU HÌNH SPRING CORE & RESTFUL API (JACKSON JSON)
+# ===================================================================
+spring:
+  application:
+    name: my-spring-app
+
+  main:
+    web-application-type: servlet
+
+  # Sửa lại độ thụt lề (indent) thẳng hàng với 'main' hoặc 'jackson' để tránh lỗi cú pháp YAML
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
+  # Cấu hình chuẩn hóa định dạng JSON trả về từ REST API
+  jackson:
+    default-property-inclusion: non_null # Tự động loại bỏ các field bị null khỏi JSON Response
+    date-format: "dd/MM/yyyy HH:mm:ss" # Format ngày giờ chuẩn (dd/MM/yyyy HH:mm:ss)
+    time-zone: "Asia/Ho_Chi_Minh" # Múi giờ Việt Nam
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs # Đường dẫn sinh file JSON OpenAPI
+  swagger-ui:
+    path: /swagger-ui.html # Đường dẫn truy cập giao diện Swagger UI
+    operations-sorter: method # Sắp xếp các API theo phương thức HTTP (GET, POST, PUT, DELETE)
+    tags-sorter: alpha
+
+# ===================================================================
+# CẤU HÌNH LOGGING
+# ===================================================================
+logging:
+  level:
+    root: INFO
+    com.yourpackage: DEBUG # Sửa thành package của bạn
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG

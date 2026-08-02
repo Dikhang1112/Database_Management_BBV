@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "companyName": "Figma",
+    "website": "https://figma.com",
+    "product": "Design Tools",
+    "description": "Collaborative interface design platform.",
+    "status": "ACTIVE",
+    "createdAt": "15/01/2026 09:00:00",
+    "updatedAt": "20/07/2026 15:30:00"
+  },
+  {
+    "id": 2,
+    "companyName": "Stripe",
+    "website": "https://stripe.com",
+    "product": "Financial Services",
+    "description": "Online payment platform.",
+    "status": "ACTIVE",
+    "createdAt": "20/01/2026 10:00:00",
+    "updatedAt": "18/07/2026 14:20:00"
+  },
+  {
+    "id": 3,
+    "companyName": "Slack",
+    "website": "https://slack.com",
+    "product": "Communication",
+    "description": "Business communication platform.",
+    "status": "ACTIVE",
+    "createdAt": "01/02/2026 08:30:00",
+    "updatedAt": "17/07/2026 09:10:00"
+  },
+  {
+    "id": 4,
+    "companyName": "Notion",
+    "website": "https://notion.so",
+    "product": "Productivity",
+    "description": "All-in-one workspace.",
+    "status": "ACTIVE",
+    "createdAt": "15/02/2026 11:00:00",
+    "updatedAt": "19/07/2026 12:00:00"
+  },
+  {
+    "id": 5,
+    "companyName": "GitHub",
+    "website": "https://github.com",
+    "product": "Software Development",
+    "description": "Code hosting platform.",
+    "status": "ACTIVE",
+    "createdAt": "01/03/2026 09:15:00",
+    "updatedAt": "21/07/2026 10:00:00"
+  },
+  {
+    "id": 6,
+    "companyName": "Dropbox",
+    "website": "https://dropbox.com",
+    "product": "Cloud Storage",
+    "description": "Cloud file storage service.",
+    "status": "ACTIVE",
+    "createdAt": "20/03/2026 13:00:00",
+    "updatedAt": "16/07/2026 08:45:00"
+  },
+  {
+    "id": 7,
+    "companyName": "Zoom",
+    "website": "https://zoom.us",
+    "product": "Video Conferencing",
+    "description": "Video meetings platform.",
+    "status": "ACTIVE",
+    "createdAt": "10/04/2026 10:30:00",
+    "updatedAt": "22/07/2026 09:20:00"
+  },
+  {
+    "id": 8,
+    "companyName": "Canva",
+    "website": "https://canva.com",
+    "product": "Graphic Design",
+    "description": "Online graphic design platform.",
+    "status": "ACTIVE",
+    "createdAt": "25/04/2026 14:20:00",
+    "updatedAt": "20/07/2026 16:10:00"
+  },
+  {
+    "id": 9,
+    "companyName": "Atlassian",
+    "website": "https://atlassian.com",
+    "product": "Software Tools",
+    "description": "Developer productivity tools.",
+    "status": "ACTIVE",
+    "createdAt": "05/05/2026 09:40:00",
+    "updatedAt": "18/07/2026 11:50:00"
+  },
+  {
+    "id": 10,
+    "companyName": "Linear",
+    "website": "https://linear.app",
+    "product": "Project Management",
+    "description": "Issue tracking software.",
+    "status": "INACTIVE",
+    "createdAt": "20/05/2026 15:00:00",
+    "updatedAt": "10/07/2026 10:30:00"
+  }
+]
