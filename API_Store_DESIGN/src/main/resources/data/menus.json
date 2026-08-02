@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "parentId": null,
+    "title": "Overview",
+    "icon": "dashboard",
+    "path": "/overview",
+    "displayOrder": 1,
+    "type": "MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 2,
+    "parentId": null,
+    "title": "Store",
+    "icon": "store",
+    "path": "/store",
+    "displayOrder": 2,
+    "type": "MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 3,
+    "parentId": 2,
+    "title": "Products",
+    "icon": "shopping-bag",
+    "path": "/store/products",
+    "displayOrder": 1,
+    "type": "SUB_MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 4,
+    "parentId": 2,
+    "title": "Orders",
+    "icon": "shopping-cart",
+    "path": "/store/orders",
+    "displayOrder": 2,
+    "type": "SUB_MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 5,
+    "parentId": 2,
+    "title": "Subscriptions",
+    "icon": "repeat",
+    "path": "/store/subscriptions",
+    "displayOrder": 3,
+    "type": "SUB_MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 6,
+    "parentId": 2,
+    "title": "Discounts",
+    "icon": "percent",
+    "path": "/store/discounts",
+    "displayOrder": 4,
+    "type": "SUB_MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 7,
+    "parentId": 2,
+    "title": "Licenses",
+    "icon": "key",
+    "path": "/store/licenses",
+    "displayOrder": 5,
+    "type": "SUB_MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 8,
+    "parentId": null,
+    "title": "Email",
+    "icon": "mail",
+    "path": "/email",
+    "displayOrder": 3,
+    "type": "MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 9,
+    "parentId": null,
+    "title": "Report",
+    "icon": "bar-chart",
+    "path": "/report",
+    "displayOrder": 4,
+    "type": "MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 10,
+    "parentId": null,
+    "title": "Design",
+    "icon": "palette",
+    "path": "/design",
+    "displayOrder": 5,
+    "type": "MENU",
+    "status": "OPENED"
+  },
+  {
+    "id": 11,
+    "parentId": null,
+    "title": "Setting",
+    "icon": "settings",
+    "path": "/setting",
+    "displayOrder": 6,
+    "type": "MENU",
+    "status": "OPENED"
+  }
+]
