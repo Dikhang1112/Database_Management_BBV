@@ -22,7 +22,6 @@ public class Customer {
     private String website;
     private String industry;
     private String description;
-    private SubscriptionPlan subscriptionPlan;
     private CustomerStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
