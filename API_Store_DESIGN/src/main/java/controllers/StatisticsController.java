@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,5 +51,25 @@ public class StatisticsController {
     @GetMapping
     public ResponseEntity<DashboardStatistics> getOverallStatistics() {
         return ResponseEntity.ok(statisticsService.getOverallStatistics());
+    }
+
+    // =====================================================
+    // EXPORT DASHBOARD STATISTICS API (MOCK)
+    // =====================================================
+
+    @Operation(summary = "Export dashboard statistics report", description = "Export dashboard statistics data as CSV/Excel report")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Statistics report exported successfully",
+                    content = @Content(mediaType = "text/csv")
+            )
+    })
+    @org.springframework.web.bind.annotation.PostMapping("/export")
+    public ResponseEntity<String> exportStatistics() {
+        String csvContent = "totalCustomers,totalUsers,totalActiveUsers\n10,10,7";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"statistics_report.csv\"")
+                .body(csvContent);
     }
 }

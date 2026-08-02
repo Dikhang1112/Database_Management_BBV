@@ -19,10 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pojo.User;
 import services.UserService;
 
@@ -238,5 +235,74 @@ public class AuthController {
     public ResponseEntity<?> logout() {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok(Map.of("status", 200, "message", "Logged out successfully"));
+    }
+
+    // =====================================================
+    // VIEW PROFILE API (MOCK)
+    // =====================================================
+
+    @Operation(summary = "View current user profile", description = "Retrieve profile details of currently authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully retrieved user profile",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ViewProfileExample",
+                                    value = """
+                                            {
+                                              "id": 1,
+                                              "firstName": "John",
+                                              "lastName": "Smith",
+                                              "email": "john@figma.com",
+                                              "phone": "+1-202-555-0101",
+                                              "role": "OWNER",
+                                              "status": "ACTIVE"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    @GetMapping("/profile")
+    public ResponseEntity<?> viewProfile() {
+        return ResponseEntity.ok(Map.of(
+                "id", 1,
+                "firstName", "John",
+                "lastName", "Smith",
+                "email", "john@figma.com",
+                "phone", "+1-202-555-0101",
+                "role", "OWNER",
+                "status", "ACTIVE"
+        ));
+    }
+
+    // =====================================================
+    // ACCOUNT SETTINGS / PROFILE UPDATE API (MOCK)
+    // =====================================================
+
+    @Operation(summary = "Update account settings / profile", description = "Update account settings or profile details for authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Account settings updated successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "UpdateProfileExample",
+                                    value = """
+                                            {
+                                              "status": 200,
+                                              "message": "Account settings updated successfully"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    @org.springframework.web.bind.annotation.PutMapping("/profile")
+    public ResponseEntity<?> updateAccountSettings() {
+        return ResponseEntity.ok(Map.of("status", 200, "message", "Account settings updated successfully"));
     }
 }

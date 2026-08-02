@@ -219,4 +219,24 @@ public class CustomerController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    // =====================================================
+    // DOWNLOAD LIST CUSTOMER API (MOCK)
+    // =====================================================
+
+    @Operation(summary = "Download customer list", description = "Export and download complete customer list as CSV format")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer list exported successfully",
+                    content = @Content(mediaType = "text/csv")
+            )
+    })
+    @PostMapping("/downloadListCustomer")
+    public ResponseEntity<String> downloadCustomerList() {
+        String csvContent = "id,companyName,product,status\n1,Figma,Design Tools,OPENED\n2,Stripe,Financial Services,OPENED";
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"customers.csv\"")
+                .body(csvContent);
+    }
 }
