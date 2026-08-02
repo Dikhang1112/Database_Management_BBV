@@ -9,6 +9,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=1",
     "role": "OWNER",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:10:00",
     "createdAt": "15/01/2026 09:00:00",
     "updatedAt": "20/07/2026 15:30:00"
@@ -23,6 +24,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=2",
     "role": "ADMIN",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:12:00",
     "createdAt": "16/01/2026 10:00:00",
     "updatedAt": "20/07/2026 15:30:00"
@@ -37,6 +39,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=3",
     "role": "OWNER",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:20:00",
     "createdAt": "20/01/2026 10:00:00",
     "updatedAt": "18/07/2026 14:20:00"
@@ -51,6 +54,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=4",
     "role": "CLIENT",
     "status": "INACTIVE",
+    "active": false,
     "lastLoginAt": "01/08/2026 18:30:00",
     "createdAt": "01/02/2026 08:30:00",
     "updatedAt": "17/07/2026 09:10:00"
@@ -65,6 +69,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=5",
     "role": "CLIENT",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 07:55:00",
     "createdAt": "15/02/2026 11:00:00",
     "updatedAt": "19/07/2026 12:00:00"
@@ -79,6 +84,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=6",
     "role": "OWNER",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:30:00",
     "createdAt": "01/03/2026 09:15:00",
     "updatedAt": "21/07/2026 10:00:00"
@@ -93,6 +99,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=7",
     "role": "CLIENT",
     "status": "INACTIVE",
+    "active": false,
     "lastLoginAt": "01/08/2026 19:00:00",
     "createdAt": "20/03/2026 13:00:00",
     "updatedAt": "16/07/2026 08:45:00"
@@ -107,6 +114,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=8",
     "role": "ADMIN",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:05:00",
     "createdAt": "10/04/2026 10:30:00",
     "updatedAt": "22/07/2026 09:20:00"
@@ -121,6 +129,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=9",
     "role": "CLIENT",
     "status": "ACTIVE",
+    "active": true,
     "lastLoginAt": "02/08/2026 08:15:00",
     "createdAt": "25/04/2026 14:20:00",
     "updatedAt": "20/07/2026 16:10:00"
@@ -135,6 +144,7 @@
     "avatarUrl": "https://i.pravatar.cc/150?img=10",
     "role": "CLIENT",
     "status": "BLOCKED",
+    "active": false,
     "lastLoginAt": "20/07/2026 09:00:00",
     "createdAt": "20/05/2026 15:00:00",
     "updatedAt": "10/07/2026 10:30:00"

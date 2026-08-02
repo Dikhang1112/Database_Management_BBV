@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 import pojo.User;
 import pojo.UserStatus;
@@ -36,25 +37,15 @@ public class UserRepository {
 
     @PostConstruct
     public void loadMockData() {
-
-        try (InputStream inputStream = getClass()
-                .getClassLoader()
-                .getResourceAsStream("data/users.json")) {
-
-            if (inputStream == null) {
-                throw new RuntimeException("Cannot find mock/users.json");
-            }
-
+        try (InputStream inputStream = new ClassPathResource("data/users.json").getInputStream()) {
             List<User> mockUsers = objectMapper.readValue(
                     inputStream,
-                    new TypeReference<List<User>>() {
-                    });
-
+                    new TypeReference<List<User>>() {}
+            );
             users.clear();
             users.addAll(mockUsers);
-
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load users.json", e);
+            throw new RuntimeException("Failed to load data/users.json", e);
         }
     }
 
@@ -99,13 +90,19 @@ public class UserRepository {
     // Aggregate
     // =====================================================
 
-    public long count() {
+    public long countTotalUsers() {
         return users.size();
     }
 
     public long countByStatus(UserStatus status) {
         return users.stream()
                 .filter(user -> user.getStatus() == status)
+                .count();
+    }
+
+    public long countTotalActiveUsers() {
+        return users.stream()
+                .filter(user -> Boolean.TRUE.equals(user.getActive()) || user.getStatus() == UserStatus.ACTIVE)
                 .count();
     }
 

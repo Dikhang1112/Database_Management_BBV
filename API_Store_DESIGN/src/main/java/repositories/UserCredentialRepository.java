@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import pojo.UserCredential;
@@ -37,10 +38,7 @@ public class UserCredentialRepository {
 
     @PostConstruct
     public void loadMockData() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("data/user_credential.json")) {
-            if (inputStream == null) {
-                throw new RuntimeException("Cannot find data/user_credential.json");
-            }
+        try (InputStream inputStream = new ClassPathResource("data/user_credential.json").getInputStream()) {
             List<UserCredential> mockCredentials = objectMapper.readValue(
                     inputStream,
                     new TypeReference<List<UserCredential>>() {}
@@ -54,7 +52,7 @@ public class UserCredentialRepository {
             credentials.clear();
             credentials.addAll(mockCredentials);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load user_credential.json", e);
+            throw new RuntimeException("Failed to load data/user_credential.json", e);
         }
     }
 

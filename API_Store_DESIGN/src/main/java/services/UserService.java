@@ -75,4 +75,16 @@ public class UserService {
     public void deleteAll() {
         userRepository.deleteAll();
     }
+
+    // =====================================================
+    // Aggregate / Statistics Operations
+    // =====================================================
+
+    public long countTotalUsers() {
+        return userRepository.countTotalUsers();
+    }
+
+    public long countTotalActiveUsers() {
+        return userRepository.countTotalActiveUsers();
+    }
 }
