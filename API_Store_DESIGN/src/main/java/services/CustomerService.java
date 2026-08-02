@@ -1,10 +1,10 @@
 package services;
 
+import dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pojo.Customer;
 import repositories.CustomerRepository;
-import repositories.UserRepository;
 
 import java.util.List;
 
@@ -13,10 +13,9 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final UserRepository userRepository;
 
     // =====================================================
-    // CRUD Operations
+    // CRUD & Search Operations
     // =====================================================
 
     public List<Customer> findAll() {
@@ -32,6 +31,10 @@ public class CustomerService {
         return customerRepository.search(companyName, product);
     }
 
+    public PageResponse<Customer> findPaginated(String companyName, String product, int page, int size) {
+        return customerRepository.findPaginated(companyName, product, page, size);
+    }
+
     public Customer create(Customer customer) {
         return customerRepository.save(customer);
     }
@@ -43,21 +46,5 @@ public class CustomerService {
 
     public boolean delete(Long id) {
         return customerRepository.deleteById(id);
-    }
-
-    // =====================================================
-    // Statistics & Aggregations
-    // =====================================================
-
-    public long countTotalCustomers() {
-        return customerRepository.countTotalCustomers();
-    }
-
-    public long countTotalUsers() {
-        return userRepository.countTotalUsers();
-    }
-
-    public long countTotalActiveUsers() {
-        return userRepository.countTotalActiveUsers();
     }
 }

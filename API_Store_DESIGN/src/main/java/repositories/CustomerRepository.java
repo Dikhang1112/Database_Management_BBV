@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import dto.PageResponse;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 import pojo.Customer;
@@ -14,9 +15,9 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class CustomerRepository {
@@ -61,14 +62,45 @@ public class CustomerRepository {
 
     public List<Customer> search(String companyName, String product) {
         return customers.stream()
-                .filter(cust -> {
-                    boolean matchName = (companyName == null || companyName.isBlank()) ||
-                            (cust.getCompanyName() != null && cust.getCompanyName().toLowerCase().contains(companyName.trim().toLowerCase()));
-                    boolean matchProduct = (product == null || product.isBlank()) ||
-                            (cust.getProduct() != null && cust.getProduct().toLowerCase().contains(product.trim().toLowerCase()));
-                    return matchName && matchProduct;
-                })
-                .collect(Collectors.toList());
+                .filter(customer ->
+                        contains(customer.getCompanyName(), companyName)
+                                && contains(customer.getProduct(), product)
+                )
+                .toList();
+    }
+
+    public PageResponse<Customer> findPaginated(String companyName, String product, int page, int size) {
+        List<Customer> filteredList = search(companyName, product);
+        int pageNum = Math.max(1, page);
+        int pageSize = size <= 0 ? 5 : size;
+        int totalElements = filteredList.size();
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+        int fromIndex = (pageNum - 1) * pageSize;
+        List<Customer> pageContent;
+        if (fromIndex >= totalElements) {
+            pageContent = Collections.emptyList();
+        } else {
+            int toIndex = Math.min(fromIndex + pageSize, totalElements);
+            pageContent = filteredList.subList(fromIndex, toIndex);
+        }
+
+        return PageResponse.<Customer>builder()
+                .data(pageContent)
+                .page(pageNum)
+                .size(pageSize)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .last(pageNum >= totalPages)
+                .build();
+    }
+
+    private boolean contains(String value, String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return true;
+        }
+        return value != null
+                && value.toLowerCase()
+                .contains(keyword.trim().toLowerCase());
     }
 
     public Customer save(Customer customer) {

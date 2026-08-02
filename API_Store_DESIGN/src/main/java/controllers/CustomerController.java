@@ -1,8 +1,8 @@
 package controllers;
 
+import dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import pojo.Customer;
 import services.CustomerService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
@@ -29,54 +27,52 @@ public class CustomerController {
     private final CustomerService customerService;
 
     // =====================================================
-    // GET ALL / SEARCH CUSTOMERS
+    // GET ALL / SEARCH CUSTOMERS (PAGINATED)
     // =====================================================
 
-    @Operation(summary = "Get all customers or search by query parameters", description = "Retrieve list of customers, with optional filtering by companyName and product")
+    @Operation(summary = "Get paginated customers list", description = "Retrieve paginated list of customers (default 5 items per page), with optional search filters")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successfully retrieved customers list",
+                    description = "Successfully retrieved paginated customers list",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Customer.class)),
+                            schema = @Schema(implementation = PageResponse.class),
                             examples = @ExampleObject(
-                                    name = "CustomersListExample",
-                                    summary = "Sample customers array",
+                                    name = "CustomersPageExample",
+                                    summary = "Sample paginated customers response",
                                     value = """
-                                            [
-                                              {
-                                                "id": 1,
-                                                "companyName": "Figma",
-                                                "website": "https://figma.com",
-                                                "product": "Design Tools",
-                                                "description": "Collaborative interface design platform.",
-                                                "status": "ACTIVE",
-                                                "createdAt": "15/01/2026 09:00:00",
-                                                "updatedAt": "20/07/2026 15:30:00"
-                                              },
-                                              {
-                                                "id": 2,
-                                                "companyName": "Stripe",
-                                                "website": "https://stripe.com",
-                                                "product": "Financial Services",
-                                                "description": "Online payment platform.",
-                                                "status": "ACTIVE",
-                                                "createdAt": "20/01/2026 10:00:00",
-                                                "updatedAt": "18/07/2026 14:20:00"
-                                              }
-                                            ]
+                                            {
+                                              "data": [
+                                                {
+                                                  "id": 1,
+                                                  "companyName": "Figma",
+                                                  "website": "https://figma.com",
+                                                  "product": "Design Tools",
+                                                  "description": "Collaborative interface design platform.",
+                                                  "status": "ACTIVE",
+                                                  "createdAt": "15/01/2026 09:00:00",
+                                                  "updatedAt": "20/07/2026 15:30:00"
+                                                }
+                                              ],
+                                              "page": 1,
+                                              "size": 5,
+                                              "totalElements": 10,
+                                              "totalPages": 2,
+                                              "last": false
+                                            }
                                             """
                             )
                     )
             )
     })
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers(@Parameter(description = "Filter by company name") @RequestParam(required = false) String companyName, @Parameter(description = "Filter by product category") @RequestParam(required = false) String product) {
-        if ((companyName != null && !companyName.isBlank()) || (product != null && !product.isBlank())) {
-            return ResponseEntity.ok(customerService.search(companyName, product));
-        }
-        return ResponseEntity.ok(customerService.findAll());
+    public ResponseEntity<PageResponse<Customer>> getAllCustomers
+            (@Parameter(description = "Filter by company name") @RequestParam(required = false) String companyName, @Parameter(description = "Filter by product category")
+    @RequestParam(required = false) String product, @Parameter(description = "Page number (default 1)")
+    @RequestParam(defaultValue = "1") int page, @Parameter(description = "Page size (default 5)")
+    @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(customerService.findPaginated(companyName, product, page, size));
     }
 
     // =====================================================
