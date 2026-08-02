@@ -17,6 +17,9 @@ public class AuthResponse {
     @Schema(description = "JWT Access Token", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String accessToken;
 
+    @Schema(description = "JWT Refresh Token", example = "eyJhbGciOiJIUzI1NiJ9...")
+    private String refreshToken;
+
     @Schema(description = "Token Type", example = "Bearer")
     @Builder.Default
     private String tokenType = "Bearer";

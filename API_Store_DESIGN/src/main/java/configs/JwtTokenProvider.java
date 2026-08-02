@@ -18,8 +18,11 @@ public class JwtTokenProvider {
     @Value("${app.jwt.secret:9a2f8c4e7b1d6e3f5a0b4c8d2e6f9a1b3c5d7e9f0a2b4c6d8e1f3a5b7c9d0e2f}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration-ms:86400000}")
+    @Value("${app.jwt.expiration-ms:86400000}") // 1 days
     private long jwtExpirationMs;
+
+    @Value("${app.jwt.refresh-expiration-ms:604800000}") // 7 days
+    private long jwtRefreshExpirationMs;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
@@ -27,8 +30,24 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
         String email = authentication.getName();
+        return generateTokenFromEmail(email);
+    }
+
+    public String generateTokenFromEmail(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtRefreshExpirationMs);
 
         return Jwts.builder()
                 .subject(email)
