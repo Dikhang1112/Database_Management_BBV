@@ -33,9 +33,9 @@ spring:
 
 springdoc:
   api-docs:
-    path: /v3/api-docs # Đường dẫn sinh file JSON OpenAPI
+    path: /v1/openapi # Đường dẫn sinh file JSON OpenAPI
   swagger-ui:
-    path: /swagger-ui.html # Đường dẫn truy cập giao diện Swagger UI
+    path: /v1/swagger-ui.html # Đường dẫn truy cập giao diện Swagger UI
     operations-sorter: method # Sắp xếp các API theo phương thức HTTP (GET, POST, PUT, DELETE)
     tags-sorter: alpha
 
