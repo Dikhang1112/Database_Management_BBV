@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import services.StatisticsService;
@@ -65,7 +66,7 @@ public class StatisticsController {
                     content = @Content(mediaType = "text/csv")
             )
     })
-    @org.springframework.web.bind.annotation.PostMapping("/export")
+    @PostMapping("/export")
     public ResponseEntity<String> exportStatistics() {
         String csvContent = "totalCustomers,totalUsers,totalActiveUsers\n10,10,7";
         return ResponseEntity.ok()
